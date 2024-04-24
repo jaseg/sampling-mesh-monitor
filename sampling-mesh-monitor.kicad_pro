@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.1,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.5
+          "min_clearance": 0.15
         }
       },
       "diff_pair_dimensions": [
@@ -58,7 +58,48 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "clearance|158325000|85875000|023006b8-c79a-496d-9c66-2136cd86c625|71e78c12-b352-48d9-b735-79b9813a157c",
+          "Can't help it, that's the pitch of the chip."
+        ],
+        [
+          "clearance|158825000|85875000|71e78c12-b352-48d9-b735-79b9813a157c|8f5fca23-d8a2-44b0-9a63-bba5298c66d8",
+          "Can't help it, that's the pitch of the chip."
+        ],
+        [
+          "clearance|159325000|85875000|8f5fca23-d8a2-44b0-9a63-bba5298c66d8|1b873d85-f80e-4439-a79a-16cf7e7aa203",
+          "Can't help it, that's the pitch of the chip."
+        ],
+        [
+          "clearance|159825000|85875000|1b873d85-f80e-4439-a79a-16cf7e7aa203|9a7a5cf8-f1d2-48ae-ba7a-515ae57d966a",
+          "Can't help it, that's the pitch of the chip."
+        ],
+        [
+          "clearance|160325000|85875000|9a7a5cf8-f1d2-48ae-ba7a-515ae57d966a|a5148295-a88c-46d9-ad7b-b19897a78f4b",
+          "Can't help it, that's the pitch of the chip."
+        ],
+        [
+          "hole_clearance|183255000|77450000|b1beb2bd-9487-4c78-a442-cbff157aa840|99c7081f-1b49-45c0-b34e-c9a64b6170f4",
+          "That's just how the connector is."
+        ],
+        [
+          "hole_clearance|183255000|77450000|d4e4950c-a97b-485d-9d93-e5185c5d9e04|99c7081f-1b49-45c0-b34e-c9a64b6170f4",
+          "That's just how the connector is."
+        ],
+        [
+          "hole_clearance|183255000|83550000|4b551696-c71f-4b20-8f6d-2cafb7acaa31|a54ac5f0-1345-41f1-86a3-4eb3df42f4cd",
+          "That's just how the connector is."
+        ],
+        [
+          "hole_clearance|183255000|83550000|e76ab5a2-472a-4677-8271-73e5daadf0d2|a54ac5f0-1345-41f1-86a3-4eb3df42f4cd",
+          "That's just how the connector is."
+        ],
+        [
+          "starved_thermal|117250000|77312500|78fb5ff3-8f35-4186-94ed-129e71b3c50c|a4386638-23f1-4f05-aa12-4e320f9ef8ed|F.Cu",
+          "Kicad sucks"
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -96,8 +137,8 @@
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
         "silk_edge_clearance": "warning",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
@@ -128,8 +169,8 @@
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
         "min_track_width": 0.0,
-        "min_via_annular_width": 0.1,
-        "min_via_diameter": 0.5,
+        "min_via_annular_width": 0.05,
+        "min_via_diameter": 0.4,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
       },
@@ -645,6 +686,9 @@
       "/VBUS_SENSE": "",
       "/VRES": "",
       "/VRES_BIAS_DAC": "",
+      "/VRES_EN": "",
+      "/VRES_N": "",
+      "/VRES_P": "",
       "/VTIA": "",
       "/V_ADC1": "",
       "/V_ADC2": "",
@@ -692,6 +736,7 @@
       "Net-(D9-K)": "",
       "Net-(J3-CC1)": "",
       "Net-(J3-CC2)": "",
+      "Net-(Q1-D)": "",
       "Net-(R29-Pad2)": "",
       "Net-(R3-Pad1)": "",
       "Net-(R30-Pad2)": "",
@@ -724,6 +769,8 @@
       "Net-(U1B--)": "",
       "Net-(U2A-+)": "",
       "Net-(U2A--)": "",
+      "Net-(U2B-+)": "",
+      "Net-(U2B--)": "",
       "Net-(U3-A0n)": "",
       "Net-(U3-A0p)": "",
       "Net-(U3-A1n)": "",
@@ -761,9 +808,11 @@
       "Net-(U7-PA9)": "",
       "Net-(U7-PB12)": "",
       "Net-(U7-PB13)": "",
+      "Net-(U7-PB2)": "",
       "Net-(U7-PB4)": "",
       "Net-(U7-PB5)": "",
       "Net-(U7-PB6)": "",
+      "Net-(U7-PB8)": "",
       "Net-(U7-PC10)": "",
       "Net-(U7-PC11)": "",
       "Net-(U7-PC12)": "",
@@ -1158,6 +1207,7 @@
       "unconnected-(U5-Vref-Pad4)": "",
       "unconnected-(U5-Vsense-Pad3)": "",
       "unconnected-(U5-~{SD}-Pad)": "",
+      "unconnected-(U5-~{SD}-Pad2)": "",
       "unconnected-(U6-ADE{slash}ADD-Pad3)": "",
       "unconnected-(U6-AEQ-Pad2)": "",
       "unconnected-(U6-AOS-Pad4)": "",
@@ -1368,7 +1418,7 @@
       "include_excluded_from_bom": false,
       "name": "",
       "sort_asc": true,
-      "sort_field": "Reference"
+      "sort_field": "LCSC"
     },
     "connection_grid_size": 50.0,
     "drawing": {

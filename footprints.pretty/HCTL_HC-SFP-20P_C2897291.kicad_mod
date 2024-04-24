@@ -91,17 +91,6 @@
 		(start -5.7 -5.3)
 		(end 5.7 5.3)
 		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(fill none)
-		(layer "Margin")
-		(uuid "87f22617-d784-475f-8fb5-668ff93ab9cc")
-	)
-	(fp_rect
-		(start -5.7 -5.3)
-		(end 5.7 5.3)
-		(stroke
 			(width 0.05)
 			(type default)
 		)
