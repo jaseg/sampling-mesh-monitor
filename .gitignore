@@ -2,3 +2,6 @@
 *.bak
 *-backups
 *auto_saved_files*
+fab
+venv
+gerber
