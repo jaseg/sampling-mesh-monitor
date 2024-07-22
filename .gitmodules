@@ -1,0 +1,7 @@
+[submodule "fw/upstream/PyCortexMDebug"]
+	path = fw/upstream/PyCortexMDebug
+	url = https://github.com/bnahill/PyCortexMDebug
+[submodule "fw/upstream/stm32square"]
+	path = fw/upstream/stm32square
+	url = https://gitlab.com/neinseg/stm32square
+	branch = release
