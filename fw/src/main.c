@@ -7,6 +7,8 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
+uint16_t adc1_readings[512];
+uint16_t adc2_readings[512];
 
 int main(void) {
     /* Enable HSE w/ 8 MHz crystal */
@@ -39,8 +41,9 @@ int main(void) {
     }
 
     /* Enable peripheral clocks */
+    RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN | RCC_AHB1ENR_DMAMUX1EN;
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN | RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN | RCC_AHB2ENR_DAC1EN |
-        RCC_AHB2ENR_DAC2EN;
+        RCC_AHB2ENR_DAC2EN | RCC_AHB2ENR_ADC12EN;
     /* SYSCFGEN for VREFBUF */
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_HRTIM1EN;
     RCC->APB1ENR1 |= RCC_APB1ENR1_I2C3EN;
@@ -53,7 +56,7 @@ int main(void) {
      *  4 -  DAC1 Channel 1 / V_LVC_DAC
      *  5 -  DAC1 Channel 2 / VRES_BIAS_DAC
      *  6 -  DAC2 Channel 1 / VBIAS_DAC
-     *  7 -  V_ADC2
+     *  7 -  V_ADC2 -> ADC2 CH4
      *  8 -  VRES_N
      *  9 -  VRES_P
      * 10 -  (testpoint)
@@ -72,7 +75,7 @@ int main(void) {
     GPIOA->BRR = (1<<0); /* Clear DRV_CEN */
 
     /* GPIOB: 
-     *  0 -  V_ADC1
+     *  0 -  V_ADC1 -> ADC1 CH15
      *  1 -  MESH_FLIP_N
      *  2 -  (testpoint)
      *  3 -  SWO
@@ -98,7 +101,7 @@ int main(void) {
                     AFRH(14, 13) | /* HRTIM1 Channel D1 */
                     AFRH(15, 13);  /* HRTIM1 Channel D2 */
     GPIOB->OSPEEDR = 0xffffffff;
-    GPIOB->BSRR = (1<<1); /* Set MESH_FLIP_N */
+    GPIOB->BSRR = (1<<1); /* Set MESH_FLIP_N, leave MESH_FLIP reset below. These two must be complementary. */
 
     /* GPIOC:
      *  0 -  LED1
@@ -170,7 +173,7 @@ int main(void) {
         /* Wait for DLL calibration to complete. */
     }
 
-    HRTIM1->sMasterRegs.MPER = 168 * 32; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
+    HRTIM1->sMasterRegs.MPER = 168 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | (2<<HRTIM_MCR_SYNC_OUT_Pos);
 
     /* On each channel: 
@@ -181,7 +184,7 @@ int main(void) {
      * Outputs C2 and D1 are currently unused, since we have the 74LVC2G157s populated.
      */
 
-    /* Channel C */
+    /* Channel C: Stimulus pulse */
     //HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_SYNCSTRT;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[2].CMP1xR = 0x60; 
@@ -193,7 +196,7 @@ int main(void) {
     HRTIM1->sTimerxRegs[2].RSTx1R = HRTIM_RST1R_CMP2;
     HRTIM1->sTimerxRegs[2].RSTx2R = HRTIM_RST2R_CMP4;
 
-    /* Channel D */
+    /* Channel D: Diode sampler pulse */
     //HRTIM1->sTimerxRegs[3].TIMxCR = HRTIM_TIMCR_SYNCSTRT;
     HRTIM1->sTimerxRegs[3].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
@@ -205,8 +208,15 @@ int main(void) {
     HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
     HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_CMP4;
 
-    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN;
+    /* Channel A: ADC trigger */
+    HRTIM1->sTimerxRegs[0].RSTxR = HRTIM_RSTR_MSTPER;
+    HRTIM1->sTimerxRegs[0].CMP3xR = 160 * 0x20; 
+    HRTIM1->sTimerxRegs[0].CMP4xR = 160 * 0x20; 
+    
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TACEN;
 
+    HRTIM1->sCommonRegs.ADC1R = HRTIM_ADC1R_AD1TAC3;
+    HRTIM1->sCommonRegs.ADC3R = HRTIM_ADC3R_AD3TAC4;
     HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TC1OEN;
     HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TC2OEN;
     HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TD1OEN;
@@ -219,41 +229,87 @@ int main(void) {
     I2C3->TIMINGR = 0x00C0216C;
     I2C3->CR1 = I2C_CR1_PE;
 
-    struct {
-        uint8_t addr;
-        uint32_t value;
-    } register_sequence[] = {
-        {0x40, 0xae}, /* I2C unlock magic value */
-        {0x00, (3<<5) | (24<<0)}, /* A_Tx_control */
-        {0x01, (8<<4)}, /* A_signal_det */
-        {0x02, 0x8d}, /* A_Rx_termination */
-        {0x03, 0x1f}, /* A_equalizer */
-        {0x04, (3<<5) | (24<<0)}, /* B_Tx_control */
-        {0x05, (8<<4)}, /* B_signal_det */
-        {0x06, 0x8d}, /* B_Rx_termination */
-        {0x07, 0x1f}, /* B_equalizer */
-    };
-
-    for (size_t i=0; i<COUNT_OF(register_sequence); i++) {
-        I2C3->TXDR = register_sequence[i].addr;
-        I2C3->CR2 = (1 << I2C_CR2_NBYTES_Pos) | I2C_CR2_AUTOEND | (0x34 << I2C_CR2_SADD_Pos) | I2C_CR2_START;
-        uint32_t val = register_sequence[i].value;
-        for (size_t n=0; n<4; n++) {
-            while ((I2C1->ISR & I2C_ISR_BUSY) || (!(I2C1->ISR & I2C_ISR_TXE))) {
-                /* Wait for byte transmission to complete */
-            }
-
-            I2C3->TXDR = val & 0xff;
-            val >>= 8;
-        }
-
+    I2C3->TXDR = 0x02; /* Write starting register address: Channel A0 config */
+    I2C3->CR2 = (4 << I2C_CR2_NBYTES_Pos) | I2C_CR2_AUTOEND | (0xfc << I2C_CR2_SADD_Pos) | I2C_CR2_START;
+    for (size_t n=0; n<4; n++) {
         while ((I2C1->ISR & I2C_ISR_BUSY) || (!(I2C1->ISR & I2C_ISR_TXE))) {
             /* Wait for byte transmission to complete */
         }
+
+        I2C3->TXDR = 0x7f; /* Channel x config: Max EQ peaking, max gain, max swing. */
     }
 
-    /* Enable redriver */
-    GPIOA->BSRR = (1<<0); /* Set DRV_CEN */
+    while ((I2C1->ISR & I2C_ISR_BUSY) || (!(I2C1->ISR & I2C_ISR_TXE))) {
+        /* Wait for byte transmission to complete */
+    }
+
+    ADC12_COMMON->CCR = (3<<ADC_CCR_CKMODE_Pos); /* Note: The ADC core just hung in both adcal and adrdy when using the
+                                                    internal clock. I suspect a silicon bug. */
+    ADC1->CR = 0; /* Disable deep power down mode */
+    ADC2->CR = 0;
+    ADC1->CR = ADC_CR_ADVREGEN;
+    ADC2->CR = ADC_CR_ADVREGEN;
+    delay_us(50); /* Load-bearing nop. Wait for the regulators to settle */
+
+    ADC1->CR |= ADC_CR_ADCAL; /* Run self-cal */
+    ADC2->CR |= ADC_CR_ADCAL;
+    while ((ADC1->CR & ADC_CR_ADCAL) || (ADC2->CR & ADC_CR_ADCAL)) {
+        /* do nothing */
+    }
+
+    ADC1->CR |= ADC_CR_ADEN;
+    ADC2->CR |= ADC_CR_ADEN;
+    delay_us(1); /* Load-bearing nop. There seems to be some silicon erratum here. */
+    while (!((ADC1->ISR & ADC_ISR_ADRDY) && (ADC2->ISR & ADC_ISR_ADRDY))) {
+        /* do nothing */
+    }
+
+    ADC1->CFGR = ADC_CFGR_JQDIS
+        | ADC_CFGR_DISCEN
+        | (0x1 << ADC_CFGR_EXTEN_Pos)
+        | (21 << ADC_CFGR_EXTSEL_Pos) /* HRTIM Channel A CCR 3 via hrtim_adc_trg1 signal */
+        | (0x0 << ADC_CFGR_RES_Pos)
+        | ADC_CFGR_DMACFG
+        | ADC_CFGR_DMAEN;
+    ADC1->SQR1 = (0x0<<ADC_SQR1_L_Pos) | (0x0f << ADC_SQR1_SQ1_Pos);
+    ADC1->CR |= ADC_CR_ADSTART;
+
+    ADC2->CFGR = ADC_CFGR_JQDIS
+        | ADC_CFGR_DISCEN
+        | (0x1 << ADC_CFGR_EXTEN_Pos)
+        | (22 << ADC_CFGR_EXTSEL_Pos) /* HRTIM Channel A CCR 4 via hrtim_adc_trg3 signal */
+        | (0x0 << ADC_CFGR_RES_Pos)
+        | ADC_CFGR_DMACFG
+        | ADC_CFGR_DMAEN;
+    ADC2->SQR1 = (0x0<<ADC_SQR1_L_Pos) | (0x0f << ADC_SQR1_SQ1_Pos);
+    ADC2->CR |= ADC_CR_ADSTART;
+
+    DMAMUX1[0].CCR = (5<<DMAMUX_CxCR_DMAREQ_ID_Pos); /* ADC1 to DMAMUX1 */
+    DMAMUX1[1].CCR = (36<<DMAMUX_CxCR_DMAREQ_ID_Pos); /* ADC2 to DMAMUX2 */
+
+    DMA1_Channel1->CPAR = (uint32_t) &ADC1->DR;
+    DMA1_Channel1->CMAR = (uint32_t) adc1_readings;
+    DMA1_Channel1->CNDTR = COUNT_OF(adc1_readings);
+    DMA1_Channel1->CCR = (1<<DMA_CCR_MSIZE_Pos)
+        | (1<<DMA_CCR_PSIZE_Pos)
+        | DMA_CCR_MINC
+        | DMA_CCR_CIRC
+        | DMA_CCR_TEIE
+        | DMA_CCR_HTIE
+        | DMA_CCR_TCIE
+        | DMA_CCR_EN;
+
+    DMA1_Channel2->CPAR = (uint32_t) &ADC2->DR;
+    DMA1_Channel2->CMAR = (uint32_t) adc2_readings;
+    DMA1_Channel2->CNDTR = COUNT_OF(adc2_readings);
+    DMA1_Channel2->CCR = (1<<DMA_CCR_MSIZE_Pos)
+        | (1<<DMA_CCR_PSIZE_Pos)
+        | DMA_CCR_MINC
+        | DMA_CCR_CIRC
+        | DMA_CCR_TEIE
+        | DMA_CCR_HTIE
+        | DMA_CCR_TCIE
+        | DMA_CCR_EN;
 
     int n = 0;
     int d = 1;
@@ -278,8 +334,8 @@ int main(void) {
             }
 
             DAC1->DHR12R1 = 0xc00 + d;
-            //HRTIM1->sTimerxRegs[3].CMP3xR = 0x60 + d; 
-            //HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*2; 
+            HRTIM1->sTimerxRegs[3].CMP3xR = 0x60 + d; 
+            HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*2; 
         } else {
             n++;
         }
