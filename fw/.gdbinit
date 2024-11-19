@@ -18,3 +18,10 @@ end
 source upstream/PyCortexMDebug/cmdebug/svd_gdb.py
 svd_load upstream/stm32square/svd/STM32G474.svd
 
+break debug_plot_hook
+commands
+    dump binary memory /tmp/adc1_readings.bin adc1_readings
+    dump binary memory /tmp/adc2_readings.bin adc2_readings
+    cont
+end
+

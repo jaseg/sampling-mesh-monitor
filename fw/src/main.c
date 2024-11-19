@@ -10,6 +10,9 @@ void update_leds(void);
 uint16_t adc1_readings[512];
 uint16_t adc2_readings[512];
 
+void debug_plot_hook(void){
+}
+
 int main(void) {
     /* Enable HSE w/ 8 MHz crystal */
     RCC->CR |= RCC_CR_HSEON;
@@ -295,7 +298,6 @@ int main(void) {
         | DMA_CCR_MINC
         | DMA_CCR_CIRC
         | DMA_CCR_TEIE
-        | DMA_CCR_HTIE
         | DMA_CCR_TCIE
         | DMA_CCR_EN;
 
@@ -307,9 +309,11 @@ int main(void) {
         | DMA_CCR_MINC
         | DMA_CCR_CIRC
         | DMA_CCR_TEIE
-        | DMA_CCR_HTIE
         | DMA_CCR_TCIE
         | DMA_CCR_EN;
+
+	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
+	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
     int n = 0;
     int d = 1;
@@ -341,6 +345,18 @@ int main(void) {
         }
     }
 }
+
+void DMA1_Channel1_IRQHandler(void) {
+    static int n = 0;
+    DMA1->IFCR = DMA_IFCR_CTCIF1;
+
+    n++;
+    if (n == 3) {
+        n = 0;
+        debug_plot_hook();
+    }
+}
+
 
 void update_leds() {
     int blink_flag = (sys_time_us & (512*1024-1)) < (384*1024);
