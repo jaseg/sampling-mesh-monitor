@@ -27,8 +27,8 @@ def watch_adc_graphs(sock):
         in_handle.add_watch('/tmp/adc2_readings.bin', mask=inotify.constants.IN_CLOSE_WRITE)
         for event in in_handle.event_gen(yield_nones=False):
             app.logger.info('graph update')
-            adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint16)
-            adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint16)
+            adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
+            adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint32)
             sock.emit('graph_update', {'adc1': adc1.tolist(),
                                        'adc2': adc2.tolist()})
 

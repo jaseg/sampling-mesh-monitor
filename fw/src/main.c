@@ -8,10 +8,10 @@ uint64_t sync_time_us;
 void update_leds(void);
 
 int sampling_phase = 0;
-uint16_t adc1_raw[512];
-uint16_t adc2_raw[512];
-uint16_t adc1_readings[512];
-uint16_t adc2_readings[512];
+uint16_t adc1_raw[128];
+uint16_t adc2_raw[128];
+uint32_t adc1_readings[512];
+uint32_t adc2_readings[512];
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
@@ -373,10 +373,10 @@ void DMA1_Channel1_IRQHandler(void) {
     } else {
         GPIOA->BSRR = (1<<1);
         DMA1->IFCR = DMA_IFCR_CTCIF1;
-        for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
+        for (size_t i=0; i<COUNT_OF(adc1_raw); i++) {
             adc1_readings[sampling_phase] += adc1_raw[i];
         }
-        for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
+        for (size_t i=0; i<COUNT_OF(adc2_raw); i++) {
             adc2_readings[sampling_phase] += adc2_raw[i];
         }
         sampling_phase ++;
@@ -396,7 +396,7 @@ void DMA1_Channel1_IRQHandler(void) {
 void HRTIM1_Master_IRQHandler(void) {
     static int d = 0;
     d ++;
-    if (d == 512) {
+    if (d == COUNT_OF(adc1_raw)) {
         d = 0;
     }
 
