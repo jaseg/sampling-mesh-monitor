@@ -7,9 +7,13 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
+int sampling_phase = 0;
+uint16_t adc1_raw[512];
+uint16_t adc2_raw[512];
 uint16_t adc1_readings[512];
 uint16_t adc2_readings[512];
 
+void debug_plot_hook(void);
 void debug_plot_hook(void){
 }
 
@@ -77,11 +81,12 @@ int main(void) {
      * 14 -  SWCLK
      * 15 -  VBUS_SENSE
      */
-    GPIOA->MODER &= (~(CLEAR(15))); /* Clear JTAG TDI pin mode */
-    GPIOA->MODER |= OUT(0) | IN(1) | IN(2) | IN(3) | ANALOG(4) | ANALOG(5) | ANALOG(6) | ANALOG(7) | ANALOG(8) |
-        ANALOG(9) | IN(10) | IN(11) | IN(12) | AF(13) | AF(14) | IN(15);
+    GPIOA->MODER &= (~(CLEAR(15) | CLEAR(1))); /* Clear JTAG TDI pin mode */
+    GPIOA->MODER |= OUT(0) | OUT(1) | IN(2) | IN(3) | ANALOG(4) | ANALOG(5) | ANALOG(6) | ANALOG(7) | ANALOG(8) |
+        ANALOG(9) | AF(10) | IN(11) | IN(12) | AF(13) | AF(14) | IN(15);
     GPIOA->AFR[1] = AFRH(13, 0) | /* SWDIO */
-                    AFRH(14, 0);  /* SWCLK */
+                    AFRH(14, 0) | /* SWCLK */
+                    AFRH(10, 13); /* HRTIM1 Channel B1 */
     GPIOA->OSPEEDR = 0xffffffff;
     GPIOA->BRR = (1<<0); /* Clear DRV_CEN */
 
@@ -104,7 +109,7 @@ int main(void) {
      * 15 -  SAMPLE_A-
      */
 
-    GPIOB->MODER = ANALOG(0) | OUT(1) | IN(2) | AF(3) | IN(4) | IN(5) | IN(6) | IN(7) | IN(8) | IN(9) | IN(10) |
+    GPIOB->MODER = ANALOG(0) | OUT(1) | IN(2) | AF(3) | IN(4) | IN(5) | IN(6) | IN(7) | OUT(8) | IN(9) | IN(10) |
         ANALOG(11) | AF(12) | IN(13) | IN(14) | AF(15);
     GPIOB->AFR[0] = AFRL( 3, 0);  /* SWO */
     GPIOB->AFR[1] = AFRH(12, 13) | /* HRTIM1 Channel C1 */
@@ -133,12 +138,12 @@ int main(void) {
      * 15 -  RF_TERM/~SHORT
      */
 
-    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | IN(6) | OUT(7) | AF(8) | AF(9) | IN(10) | IN(11)
+    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | IN(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
         | IN(12) | IN(13) | OUT(14) | OUT(15);
     GPIOC->AFR[1] = AFRH(8, 8) | /* I2C3 SCL */
                     AFRH(9, 8);  /* I2C3 SDA */
 
-    GPIOC->BSRR = 0xf | (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
+    GPIOC->BRR = 0xf | (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
 
     /* GPIOD:
      *  2 -  SFP5
@@ -163,7 +168,7 @@ int main(void) {
 
     sys_time_us = 0;
     sync_time_us = 0;
-    SysTick->LOAD = SystemCoreClock / 1000 * SYSTICK_INTERVAL_US; /* 10ms interrupt interval */
+    SysTick->LOAD = SYSTICK_INTERVAL_US / 1000 * SystemCoreClock / 1000; /* 10ms interrupt interval */
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
     NVIC_EnableIRQ(SysTick_IRQn);
 
@@ -177,15 +182,11 @@ int main(void) {
     DAC2->CR = DAC_CR_EN1;
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
-    /* Configure HRTIM1 to generate excitation and sampling pules */
-    HRTIM1->sCommonRegs.DLLCR = HRTIM_DLLCR_CAL;
-
-    while (!(HRTIM1->sCommonRegs.ISR & HRTIM_ISR_DLLRDY)) {
-        /* Wait for DLL calibration to complete. */
-    }
-
     HRTIM1->sMasterRegs.MPER = 168 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | (2<<HRTIM_MCR_SYNC_OUT_Pos);
+    /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
+     * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
+     */
 
     /* On each channel: 
      *
@@ -204,7 +205,7 @@ int main(void) {
     //HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_SYNCSTRT;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[2].CMP1xR = 0x60; 
-    HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + 0x20*2; 
+    HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + 0x20*8; 
     HRTIM1->sTimerxRegs[2].CMP3xR = 0; 
     HRTIM1->sTimerxRegs[2].CMP4xR = 0; 
     HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_CMP1;
@@ -218,29 +219,34 @@ int main(void) {
     HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP3xR = 0x60; 
-    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*2; 
+    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*8; 
     HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
     HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_CMP3;
     HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
     HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_CMP4;
 
-    /* Channel A: ADC trigger */
-    HRTIM1->sTimerxRegs[0].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[0].CMP3xR = 160 * 0x20; 
-    HRTIM1->sTimerxRegs[0].CMP4xR = 160 * 0x20; 
+    /* Channel B: ADC trigger */
+    HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
+    HRTIM1->sTimerxRegs[1].CMP1xR = 0; 
+    HRTIM1->sTimerxRegs[1].CMP2xR = 0x20 * 80; 
+    HRTIM1->sTimerxRegs[1].CMP3xR = 160 * 0x20; 
+    HRTIM1->sTimerxRegs[1].CMP4xR = 160 * 0x20; 
+    HRTIM1->sTimerxRegs[1].TIMxDIER = HRTIM_TIMDIER_CMP3IE;
+    NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
+    NVIC_SetPriority(HRTIM1_TIMB_IRQn, 3);
     
-    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TACEN;
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN;
+    HRTIM1->sMasterRegs.MDIER |= HRTIM_MDIER_MREPIE;
 
-    HRTIM1->sCommonRegs.ADC1R = HRTIM_ADC1R_AD1TAC3;
-    HRTIM1->sCommonRegs.ADC3R = HRTIM_ADC3R_AD3TAC4;
-    HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TC1OEN;
-    HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TC2OEN;
-    HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TD1OEN;
-    HRTIM1->sCommonRegs.OENR = HRTIM_OENR_TD2OEN;
+    HRTIM1->sCommonRegs.ADC1R = HRTIM_ADC1R_AD1TBC3; /* hrtim_adc_trg1 signal (*NOT* ADC1!) */
+    HRTIM1->sCommonRegs.ADC3R = HRTIM_ADC3R_AD3TBC4; /* hrtim_adc_trg3 signal (*NOT* ADC3!) */
+    HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TC1OEN;
+    HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TC2OEN;
+    HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TD1OEN;
+    HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TD2OEN;
 
-    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
-
-    /* TODO: Schedule DLL calibration */
+    /* Configure HRTIM1 to generate excitation and sampling pules */
+    HRTIM1->sCommonRegs.DLLCR = HRTIM_DLLCR_CAL;
 
     I2C3->TIMINGR = 0x00C0216C;
     I2C3->CR1 = I2C_CR1_PE;
@@ -261,6 +267,7 @@ int main(void) {
 
     ADC12_COMMON->CCR = (3<<ADC_CCR_CKMODE_Pos); /* Note: The ADC core just hung in both adcal and adrdy when using the
                                                     internal clock. I suspect a silicon bug. */
+    /* The ADCs 1 and 2 are now clocked by adc_hclk/4, which is 42.0 MHz. Max for multiple ADC on is 52 MHz. */
     ADC1->CR = 0; /* Disable deep power down mode */
     ADC2->CR = 0;
     ADC1->CR = ADC_CR_ADVREGEN;
@@ -288,7 +295,11 @@ int main(void) {
         | ADC_CFGR_DMACFG
         | ADC_CFGR_DMAEN;
     ADC1->SQR1 = (0x0<<ADC_SQR1_L_Pos) | (0x0f << ADC_SQR1_SQ1_Pos);
+    ADC1->SMPR1 = (0x2<<ADC_SMPR1_SMP0_Pos); /* Sampling time 0x2 = 12.5 ADC clock cycles */
     ADC1->CR |= ADC_CR_ADSTART;
+    ADC1->IER = ADC_IER_EOCIE;
+    NVIC_EnableIRQ(ADC1_2_IRQn);
+    NVIC_SetPriority(ADC1_2_IRQn, 3);
 
     ADC2->CFGR = ADC_CFGR_JQDIS
         | ADC_CFGR_DISCEN
@@ -297,82 +308,110 @@ int main(void) {
         | (0x0 << ADC_CFGR_RES_Pos)
         | ADC_CFGR_DMACFG
         | ADC_CFGR_DMAEN;
-    ADC2->SQR1 = (0x0<<ADC_SQR1_L_Pos) | (0x0f << ADC_SQR1_SQ1_Pos);
+    ADC2->SQR1 = (0x0<<ADC_SQR1_L_Pos) | (0x04 << ADC_SQR1_SQ1_Pos);
+    ADC2->SMPR1 = (0x2<<ADC_SMPR1_SMP0_Pos); /* Sampling time 0x2 = 12.5 ADC clock cycles */
     ADC2->CR |= ADC_CR_ADSTART;
+    /* The total ADC conversion time is (t_sampling + t_adc + 0.5) ADC clock cycles. t_sampling is the sampling time in
+     * cycles, which we set to 12.5 ADC clock cycles. t_adc is one cycle per bit of resolution, which we
+     * leave at the default of 12 bits.
+     *
+     * Thus, t_conv for us is 25 ADC clock cycles, corresponding to 0.595 µs.
+     */
 
     DMAMUX1[0].CCR = (5<<DMAMUX_CxCR_DMAREQ_ID_Pos); /* ADC1 to DMAMUX1 */
     DMAMUX1[1].CCR = (36<<DMAMUX_CxCR_DMAREQ_ID_Pos); /* ADC2 to DMAMUX2 */
 
     DMA1_Channel1->CPAR = (uint32_t) &ADC1->DR;
-    DMA1_Channel1->CMAR = (uint32_t) adc1_readings;
-    DMA1_Channel1->CNDTR = COUNT_OF(adc1_readings);
+    DMA1_Channel1->CMAR = (uint32_t) adc1_raw;
+    DMA1_Channel1->CNDTR = COUNT_OF(adc1_raw);
     DMA1_Channel1->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
         | DMA_CCR_CIRC
-        | DMA_CCR_TEIE
         | DMA_CCR_TCIE
+        | DMA_CCR_HTIE
         | DMA_CCR_EN;
 
     DMA1_Channel2->CPAR = (uint32_t) &ADC2->DR;
-    DMA1_Channel2->CMAR = (uint32_t) adc2_readings;
-    DMA1_Channel2->CNDTR = COUNT_OF(adc2_readings);
+    DMA1_Channel2->CMAR = (uint32_t) adc2_raw;
+    DMA1_Channel2->CNDTR = COUNT_OF(adc2_raw);
     DMA1_Channel2->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
         | DMA_CCR_CIRC
-        | DMA_CCR_TEIE
-        | DMA_CCR_TCIE
         | DMA_CCR_EN;
 
 	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
 	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
-    int n = 0;
-    int d = 1;
-    int dir = 1;
+	NVIC_SetPriority(HRTIM1_Master_IRQn, 1);
+	NVIC_EnableIRQ(HRTIM1_Master_IRQn);
+
+
+    while (!(HRTIM1->sCommonRegs.ISR & HRTIM_ISR_DLLRDY)) {
+        /* Wait for DLL calibration to complete. */
+    }
+
+    /* Start the high-resolution timer */
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
+
     while (23) {
         update_leds();
-        //if (n == 200000) {
-        if (n == 10000) {
-            n = 0;
-                
-            if (dir) {
-                d++;
-            } else {
-                d--;
-            }
+    }
+}
 
-            if (d == 0) {
-                dir = !dir;
-            } else if (d == 0x2ff) {
-            //} else if (d == 0x20) {
-                dir = !dir;
-            }
+void HRTIM1_TIMB_IRQHandler(void) {
+    HRTIM1->sTimerxRegs[1].TIMxICR = HRTIM_TIMICR_CMP3C;
+    GPIOB->ODR ^= (1<<8);
+}
 
-            DAC1->DHR12R1 = 0xc00 + d;
-            HRTIM1->sTimerxRegs[3].CMP3xR = 0x60 + d; 
-            HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*2; 
-        } else {
-            n++;
+void DMA1_Channel1_IRQHandler(void) {
+    if (DMA1->ISR & DMA_ISR_HTIF1) {
+        DMA1->IFCR = DMA_IFCR_CHTIF1;
+        GPIOA->BRR = (1<<1);
+
+    } else {
+        GPIOA->BSRR = (1<<1);
+        DMA1->IFCR = DMA_IFCR_CTCIF1;
+        for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
+            adc1_readings[sampling_phase] += adc1_raw[i];
+        }
+        for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
+            adc2_readings[sampling_phase] += adc2_raw[i];
+        }
+        sampling_phase ++;
+        if (sampling_phase == 512) {
+            sampling_phase = 0;
+            debug_plot_hook();
+            for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
+                adc1_readings[i] = 0;
+            }
+            for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
+                adc2_readings[i] = 0;
+            }
         }
     }
 }
 
-void DMA1_Channel1_IRQHandler(void) {
-    static int n = 0;
-    DMA1->IFCR = DMA_IFCR_CTCIF1;
-
-    n++;
-    if (n == 3) {
-        n = 0;
-        debug_plot_hook();
+void HRTIM1_Master_IRQHandler(void) {
+    static int d = 0;
+    d ++;
+    if (d == 512) {
+        d = 0;
     }
+
+    HRTIM1->sMasterRegs.MICR = HRTIM_MICR_MREP;
+
+    int t = 0x60 + sampling_phase;
+    HRTIM1->sTimerxRegs[3].CMP3xR = t; 
+    HRTIM1->sTimerxRegs[3].CMP4xR = t + 0x20*8; 
+    HRTIM1->sTimerxRegs[1].CMP3xR = t + 0x20 * 10;
+    HRTIM1->sTimerxRegs[1].CMP4xR = t + 0x20 * 10;
+    GPIOC->BRR = (1<<10);
 }
 
-
 void update_leds() {
-    int blink_flag = (sys_time_us & (512*1024-1)) < (384*1024);
+    int blink_flag = (sys_time_us % 1000000) < 300000;
 
     if (blink_flag) {
         GPIOC->BSRR = (1<<3);
@@ -385,6 +424,11 @@ void update_leds() {
 void SysTick_Handler() {
     sys_time_us += SYSTICK_INTERVAL_US;
     sync_time_us += SYSTICK_INTERVAL_US;
+}
+
+void ADC1_2_IRQHandler() {
+    ADC1->ISR = ADC_ISR_EOC;
+    GPIOC->BSRR = (1<<10);
 }
 
 uint64_t get_sync_time() {
