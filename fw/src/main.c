@@ -36,6 +36,14 @@ int main(void) {
     while (!(RCC->CR & RCC_CR_PLLRDY)) {
         /* wait for PLL to stabilize. */
     }
+    /* PLL clocks now:
+     *   R = 168 MHz
+     *   Q = 168 MHz
+     *   P = 19.765 MHz
+     *
+     *   System clocks:
+     *   All undivided at 168 MHz.
+     */
     
     /* Switch SYSCLK to PLL source. */
     RCC->CFGR |= (3<<RCC_CFGR_SW_Pos);
@@ -185,6 +193,11 @@ int main(void) {
      * Output 2 set on CMP3, reset on CMP4.
      *
      * Outputs C2 and D1 are currently unused, since we have the 74LVC2G157s populated.
+     */
+    
+    /* HRTIM1 receives 168 MHz from the bus clock. The equivalent high-resolution output frequency would be 5.376 GHz.
+     * This means one full clock cycle is 5.952 ns, and one output subdivision, equivalent to one count in the HRTIM
+     * registers, is 186.0 ps.
      */
 
     /* Channel C: Stimulus pulse */
