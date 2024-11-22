@@ -13,7 +13,7 @@ int sampling_width = 0x20*8;
 int sampling_phase = 0;
 uint16_t adc1_raw[128];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[512];
+uint32_t adc1_readings[2048];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
@@ -132,8 +132,8 @@ int main(void) {
      *  5 -  (nc)
      *  6 -  SFP6
      *  7 -  VRES_EN
-     *  8 -  I2C3_SCL
-     *  9 -  I2C3_SDA
+     *  8 -  I2C1_SCL
+     *  9 -  I2C1_SDA
      * 10 -  (testpoint)
      * 11 -  (testpoint)
      * 12 -  (testpoint)
@@ -144,8 +144,8 @@ int main(void) {
 
     GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | IN(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
         | AF(12) | IN(13) | OUT(14) | OUT(15);
-    GPIOC->AFR[1] = AFRH(8, 8) | /* I2C3 SCL */
-                    AFRH(9, 8) | /* I2C3 SDA */
+    GPIOC->AFR[1] = AFRH(8, 8) | /* I2C1 SCL */
+                    AFRH(9, 8) | /* I2C1 SDA */
                     AFRH(12, 1); /* TIM5 CH2 */
 
     GPIOC->BRR = 0xf | (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
@@ -274,22 +274,26 @@ int main(void) {
     /* Configure HRTIM1 to generate excitation and sampling pules */
     HRTIM1->sCommonRegs.DLLCR = HRTIM_DLLCR_CAL;
 
-    I2C3->TIMINGR = 0x00C0216C;
-    I2C3->CR1 = I2C_CR1_PE;
-
-    I2C3->TXDR = 0x02; /* Write starting register address: Channel A0 config */
-    I2C3->CR2 = (4 << I2C_CR2_NBYTES_Pos) | I2C_CR2_AUTOEND | (0xfc << I2C_CR2_SADD_Pos) | I2C_CR2_START;
-    for (size_t n=0; n<4; n++) {
-        while ((I2C1->ISR & I2C_ISR_BUSY) || (!(I2C1->ISR & I2C_ISR_TXE))) {
-            /* Wait for byte transmission to complete */
-        }
-
-        I2C3->TXDR = 0x7f; /* Channel x config: Max EQ peaking, max gain, max swing. */
-    }
-
-    while ((I2C1->ISR & I2C_ISR_BUSY) || (!(I2C1->ISR & I2C_ISR_TXE))) {
-        /* Wait for byte transmission to complete */
-    }
+//    I2C3->TIMINGR = 0x00C0216C;
+//    I2C3->CR1 = I2C_CR1_PE;
+//
+//    I2C3->TXDR = 0x03; /* Write starting register address: Channel A0 config */
+//    I2C3->CR2 = (6 << I2C_CR2_NBYTES_Pos) | I2C_CR2_AUTOEND | (0xfc << I2C_CR2_SADD_Pos) | I2C_CR2_START;
+//    while ((I2C3->ISR & I2C_ISR_BUSY) || (!(I2C3->ISR & I2C_ISR_TXE))) {
+//        /* Wait for byte transmission to complete */
+//    }
+//
+//    I2C3->TXDR = 0; /* Write starting register address: Channel power config */
+//    while ((I2C3->ISR & I2C_ISR_BUSY) || (!(I2C3->ISR & I2C_ISR_TXE))) {
+//        /* Wait for byte transmission to complete */
+//    }
+//
+//    for (size_t n=0; n<4; n++) {
+//        I2C3->TXDR = 0x7f; /* Channel x config: Max EQ peaking, max gain, max swing. */
+//        while ((I2C3->ISR & I2C_ISR_BUSY) || (!(I2C3->ISR & I2C_ISR_TXE))) {
+//            /* Wait for byte transmission to complete */
+//        }
+//    }
 
     ADC12_COMMON->CCR = (3<<ADC_CCR_CKMODE_Pos); /* Note: The ADC core just hung in both adcal and adrdy when using the
                                                     internal clock. I suspect a silicon bug. */
@@ -423,11 +427,11 @@ void HRTIM1_Master_IRQHandler(void) {
 
     HRTIM1->sMasterRegs.MICR = HRTIM_MICR_MREP;
 
-    int t = global_sampling_offset * 0x20 - 0x80 + sampling_phase;
+    int t = 0 + sampling_phase;
     HRTIM1->sTimerxRegs[3].CMP3xR = t + 0x20 *  0; 
     HRTIM1->sTimerxRegs[3].CMP4xR = t + 0x20 *  8; 
-    HRTIM1->sTimerxRegs[1].CMP3xR = t + 0x20 * 22;
-    HRTIM1->sTimerxRegs[1].CMP4xR = t + 0x20 * 14;
+    HRTIM1->sTimerxRegs[1].CMP3xR = t + 0x20 * 30;
+    HRTIM1->sTimerxRegs[1].CMP4xR = t + 0x20 * 30;
     GPIOC->BRR = (1<<10);
 }
 
