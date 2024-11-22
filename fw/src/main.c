@@ -7,11 +7,14 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
+int global_sampling_offset = 16;
+int stimulus_width = 0x20*8;
+int sampling_width = 0x20*8;
 int sampling_phase = 0;
 uint16_t adc1_raw[128];
-uint16_t adc2_raw[128];
+uint16_t adc2_raw[COUNT_OF(adc1_raw)];
 uint32_t adc1_readings[512];
-uint32_t adc2_readings[512];
+uint32_t adc2_readings[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
@@ -228,8 +231,8 @@ int main(void) {
     HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[2].CMP1xR = 0x60; 
-    HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + 0x20*8; 
+    HRTIM1->sTimerxRegs[2].CMP1xR = global_sampling_offset * 0x20; 
+    HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + stimulus_width; 
     HRTIM1->sTimerxRegs[2].CMP3xR = 0; 
     HRTIM1->sTimerxRegs[2].CMP4xR = 0; 
     HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_CMP1;
@@ -243,8 +246,8 @@ int main(void) {
     HRTIM1->sTimerxRegs[3].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
-    HRTIM1->sTimerxRegs[3].CMP3xR = 0x60; 
-    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + 0x20*8; 
+    HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
+    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width;
     HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
     HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_CMP3;
     HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
@@ -254,13 +257,9 @@ int main(void) {
     HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[1].CMP1xR = 0; 
-    HRTIM1->sTimerxRegs[1].CMP2xR = 0x20 * 80; 
     HRTIM1->sTimerxRegs[1].CMP3xR = 160 * 0x20; 
     HRTIM1->sTimerxRegs[1].CMP4xR = 160 * 0x20; 
     HRTIM1->sTimerxRegs[1].TIMxDIER = HRTIM_TIMDIER_CMP3IE;
-    NVIC_EnableIRQ(HRTIM1_TIMB_IRQn);
-    NVIC_SetPriority(HRTIM1_TIMB_IRQn, 3);
     
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN;
     HRTIM1->sMasterRegs.MDIER |= HRTIM_MDIER_MREPIE;
@@ -387,11 +386,6 @@ int main(void) {
     }
 }
 
-void HRTIM1_TIMB_IRQHandler(void) {
-    HRTIM1->sTimerxRegs[1].TIMxICR = HRTIM_TIMICR_CMP3C;
-    GPIOB->ODR ^= (1<<8);
-}
-
 void DMA1_Channel1_IRQHandler(void) {
     if (DMA1->ISR & DMA_ISR_HTIF1) {
         DMA1->IFCR = DMA_IFCR_CHTIF1;
@@ -407,7 +401,7 @@ void DMA1_Channel1_IRQHandler(void) {
             adc2_readings[sampling_phase] += adc2_raw[i];
         }
         sampling_phase ++;
-        if (sampling_phase == 512) {
+        if (sampling_phase == COUNT_OF(adc1_readings)) {
             sampling_phase = 0;
             debug_plot_hook();
             for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
@@ -429,11 +423,11 @@ void HRTIM1_Master_IRQHandler(void) {
 
     HRTIM1->sMasterRegs.MICR = HRTIM_MICR_MREP;
 
-    int t = 0x60 + sampling_phase;
-    HRTIM1->sTimerxRegs[3].CMP3xR = t; 
-    HRTIM1->sTimerxRegs[3].CMP4xR = t + 0x20*8; 
-    HRTIM1->sTimerxRegs[1].CMP3xR = t + 0x20 * 10;
-    HRTIM1->sTimerxRegs[1].CMP4xR = t + 0x20 * 10;
+    int t = global_sampling_offset * 0x20 - 0x80 + sampling_phase;
+    HRTIM1->sTimerxRegs[3].CMP3xR = t + 0x20 *  0; 
+    HRTIM1->sTimerxRegs[3].CMP4xR = t + 0x20 *  8; 
+    HRTIM1->sTimerxRegs[1].CMP3xR = t + 0x20 * 22;
+    HRTIM1->sTimerxRegs[1].CMP4xR = t + 0x20 * 14;
     GPIOC->BRR = (1<<10);
 }
 

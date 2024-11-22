@@ -31,13 +31,14 @@
             const socket = io();
             socket.on('graph_update', (arg, callback) => {
                 console.log('graph update');
+                const sampling_period_ns = 1000 / 168 / 32;
                 xs1 = Array(arg['adc1'].length)
                 for (var i=0; i<xs1.length; i++) {
-                    xs1[i] = i;
+                    xs1[i] = i * sampling_period_ns;
                 }
                 xs2 = Array(arg['adc2'].length)
                 for (var i=0; i<xs2.length; i++) {
-                    xs2[i] = i;
+                    xs2[i] = i * sampling_period_ns;
                 }
                 plot_adc1 = Plotly.react(div_adc1, [{'x': xs1, 'y': arg['adc1'], 'type': 'scatter'}], layout_settings);
                 plot_adc2 = Plotly.react(div_adc2, [{'x': xs2, 'y': arg['adc2'], 'type': 'scatter'}], layout_settings);
