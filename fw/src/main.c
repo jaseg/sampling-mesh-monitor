@@ -25,7 +25,7 @@ int main(void) {
     }
 
     /* We're already in voltage scaling range 1. Enter boost mode (set main internal VDD from 1.20V to 1.28V) */
-    RCC->APB1ENR1 |= RCC_APB1ENR1_PWREN;
+    RCC->APB1ENR1 |= RCC_APB1ENR1_PWREN| RCC_APB1ENR1_TIM5EN | RCC_APB1ENR1_TIM3EN;
     PWR->CR5 &= ~PWR_CR5_R1MODE;
 
     /* Increase flash wait states to 5 required for operation above 136 MHz */
@@ -60,7 +60,7 @@ int main(void) {
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN | RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN | RCC_AHB2ENR_DAC1EN |
         RCC_AHB2ENR_DAC2EN | RCC_AHB2ENR_ADC12EN;
     /* SYSCFGEN for VREFBUF */
-    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_HRTIM1EN;
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_HRTIM1EN | RCC_APB2ENR_TIM16EN;
     RCC->APB1ENR1 |= RCC_APB1ENR1_I2C3EN;
 
     /* GPIOA:
@@ -109,9 +109,10 @@ int main(void) {
      * 15 -  SAMPLE_A-
      */
 
-    GPIOB->MODER = ANALOG(0) | OUT(1) | IN(2) | AF(3) | IN(4) | IN(5) | IN(6) | IN(7) | OUT(8) | IN(9) | IN(10) |
+    GPIOB->MODER = ANALOG(0) | OUT(1) | IN(2) | AF(3) | AF(4) | IN(5) | IN(6) | IN(7) | OUT(8) | IN(9) | IN(10) |
         ANALOG(11) | AF(12) | IN(13) | IN(14) | AF(15);
-    GPIOB->AFR[0] = AFRL( 3, 0);  /* SWO */
+    GPIOB->AFR[0] = AFRL( 3, 0)  | /* SWO */
+                    AFRL( 4, 1);   /* TIM16 CH1 */
     GPIOB->AFR[1] = AFRH(12, 13) | /* HRTIM1 Channel C1 */
                     AFRH(13, 13) | /* HRTIM1 Channel C2 */
                     AFRH(14, 13) | /* HRTIM1 Channel D1 */
@@ -139,9 +140,10 @@ int main(void) {
      */
 
     GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | IN(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
-        | IN(12) | IN(13) | OUT(14) | OUT(15);
+        | AF(12) | IN(13) | OUT(14) | OUT(15);
     GPIOC->AFR[1] = AFRH(8, 8) | /* I2C3 SCL */
-                    AFRH(9, 8);  /* I2C3 SDA */
+                    AFRH(9, 8) | /* I2C3 SDA */
+                    AFRH(12, 1); /* TIM5 CH2 */
 
     GPIOC->BRR = 0xf | (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
 
@@ -165,6 +167,27 @@ int main(void) {
      */
 
     SystemCoreClockUpdate();
+    
+    /* clock debug */
+    TIM5->CCMR1 = (0x6<<TIM_CCMR1_OC2M_Pos) | (0x0<<TIM_CCMR1_CC2S_Pos);
+    TIM5->CCER = TIM_CCER_CC2E;
+    TIM5->ARR = 167;
+    TIM5->CCR1 = 83;
+    TIM5->CR1 = TIM_CR1_CEN;
+
+    TIM3->CCMR1 = (0x6<<TIM_CCMR1_OC1M_Pos) | (0x0<<TIM_CCMR1_CC1S_Pos);
+    TIM3->CCER = TIM_CCER_CC1E;
+    TIM3->ARR = 167;
+    TIM3->CCR1 = 83;
+    TIM3->BDTR = TIM_BDTR_MOE;
+    TIM3->CR1 = TIM_CR1_CEN;
+
+    TIM16->CCMR1 = (0x6<<TIM_CCMR1_OC1M_Pos) | (0x0<<TIM_CCMR1_CC1S_Pos);
+    TIM16->CCER = TIM_CCER_CC1E;
+    TIM16->ARR = 167;
+    TIM16->CCR1 = 83;
+    TIM16->BDTR = TIM_BDTR_MOE;
+    TIM16->CR1 = TIM_CR1_CEN;
 
     sys_time_us = 0;
     sync_time_us = 0;
@@ -182,8 +205,8 @@ int main(void) {
     DAC2->CR = DAC_CR_EN1;
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
+    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT;
     HRTIM1->sMasterRegs.MPER = 168 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
-    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | (2<<HRTIM_MCR_SYNC_OUT_Pos);
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
      */
@@ -202,7 +225,8 @@ int main(void) {
      */
 
     /* Channel C: Stimulus pulse */
-    //HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_SYNCSTRT;
+    HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_MSTU;
+    HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[2].CMP1xR = 0x60; 
     HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + 0x20*8; 
@@ -214,7 +238,8 @@ int main(void) {
     HRTIM1->sTimerxRegs[2].RSTx2R = HRTIM_RST2R_CMP4;
 
     /* Channel D: Diode sampler pulse */
-    //HRTIM1->sTimerxRegs[3].TIMxCR = HRTIM_TIMCR_SYNCSTRT;
+    HRTIM1->sTimerxRegs[3].TIMxCR = HRTIM_TIMCR_MSTU;
+    HRTIM1->sTimerxRegs[3].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[3].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
@@ -226,6 +251,8 @@ int main(void) {
     HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_CMP4;
 
     /* Channel B: ADC trigger */
+    HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
+    HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
     HRTIM1->sTimerxRegs[1].CMP1xR = 0; 
     HRTIM1->sTimerxRegs[1].CMP2xR = 0x20 * 80; 
