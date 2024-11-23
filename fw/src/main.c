@@ -11,7 +11,7 @@ int global_sampling_offset = 50;
 int stimulus_width = 0x20*8;
 int sampling_width = 0x20*2;
 int sampling_phase = 0;
-uint16_t adc1_raw[128];
+uint16_t adc1_raw[8];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
 uint32_t adc1_readings[2048];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
