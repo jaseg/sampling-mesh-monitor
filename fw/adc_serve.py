@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 import base64
 import threading
+import struct
 
 import numpy as np
 from flask import Flask, render_template, url_for
@@ -13,6 +14,13 @@ import inotify.adapters, inotify.constants
 app = Flask(__name__)
 sock = SocketIO(app)
 app.logger.setLevel(logging.INFO)
+
+dbg_settings = {
+        'mesh_flip': False,
+        'mesh_flip_n': True,
+        'rf_term': False,
+        'rf_term_short': False,
+        }
 
 @app.route('/')
 def index():
@@ -37,6 +45,15 @@ def watch_adc_graphs(sock):
     adc_thr = threading.Thread(target=handler, daemon=True)
     adc_thr.start()
 
+@sock.on('dev_settings')
+def handle(data):
+    dbg_settings.update(data)
+    out = 0
+    for i, key in enumerate(['mesh_flip_n', 'mesh_flip', 'rf_term', 'rf_term_short']):
+        if dbg_settings[key]:
+            out |= 1<<i
+    print(f'Set debug settings to {out:08x}')
+    Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<I', out))
 
 if __name__ == '__main__':
     watch_adc_graphs(sock)

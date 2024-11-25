@@ -7,6 +7,14 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
+volatile int32_t dbg_settings = 0x00000001;
+enum dbg_settings_mask {
+    DBG_MESH_FLIP_N = 1,
+    DBG_MESH_FLIP = 2,
+    DBG_RF_TERM = 4,
+    DBG_RF_TERM_SHORT = 8,
+};
+
 int global_sampling_offset = 50;
 int stimulus_width = 0x20*8;
 int sampling_width = 0x20*2;
@@ -18,6 +26,26 @@ uint32_t adc2_readings[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
+    if (dbg_settings & DBG_MESH_FLIP) {
+        GPIOC->BSRR = 1<<4;
+    } else {
+        GPIOC->BRR = 1<<4;
+    }
+    if (dbg_settings & DBG_MESH_FLIP_N) {
+        GPIOB->BSRR = 1<<1;
+    } else {
+        GPIOB->BRR = 1<<1;
+    }
+    if (dbg_settings & DBG_RF_TERM) {
+        GPIOC->BSRR = 1<<14;
+    } else {
+        GPIOC->BRR = 1<<14;
+    }
+    if (dbg_settings & DBG_RF_TERM_SHORT) {
+        GPIOC->BSRR = 1<<15;
+    } else {
+        GPIOC->BRR = 1<<15;
+    }
 }
 
 int main(void) {

@@ -16,32 +16,235 @@
 </style>
     </head>
     <body>
+        <h4>Device settings</h4>
+        <div>
+            <label for="cb_dev_mesh_flip">
+                <input type="checkbox" id="cb_dev_mesh_flip"/>
+                MESH_FLIP
+            </label>
+            <label for="cb_dev_mesh_flip_n">
+                <input type="checkbox" id="cb_dev_mesh_flip_n" checked/>
+                MESH_FLIP_N
+            </label>
+            <label for="cb_dev_rf_term">
+                <input type="checkbox" id="cb_dev_rf_term"/>
+                RF_TERM
+            </label>
+            <label for="cb_dev_rf_term_short">
+                <input type="checkbox" id="cb_dev_rf_term_short"/>
+                RF_TERM_SHORT
+            </label>
+        </div>
+
         <h4>ADC 1</h4>
         <div id="plot_adc1"></div>
+        <div class="measurement" id="meas_adc1_thr">
+            <h5>Threshold</h5>
+
+            <label for="adc1_thr_v_spin">
+                Voltage <input type="number" id="adc1_thr_v_spin" class="v_spin" min="-0.3" max="3.6" step="0.01"/> V
+            </label>
+
+            <label for="adc1_thr_v_spin">
+                Anchor time: <input type="number" id="adc1_thr_v_spin" class="t_spin" min="-0.3" max="3.6" step="0.01"/> ns
+            </label>
+
+            <div class="stats" id="table_adc1">
+                <table>
+                    <tr><td></td><th>10</th><th>100</th><th>1000</th></tr>
+                    <tr><th>Mean [ns]</th>
+                        <td class="mean_10"></td>
+                        <td class="mean_100"></td>
+                        <td class="mean_1000"></td>
+                    </tr>
+                    <tr><th>Stdev [ps]</th>
+                        <td class="stdev_10"></td>
+                        <td class="stdev_100"></td>
+                        <td class="stdev_1000"></td>
+                    </tr>
+                    <tr><th>Min [ns]</th>
+                        <td class="min_10"></td>
+                        <td class="min_100"></td>
+                        <td class="min_1000"></td>
+                    </tr>
+                    <tr><th>Max [ns]</th>
+                        <td class="max_10"></td>
+                        <td class="max_100"></td>
+                        <td class="max_1000"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
         <h4>ADC 2</h4>
         <div id="plot_adc2"></div>
+        <div class="measurement" id="meas_adc2_thr">
+            <h5>Threshold</h5>
+
+            <label for="adc2_thr_v_spin">
+                Voltage <input type="number" id="adc2_thr_v_spin" class="v_spin" min="-0.3" max="3.6" step="0.01"/> V
+            </label>
+
+            <label for="adc2_thr_v_spin">
+                Anchor time: <input type="number" id="adc2_thr_v_spin" class="t_spin" min="-0.3" max="3.6" step="0.01"/> ns
+            </label>
+
+            <div class="stats" id="table_adc2">
+                <table>
+                    <tr><td></td><th>10</th><th>100</th><th>1000</th></tr>
+                    <tr><th>Mean [ns]</th>
+                        <td class="mean_10"></td>
+                        <td class="mean_100"></td>
+                        <td class="mean_1000"></td>
+                    </tr>
+                    <tr><th>Stdev [ps]</th>
+                        <td class="stdev_10"></td>
+                        <td class="stdev_100"></td>
+                        <td class="stdev_1000"></td>
+                    </tr>
+                    <tr><th>Min [ns]</th>
+                        <td class="min_10"></td>
+                        <td class="min_100"></td>
+                        <td class="min_1000"></td>
+                    </tr>
+                    <tr><th>Max [ns]</th>
+                        <td class="max_10"></td>
+                        <td class="max_100"></td>
+                        <td class="max_1000"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
         <script>
-            div_adc1 = document.querySelector('#plot_adc1');
-            div_adc2 = document.querySelector('#plot_adc2');
-            const layout_settings = {margin: {t: 20, l: 100, r: 20, b: 20}};
-            plot_adc1 = Plotly.newPlot(div_adc1, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings);
-            plot_adc2 = Plotly.newPlot(div_adc2, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings);
+            class ThresholdStats {
+                constructor(table_div, control_div) {
+                    this.table_div = table_div;
+                    this.control_div = control_div;
+                    this.history = [];
+                    this.thr_v = null;
+                    this.thr_t = null;
+                }
+
+                update(t_arr, v_arr) {
+                    let crossing_t = null;
+                    for (var i=1; i<t_arr.length; i++) {
+                        if ((v_arr[i-1] <= this.thr_v && v_arr[i] >= this.thr_v) ||
+                            (v_arr[i-1] >= this.thr_v && v_arr[i] <= this.thr_v)) {
+                            let this_crossing_t = t_arr[i-1] + (t_arr[i] - t_arr[i-1]) * (this.thr_v - v_arr[i-1]) / (v_arr[i] - v_arr[i-1]);
+                            if (crossing_t === null || Math.abs(crossing_t - this.thr_t) > Math.abs(this_crossing_t - this.thr_t)) {
+                                crossing_t = this_crossing_t;
+                            }
+                        }
+                    }
+                    if (crossing_t != null) {
+                        this.history.push(crossing_t);
+                    }
+
+                    this.update_table(10);
+                    this.update_table(100);
+                    this.update_table(1000);
+                }
+
+                update_table(period) {
+                    if (period > this.history.length) {
+                        this.table_div.querySelector(`.min_${period}`).innerHTML = '';
+                        this.table_div.querySelector(`.max_${period}`).innerHTML = '';
+                        this.table_div.querySelector(`.mean_${period}`).innerHTML = '';
+                        this.table_div.querySelector(`.stdev_${period}`).innerHTML = '';
+                        return;
+                    }
+
+                    let min = null;
+                    let max = null; 
+                    let mean = 0;
+                    let stdev = 0;
+
+                    for (let i=this.history.length-period; i<this.history.length; i++) {
+                        if (min === null || this.history[i] < min) {
+                            min = this.history[i];
+                        }
+                        if (max === null || this.history[i] > max) {
+                            max = this.history[i];
+                        }
+                        mean += this.history[i];
+                        stdev += this.history[i]*this.history[i];
+                    }
+
+                    mean /= period;
+                    stdev = Math.sqrt(stdev/period - mean*mean);
+
+                    this.table_div.querySelector(`.min_${period}`).innerHTML = min.toFixed(3);
+                    this.table_div.querySelector(`.max_${period}`).innerHTML = max.toFixed(3);
+                    this.table_div.querySelector(`.mean_${period}`).innerHTML = mean.toFixed(3);
+                    this.table_div.querySelector(`.stdev_${period}`).innerHTML = (stdev * 1000).toFixed(0);
+                }
+
+                set_thr(thr_v, thr_t) {
+                    console.log('thr', thr_v, thr_t);
+                    this.thr_v = thr_v;
+                    this.thr_t = thr_t;
+                    this.control_div.querySelector('.v_spin').value = thr_v;
+                    this.control_div.querySelector('.t_spin').value = thr_t;
+                    this.history = [];
+                }
+            }
+
+            let div_adc1 = document.querySelector('#plot_adc1');
+            let div_adc2 = document.querySelector('#plot_adc2');
+            const layout_settings1 = {
+                margin: {t: 20, l: 60, r: 20, b: 40},
+                hovermode: 'closest',
+                yaxis: {title: {text: 'V [V]'}},
+                xaxis: {title: {text: 't [ns]'}}};
+            const layout_settings2 = {
+                margin: {t: 20, l: 60, r: 20, b: 40},
+                hovermode: 'closest',
+                yaxis: {title: {text: 'V [V]'}},
+                xaxis: {title: {text: 't [ns]'}}};
+            let plot_adc1 = Plotly.newPlot(div_adc1, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings1);
+            let plot_adc2 = Plotly.newPlot(div_adc2, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings2);
+            let stats_adc1 = new ThresholdStats(document.querySelector('#table_adc1'), document.querySelector('#meas_adc1_thr'));
+            let stats_adc2 = new ThresholdStats(document.querySelector('#table_adc2'), document.querySelector('#meas_adc2_thr'));
 
             const socket = io();
             socket.on('graph_update', (arg, callback) => {
-                console.log('graph update');
                 const sampling_period_ns = 1000 / 168 / 32;
-                xs1 = Array(arg['adc1'].length)
-                for (var i=0; i<xs1.length; i++) {
-                    xs1[i] = i * sampling_period_ns;
+                let adc1_t = Array(arg['adc1'].length)
+                for (var i=0; i<adc1_t.length; i++) {
+                    adc1_t[i] = i * sampling_period_ns;
                 }
-                xs2 = Array(arg['adc2'].length)
-                for (var i=0; i<xs2.length; i++) {
-                    xs2[i] = i * sampling_period_ns;
+                let adc2_t = Array(arg['adc2'].length)
+                for (var i=0; i<adc2_t.length; i++) {
+                    adc2_t[i] = i * sampling_period_ns;
                 }
-                plot_adc1 = Plotly.react(div_adc1, [{'x': xs1, 'y': arg['adc1'], 'type': 'scatter'}], layout_settings);
-                plot_adc2 = Plotly.react(div_adc2, [{'x': xs2, 'y': arg['adc2'], 'type': 'scatter'}], layout_settings);
+                const adc1_data = arg['adc1'];
+                const adc2_data = arg['adc2'];
+                plot_adc1 = Plotly.react(div_adc1, [{'x': adc1_t, 'y': adc1_data, 'type': 'scatter'}], layout_settings1);
+                plot_adc2 = Plotly.react(div_adc2, [{'x': adc2_t, 'y': adc2_data, 'type': 'scatter'}], layout_settings2);
+                stats_adc1.update(adc1_t, adc1_data);
+                stats_adc2.update(adc2_t, adc2_data);
+            });
+
+            div_adc1.on('plotly_click', (evt) => {
+                stats_adc1.set_thr(evt.points[0].y, evt.points[0].x);
+            });
+
+            div_adc2.on('plotly_click', (evt) => {
+                stats_adc2.set_thr(evt.points[0].y, evt.points[0].x);
+            });
+
+            document.querySelector('#cb_dev_mesh_flip').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'mesh_flip': evt.target.checked});
+            });
+            document.querySelector('#cb_dev_mesh_flip_n').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'mesh_flip_n': evt.target.checked});
+            });
+            document.querySelector('#cb_dev_rf_term').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'rf_term': evt.target.checked});
+            });
+            document.querySelector('#cb_dev_rf_term_short').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'rf_term_short': evt.target.checked});
             });
         </script>
     </body>
