@@ -34,6 +34,12 @@
                 <input type="checkbox" id="cb_dev_rf_term_short"/>
                 RF_TERM_SHORT
             </label>
+            <label for="sampling_phase_inp">
+                Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="0"/>
+            </label>
+            <label for="sampling_width_inp">
+                Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="2"/>
+            </label>
         </div>
 
         <h4>ADC 1</h4>
@@ -245,6 +251,12 @@
             });
             document.querySelector('#cb_dev_rf_term_short').addEventListener('change', (evt) => {
                 socket.emit('dev_settings', {'rf_term_short': evt.target.checked});
+            });
+            document.querySelector('#sampling_phase_inp').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'sampling_phase_var': evt.target.value});
+            });
+            document.querySelector('#sampling_width_inp').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'sampling_width': evt.target.value});
             });
         </script>
     </body>

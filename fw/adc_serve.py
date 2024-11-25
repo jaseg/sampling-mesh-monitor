@@ -20,6 +20,8 @@ dbg_settings = {
         'mesh_flip_n': True,
         'rf_term': False,
         'rf_term_short': False,
+        'sampling_phase_var': 8,
+        'sampling_width': 2,
         }
 
 @app.route('/')
@@ -52,6 +54,8 @@ def handle(data):
     for i, key in enumerate(['mesh_flip_n', 'mesh_flip', 'rf_term', 'rf_term_short']):
         if dbg_settings[key]:
             out |= 1<<i
+    out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
+    out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 12
     print(f'Set debug settings to {out:08x}')
     Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<I', out))
 

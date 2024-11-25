@@ -7,7 +7,7 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile int32_t dbg_settings = 0x00000001;
+volatile int32_t dbg_settings = 0x00002081;
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -17,7 +17,6 @@ enum dbg_settings_mask {
 
 int global_sampling_offset = 50;
 int stimulus_width = 0x20*8;
-int sampling_width = 0x20*2;
 int sampling_phase = 0;
 uint16_t adc1_raw[8];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
@@ -46,6 +45,11 @@ void debug_plot_hook(void){
     } else {
         GPIOC->BRR = 1<<15;
     }
+    int sampling_phase_var = (dbg_settings>>4) & 0xff;
+    HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
+    HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
+    int sampling_width = (dbg_settings>>12) & 0xff;
+    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width * 0x20;
 }
 
 int main(void) {
@@ -275,6 +279,7 @@ int main(void) {
     HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
     HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
+    int sampling_width = (dbg_settings>>12) & 0xff;
     HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width;
     HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
     HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_CMP3;
@@ -285,8 +290,9 @@ int main(void) {
     HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + 18) * 0x20;
-    HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + 40) * 0x20; 
+    int sampling_phase_var = (dbg_settings>>4) & 0x3f;
+    HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
+    HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
     HRTIM1->sTimerxRegs[1].TIMxDIER = HRTIM_TIMDIER_CMP3IE;
     
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN;
