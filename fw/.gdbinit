@@ -23,7 +23,7 @@ break debug_plot_hook
 commands
     dump binary memory /tmp/adc1_readings.bin adc1_readings adc1_readings+(sizeof(adc1_readings)/sizeof(*adc1_readings))
     dump binary memory /tmp/adc2_readings.bin adc2_readings adc2_readings+(sizeof(adc1_readings)/sizeof(*adc1_readings))
-    restore /tmp/dbg_settings.bin binary &dbg_settings
+    restore /tmp/dbg_settings.bin binary dbg_settings
     p/x dbg_settings
     cont
 end

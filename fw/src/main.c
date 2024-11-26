@@ -7,7 +7,7 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile int32_t dbg_settings = 0x00002081;
+volatile uint32_t dbg_settings[2] = {0x00002081, 360};
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -15,41 +15,58 @@ enum dbg_settings_mask {
     DBG_RF_TERM_SHORT = 8,
 };
 
-int global_sampling_offset = 50;
-int stimulus_width = 0x20*8;
 int sampling_phase = 0;
-uint16_t adc1_raw[8];
+int stim_offset = 0;
+int adc_backoff = 60;
+uint16_t adc1_raw[1];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[2048];
+uint32_t adc1_readings[1024];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
-    if (dbg_settings & DBG_MESH_FLIP) {
+    if (dbg_settings[0] & DBG_MESH_FLIP) {
         GPIOC->BSRR = 1<<4;
     } else {
         GPIOC->BRR = 1<<4;
     }
-    if (dbg_settings & DBG_MESH_FLIP_N) {
+    if (dbg_settings[0] & DBG_MESH_FLIP_N) {
         GPIOB->BSRR = 1<<1;
     } else {
         GPIOB->BRR = 1<<1;
     }
-    if (dbg_settings & DBG_RF_TERM) {
+    if (dbg_settings[0] & DBG_RF_TERM) {
         GPIOC->BSRR = 1<<14;
     } else {
         GPIOC->BRR = 1<<14;
     }
-    if (dbg_settings & DBG_RF_TERM_SHORT) {
+    if (dbg_settings[0] & DBG_RF_TERM_SHORT) {
         GPIOC->BSRR = 1<<15;
     } else {
         GPIOC->BRR = 1<<15;
     }
-    int sampling_phase_var = (dbg_settings>>4) & 0xff;
-    HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
-    HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
-    int sampling_width = (dbg_settings>>12) & 0xff;
-    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width * 0x20;
+    int sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
+    int sampling_width = (dbg_settings[0]>>12) & 0xff;
+    stim_offset = (dbg_settings[0]>>20) & 0xff;
+    HRTIM1->sMasterRegs.MPER = (dbg_settings[1]&0x3ff)*0x20;
+    HRTIM1->sMasterRegs.MCMP1R = HRTIM1->sMasterRegs.MPER / 2;
+    HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
+    HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
+    HRTIM1->sTimerxRegs[3].PERxR = HRTIM1->sMasterRegs.MPER;
+    const int full = HRTIM1->sMasterRegs.MPER;
+    const int half = full/2;
+    HRTIM1->sTimerxRegs[3].CMP1xR = half - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
+    HRTIM1->sTimerxRegs[3].CMP2xR = half - adc_backoff*0x20 - sampling_phase_var*0x20;
+    HRTIM1->sTimerxRegs[3].CMP3xR = full - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
+    HRTIM1->sTimerxRegs[3].CMP4xR = full - adc_backoff*0x20 - sampling_phase_var*0x20;
+
+    HRTIM1->sTimerxRegs[1].CMP3xR = half - adc_backoff*0x20;
+    HRTIM1->sTimerxRegs[1].CMP4xR = full - adc_backoff*0x20;
+    //HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width * 0x20;
+    //HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
+    //HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
+    //HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
+    //int sampling_width = (dbg_settings[0]>>12) & 0xff;
 }
 
 int main(void) {
@@ -240,11 +257,12 @@ int main(void) {
     DAC2->CR = DAC_CR_EN1;
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
-    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT;
-    HRTIM1->sMasterRegs.MPER = 180 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
+    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | HRTIM_MCR_MREPU;
+    HRTIM1->sMasterRegs.MPER = 370 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
      */
+    HRTIM1->sMasterRegs.MCMP1R = HRTIM1->sMasterRegs.MPER / 2;
 
     /* On each channel: 
      *
@@ -263,37 +281,30 @@ int main(void) {
     HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[2].CMP1xR = global_sampling_offset * 0x20; 
-    HRTIM1->sTimerxRegs[2].CMP2xR = HRTIM1->sTimerxRegs[2].CMP1xR + stimulus_width; 
-    HRTIM1->sTimerxRegs[2].CMP3xR = 0; 
-    HRTIM1->sTimerxRegs[2].CMP4xR = 0; 
-    HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_CMP1;
-    HRTIM1->sTimerxRegs[2].SETx2R = HRTIM_SET2R_CMP3;
-    HRTIM1->sTimerxRegs[2].RSTx1R = HRTIM_RST1R_CMP2;
-    HRTIM1->sTimerxRegs[2].RSTx2R = HRTIM_RST2R_CMP4;
+    HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_CMP2;
+    HRTIM1->sTimerxRegs[2].RSTx1R = HRTIM_RST1R_CMP1;
 
     /* Channel D: Diode sampler pulse */
     HRTIM1->sTimerxRegs[3].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[3].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[3].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
-    HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
-    HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
-    int sampling_width = (dbg_settings>>12) & 0xff;
-    HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width;
-    HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
-    HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_CMP3;
-    HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
-    HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_CMP4;
+    //HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
+    //HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
+    //HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
+    //int sampling_width = (dbg_settings>>12) & 0xff;
+    //HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width;
+    //HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
+    //HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
+    HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_MSTPER | HRTIM_SET2R_CMP2 | HRTIM_SET2R_CMP3;
+    HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_MSTCMP1 | HRTIM_RST2R_CMP1 | HRTIM_RST2R_CMP4;
 
     /* Channel B: ADC trigger */
     HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
-    int sampling_phase_var = (dbg_settings>>4) & 0x3f;
-    HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
-    HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
-    HRTIM1->sTimerxRegs[1].TIMxDIER = HRTIM_TIMDIER_CMP3IE;
+    int sampling_phase_var = (dbg_settings[0]>>4) & 0x3f;
+    //HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
+    //HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
     
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN;
     HRTIM1->sMasterRegs.MDIER |= HRTIM_MDIER_MREPIE;
@@ -418,7 +429,7 @@ int main(void) {
 
     /* Start the high-resolution timer */
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
-
+    debug_plot_hook();
     while (23) {
         update_leds();
     }
@@ -453,17 +464,10 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HRTIM1_Master_IRQHandler(void) {
-    static int d = 0;
-    d ++;
-    if (d == COUNT_OF(adc1_raw)) {
-        d = 0;
-    }
-
     HRTIM1->sMasterRegs.MICR = HRTIM_MICR_MREP;
 
-    int t = (global_sampling_offset + 24) * 0x20 - sampling_phase;
-    HRTIM1->sTimerxRegs[2].CMP1xR = t; 
-    HRTIM1->sTimerxRegs[2].CMP2xR = t + stimulus_width; 
+    HRTIM1->sTimerxRegs[2].CMP1xR = stim_offset*0x20 + sampling_phase; 
+    HRTIM1->sTimerxRegs[2].CMP2xR = stim_offset*0x20 + HRTIM1->sMasterRegs.MPER/2 + sampling_phase;
 }
 
 void update_leds() {

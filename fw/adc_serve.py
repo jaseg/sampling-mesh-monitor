@@ -22,6 +22,7 @@ dbg_settings = {
         'rf_term_short': False,
         'sampling_phase_var': 8,
         'sampling_width': 2,
+        'stimulus_offset': 8,
         }
 
 @app.route('/')
@@ -39,7 +40,7 @@ def watch_adc_graphs(sock):
             app.logger.info('graph update')
             adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
             adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint32)
-            scale = 3.3 / (2**12) / 8
+            scale = 3.3 / (2**12) / 1
             adc1, adc2 = adc1 * scale, adc2 * scale
             sock.emit('graph_update', {'adc1': adc1.tolist(),
                                        'adc2': adc2.tolist()})
@@ -55,9 +56,11 @@ def handle(data):
         if dbg_settings[key]:
             out |= 1<<i
     out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
-    out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 12
+    out |= (int(dbg_settings['sampling_width']) & 0xff) << 12
+    out |= (int(dbg_settings['stimulus_offset']) & 0xff) << 20
+    out1 = (int(dbg_settings['main_period']) & 0x3ff)
     print(f'Set debug settings to {out:08x}')
-    Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<I', out))
+    Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<II', out, out1))
 
 if __name__ == '__main__':
     watch_adc_graphs(sock)
