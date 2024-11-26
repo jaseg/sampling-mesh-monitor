@@ -23,6 +23,7 @@ dbg_settings = {
         'sampling_phase_var': 8,
         'sampling_width': 2,
         'stimulus_offset': 8,
+        'main_period': 0,
         }
 
 @app.route('/')

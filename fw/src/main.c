@@ -7,7 +7,7 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile uint32_t dbg_settings[2] = {0x00002081, 360};
+volatile uint32_t dbg_settings[2] = {(10<<4) | (2<<12) | (99<<20), 0};
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -20,7 +20,7 @@ int stim_offset = 0;
 int adc_backoff = 60;
 uint16_t adc1_raw[1];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[1024];
+uint32_t adc1_readings[2048];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
@@ -48,11 +48,6 @@ void debug_plot_hook(void){
     int sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
     int sampling_width = (dbg_settings[0]>>12) & 0xff;
     stim_offset = (dbg_settings[0]>>20) & 0xff;
-    HRTIM1->sMasterRegs.MPER = (dbg_settings[1]&0x3ff)*0x20;
-    HRTIM1->sMasterRegs.MCMP1R = HRTIM1->sMasterRegs.MPER / 2;
-    HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
-    HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
-    HRTIM1->sTimerxRegs[3].PERxR = HRTIM1->sMasterRegs.MPER;
     const int full = HRTIM1->sMasterRegs.MPER;
     const int half = full/2;
     HRTIM1->sTimerxRegs[3].CMP1xR = half - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
@@ -258,7 +253,7 @@ int main(void) {
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
     HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | HRTIM_MCR_MREPU;
-    HRTIM1->sMasterRegs.MPER = 370 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
+    HRTIM1->sMasterRegs.MPER = 378 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
      */
