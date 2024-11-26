@@ -18,7 +18,7 @@ enum dbg_settings_mask {
 int sampling_phase = 0;
 int stim_offset = 0;
 int adc_backoff = 60;
-uint16_t adc1_raw[1];
+uint16_t adc1_raw[8];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
 uint32_t adc1_readings[2048];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];

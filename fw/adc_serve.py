@@ -41,7 +41,8 @@ def watch_adc_graphs(sock):
             app.logger.info('graph update')
             adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
             adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint32)
-            scale = 3.3 / (2**12) / 1
+            oversampling = 8
+            scale = 3.3 / (2**12) / oversampling
             adc1, adc2 = adc1 * scale, adc2 * scale
             sock.emit('graph_update', {'adc1': adc1.tolist(),
                                        'adc2': adc2.tolist()})
