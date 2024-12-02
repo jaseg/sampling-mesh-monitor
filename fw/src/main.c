@@ -7,7 +7,7 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile uint32_t dbg_settings[2] = {(2<<4) | (2<<12) | (64<<20), 0};
+volatile uint32_t dbg_settings[2] = {(2<<4) | (2<<12) | (64<<20), (8<<0)};
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -18,7 +18,8 @@ enum dbg_settings_mask {
 int sampling_phase = 0;
 int stim_offset = 0;
 int adc_backoff = 60;
-uint16_t adc1_raw[8];
+int oversampling = 8;
+uint16_t adc1_raw[512];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
 uint32_t adc1_readings[2048];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
@@ -48,6 +49,10 @@ void debug_plot_hook(void){
     int sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
     int sampling_width = (dbg_settings[0]>>12) & 0xff;
     stim_offset = (dbg_settings[0]>>20) & 0xff;
+    oversampling = dbg_settings[1] & 0x1ff;
+    if (oversampling == 0) {
+        oversampling = 1;
+    }
     const int full = HRTIM1->sMasterRegs.MPER;
     const int half = full/2;
     /* Sampling pulse */
@@ -67,6 +72,18 @@ void debug_plot_hook(void){
     //HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
     //HRTIM1->sTimerxRegs[3].CMP3xR = global_sampling_offset * 0x20; 
     //int sampling_width = (dbg_settings[0]>>12) & 0xff;
+    DMA1_Channel2->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+    while ((DMA1_Channel1->CCR & DMA_CCR_EN) | (DMA1_Channel2->CCR & DMA_CCR_EN)) {
+        /* Do nothing. */
+    }
+    DMA1_Channel2->CNDTR = oversampling;
+    DMA1_Channel1->CNDTR = oversampling;
+
+    DMA1_Channel2->CCR |= DMA_CCR_EN;
+    DMA1_Channel1->CCR |= DMA_CCR_EN;
+
+	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
 }
 
 int main(void) {
@@ -407,7 +424,7 @@ int main(void) {
 
     DMA1_Channel1->CPAR = (uint32_t) &ADC1->DR;
     DMA1_Channel1->CMAR = (uint32_t) adc1_raw;
-    DMA1_Channel1->CNDTR = COUNT_OF(adc1_raw);
+    DMA1_Channel1->CNDTR = oversampling;
     DMA1_Channel1->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
@@ -418,7 +435,7 @@ int main(void) {
 
     DMA1_Channel2->CPAR = (uint32_t) &ADC2->DR;
     DMA1_Channel2->CMAR = (uint32_t) adc2_raw;
-    DMA1_Channel2->CNDTR = COUNT_OF(adc2_raw);
+    DMA1_Channel2->CNDTR = oversampling;
     DMA1_Channel2->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
@@ -452,10 +469,10 @@ void DMA1_Channel1_IRQHandler(void) {
     } else {
         GPIOA->BSRR = (1<<1);
         DMA1->IFCR = DMA_IFCR_CTCIF1;
-        for (size_t i=0; i<COUNT_OF(adc1_raw); i++) {
+        for (size_t i=0; i<oversampling; i++) {
             adc1_readings[sampling_phase] += adc1_raw[i];
         }
-        for (size_t i=0; i<COUNT_OF(adc2_raw); i++) {
+        for (size_t i=0; i<oversampling; i++) {
             adc2_readings[sampling_phase] += adc2_raw[i];
         }
         sampling_phase ++;

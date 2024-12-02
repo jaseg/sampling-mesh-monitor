@@ -43,9 +43,9 @@
             <label for="stim_offset_inp">
                 Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="64"/>
             </label>
-            <!--label for="mper_inp">
-                Main period <input type="number" id="mper_inp" min="1" max="1023" step="1" value="360"/>
-            </label-->
+            <label for="oversampling_inp">
+                Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="8"/>
+            </label>
         </div>
 
         <h4>ADC 1</h4>
@@ -58,7 +58,7 @@
             </label>
 
             <label for="adc1_thr_v_spin">
-                Anchor time: <input type="number" id="adc1_thr_v_spin" class="t_spin" min="-0.3" max="3.6" step="0.01"/> ns
+                Anchor time: <input type="number" id="adc1_thr_v_spin" class="t_spin" min="0" max="500" step="1"/> ns
             </label>
 
             <div class="stats" id="table_adc1">
@@ -98,7 +98,7 @@
             </label>
 
             <label for="adc2_thr_v_spin">
-                Anchor time: <input type="number" id="adc2_thr_v_spin" class="t_spin" min="-0.3" max="3.6" step="0.01"/> ns
+                Anchor time: <input type="number" id="adc2_thr_v_spin" class="t_spin" min="0" max="500" step="1"/> ns
             </label>
 
             <div class="stats" id="table_adc2">
@@ -267,8 +267,8 @@
             document.querySelector('#stim_offset_inp').addEventListener('change', (evt) => {
                 socket.emit('dev_settings', {'stimulus_offset': evt.target.value});
             });
-            document.querySelector('#mper_inp').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'main_period': evt.target.value});
+            document.querySelector('#oversampling_inp').addEventListener('change', (evt) => {
+                socket.emit('dev_settings', {'oversampling': evt.target.value});
             });
         </script>
     </body>

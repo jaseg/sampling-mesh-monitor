@@ -20,10 +20,10 @@ dbg_settings = {
         'mesh_flip_n': True,
         'rf_term': False,
         'rf_term_short': False,
-        'sampling_phase_var': 8,
+        'sampling_phase_var': 2,
         'sampling_width': 2,
-        'stimulus_offset': 8,
-        'main_period': 0,
+        'stimulus_offset': 64,
+        'oversampling': 8,
         }
 
 @app.route('/')
@@ -42,8 +42,7 @@ def watch_adc_graphs(sock):
             adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
             adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint32)
             adc1, adc2 = adc1[::-1], adc2[::-1] # restore causality ;)
-            oversampling = 8
-            scale = 3.3 / (2**12) / oversampling
+            scale = 3.3 / (2**12) / int(dbg_settings['oversampling'])
             adc1, adc2 = adc1 * scale, adc2 * scale
             sock.emit('graph_update', {'adc1': adc1.tolist(),
                                        'adc2': adc2.tolist()})
@@ -61,8 +60,8 @@ def handle(data):
     out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
     out |= (int(dbg_settings['sampling_width']) & 0xff) << 12
     out |= (int(dbg_settings['stimulus_offset']) & 0xff) << 20
-    out1 = (int(dbg_settings['main_period']) & 0x3ff)
-    print(f'Set debug settings to {out:08x}')
+    out1 = (int(dbg_settings['oversampling']) & 0x1ff)
+    print(f'Set debug settings to {out:08x} | {out1:08x}')
     Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<II', out, out1))
 
 if __name__ == '__main__':
