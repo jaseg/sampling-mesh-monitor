@@ -7,7 +7,7 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile uint32_t dbg_settings[2] = {(10<<4) | (2<<12) | (99<<20), 0};
+volatile uint32_t dbg_settings[2] = {(2<<4) | (2<<12) | (64<<20), 0};
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -50,13 +50,18 @@ void debug_plot_hook(void){
     stim_offset = (dbg_settings[0]>>20) & 0xff;
     const int full = HRTIM1->sMasterRegs.MPER;
     const int half = full/2;
+    /* Sampling pulse */
     HRTIM1->sTimerxRegs[3].CMP1xR = half - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
     HRTIM1->sTimerxRegs[3].CMP2xR = half - adc_backoff*0x20 - sampling_phase_var*0x20;
     HRTIM1->sTimerxRegs[3].CMP3xR = full - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
     HRTIM1->sTimerxRegs[3].CMP4xR = full - adc_backoff*0x20 - sampling_phase_var*0x20;
 
+    /* ADC trigger */
     HRTIM1->sTimerxRegs[1].CMP3xR = half - adc_backoff*0x20;
     HRTIM1->sTimerxRegs[1].CMP4xR = full - adc_backoff*0x20;
+    /* Debug output */
+    HRTIM1->sTimerxRegs[5].CMP1xR = HRTIM1->sTimerxRegs[1].CMP3xR;
+    HRTIM1->sTimerxRegs[5].CMP2xR = HRTIM1->sTimerxRegs[1].CMP4xR;
     //HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width * 0x20;
     //HRTIM1->sTimerxRegs[3].CMP1xR = 0; 
     //HRTIM1->sTimerxRegs[3].CMP2xR = 0; 
@@ -174,7 +179,7 @@ int main(void) {
      *  3 -  LED4
      *  4 -  MESH_FLIP
      *  5 -  (nc)
-     *  6 -  SFP6
+     *  6 -  SFP6 - HRTIM1 CHF1 (Debug out)
      *  7 -  VRES_EN
      *  8 -  I2C1_SCL
      *  9 -  I2C1_SDA
@@ -186,8 +191,9 @@ int main(void) {
      * 15 -  RF_TERM/~SHORT
      */
 
-    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | IN(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
+    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | AF(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
         | AF(12) | IN(13) | OUT(14) | OUT(15);
+    GPIOC->AFR[0] = AFRL(6, 13); /* HRTIM1 CHF1 */
     GPIOC->AFR[1] = AFRH(8, 8) | /* I2C1 SCL */
                     AFRH(9, 8) | /* I2C1 SDA */
                     AFRH(12, 1); /* TIM5 CH2 */
@@ -300,8 +306,15 @@ int main(void) {
     int sampling_phase_var = (dbg_settings[0]>>4) & 0x3f;
     //HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
     //HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
+
+    /* Channel F: Debug output */
+    HRTIM1->sTimerxRegs[5].TIMxCR = HRTIM_TIMCR_MSTU;
+    HRTIM1->sTimerxRegs[5].PERxR = HRTIM1->sMasterRegs.MPER;
+    HRTIM1->sTimerxRegs[5].RSTxR = HRTIM_RSTR_MSTPER;
+    HRTIM1->sTimerxRegs[5].SETx1R = HRTIM_SET1R_CMP1;
+    HRTIM1->sTimerxRegs[5].RSTx1R = HRTIM_RST1R_CMP2;
     
-    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN;
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN | HRTIM_MCR_TFCEN;
     HRTIM1->sMasterRegs.MDIER |= HRTIM_MDIER_MREPIE;
 
     HRTIM1->sCommonRegs.ADC1R = HRTIM_ADC1R_AD1TBC3; /* hrtim_adc_trg1 signal (*NOT* ADC1!) */
@@ -310,6 +323,7 @@ int main(void) {
     HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TC2OEN;
     HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TD1OEN;
     HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TD2OEN;
+    HRTIM1->sCommonRegs.OENR |= HRTIM_OENR_TF1OEN;
 
     /* Configure HRTIM1 to generate excitation and sampling pules */
     HRTIM1->sCommonRegs.DLLCR = HRTIM_DLLCR_CAL;
