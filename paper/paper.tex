@@ -1,0 +1,97 @@
+\documentclass[journal,12pt,onecolumn,draftclsnofoot]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[
+    backend=biber,
+    style=numeric,
+    natbib=true,
+    url=false, 
+    doi=true,
+    eprint=false
+    ]{biblatex}
+\addbibresource{paper.bib}
+\usepackage{amssymb,amsmath}
+\usepackage{eurosym}
+\usepackage{wasysym}
+\usepackage[binary-units]{siunitx}
+\usepackage{commath}
+\usepackage{graphicx,color}
+\usepackage{colortbl}
+\usepackage{subcaption}
+\usepackage{placeins}
+\usepackage{array}
+\usepackage{censor}
+\usepackage{hyperref}
+\usepackage{makecell}
+
+\DeclareSIUnit{\baud}{Bd}
+\DeclareSIUnit{\year}{a}
+\DeclareSIUnit{\rpm}{rpm}
+\renewcommand{\floatpagefraction}{.8}
+\newcommand{\degree}{\ensuremath{^\circ}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcommand{\partnum}[1]{\texttt{#1}}
+\newcommand{\todo}[1]{\textbf{TODO}\footnote{#1}}
+% Set to 1.0 for final two-column export
+\newlength{\figurescale}
+\setlength{\figurescale}{0.75\textwidth}
+
+\begin{document}
+
+% TODO
+
+\date{December 11 2024}
+\author{\IEEEauthorblockN{Jan Sebastian Götte}\thanks{Jan Sebastian Götte is with the Technical University of Darmstadt,
+64283 Darmstadt, Germany (e-mail: jan.goette@tu-darmstadt.de).}}
+\title{Low-Cost, Embeddable Time Domain Reflectometry for High-Fidelity Security Mesh Monitoring in Hardware Security
+Modules}
+\maketitle
+
+\begin{abstract}
+    Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs) to
+    detect attempts at physical intrusion into the HSM's protective shell. In this paper, we present an optimized,
+    embeddable security mesh monitoring circuit that applies the principles behind Time Domain Reflectometry (TDR) to
+    create a unique fingerprint of a mesh, and to detect not only DC faults, but also attempts at bridging and removing
+    parts of the mesh. Our TDR circuit improves over previous low-cost TDR approaches by utilizing exclusively low-cost,
+    consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\$ while achieving a
+    multi-gigahertz bandwidth.
+    % We validate our mesh monitoring system in a number of realistic attack scenarios using a real-time, embeddable
+    % Machine Learning (ML) classifier.
+\end{abstract}
+
+\todo{In abstract: specific bandwidth / risetime numbers.}
+\todo{In abstract: Add machine learning / "AI" classifier.}
+
+\section{Introduction}
+
+\section{Related Work}
+
+\subsection{Security Mesh Monitoring and Design}
+
+\subsection{Hardware Security Module System Design}
+
+\subsection{Low-Cost Time Domain Reflectometry}
+
+\subsection{Machine Learning and Anomaly Detection}
+
+\section{Time-Domain Reflectometry}
+
+\section{Circuit Design and Driving Approach}
+
+\section{Anomaly Detection through Machine Learning}
+
+\section{Experimental Evaluation}
+
+\section{Conclusion}
+
+\section*{Availability}
+This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today.
+
+The git repository with the LaTeX source for this paper, the data analysis code underlying our measurements as well the
+set of tools for the generation of twisted inductor layouts that we wrote can be found at:
+
+ \center{\url{https://git.jaseg.de/ihsm-sampling-mesh-monitor-hw.git}}
+
+\FloatBarrier
+\printbibliography[heading=bibintoc]
+\end{document}
