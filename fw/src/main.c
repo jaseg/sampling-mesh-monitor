@@ -7,7 +7,25 @@ uint64_t sync_time_us;
 
 void update_leds(void);
 
-volatile uint32_t dbg_settings[2] = {(2<<4) | (2<<12) | (64<<20), (8<<0)};
+int sampling_phase = 0;
+int adc_backoff = 60;
+uint16_t adc1_raw[512];
+uint16_t adc2_raw[COUNT_OF(adc1_raw)];
+uint32_t adc1_readings[1024];
+uint32_t adc2_readings[COUNT_OF(adc1_readings)];
+uint32_t adc1_variance[COUNT_OF(adc1_readings)];
+uint32_t adc2_variance[COUNT_OF(adc1_readings)];
+
+/* Bootup values. Will be overwritten with defaults from web interface HTML on launch. */
+const int default_sampling_phase_var = 2;
+const int default_sampling_width = 2;
+const int default_stim_offset = 104;
+const int default_oversampling = 64;
+int sampling_phase_var = default_sampling_phase_var;
+int sampling_width = default_sampling_width;
+int stim_offset = default_stim_offset;
+int oversampling = default_oversampling;
+
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -15,16 +33,12 @@ enum dbg_settings_mask {
     DBG_RF_TERM_SHORT = 8,
 };
 
-int sampling_phase = 0;
-int stim_offset = 0;
-int adc_backoff = 60;
-int oversampling = 8;
-uint16_t adc1_raw[512];
-uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[1024];
-uint32_t adc2_readings[COUNT_OF(adc1_readings)];
-uint32_t adc1_variance[COUNT_OF(adc1_readings)];
-uint32_t adc2_variance[COUNT_OF(adc1_readings)];
+volatile uint32_t dbg_settings[2] = {
+    (default_sampling_phase_var<<4) |
+    (default_sampling_width<<12) |
+    (default_stim_offset<<20) |
+    DBG_MESH_FLIP_N,
+    (default_oversampling<<0)};
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
@@ -48,8 +62,8 @@ void debug_plot_hook(void){
     } else {
         GPIOC->BRR = 1<<15;
     }
-    int sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
-    int sampling_width = (dbg_settings[0]>>12) & 0xff;
+    sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
+    sampling_width = (dbg_settings[0]>>12) & 0xff;
     stim_offset = (dbg_settings[0]>>20) & 0xff;
     oversampling = dbg_settings[1] & 0x1ff;
     if (oversampling == 0) {
@@ -79,13 +93,11 @@ void debug_plot_hook(void){
     while ((DMA1_Channel1->CCR & DMA_CCR_EN) | (DMA1_Channel2->CCR & DMA_CCR_EN)) {
         /* Do nothing. */
     }
-    DMA1_Channel2->CNDTR = oversampling;
-    DMA1_Channel1->CNDTR = oversampling;
+    DMA1_Channel2->CNDTR = oversampling+4;
+    DMA1_Channel1->CNDTR = oversampling+4;
 
     DMA1_Channel2->CCR |= DMA_CCR_EN;
     DMA1_Channel1->CCR |= DMA_CCR_EN;
-
-	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
 }
 
 int main(void) {
@@ -217,7 +229,8 @@ int main(void) {
                     AFRH(9, 8) | /* I2C1 SDA */
                     AFRH(12, 1); /* TIM5 CH2 */
 
-    GPIOC->BRR = 0xf | (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
+    GPIOC->BRR = (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
+    GPIOC->BSRR = 0xf;
 
     /* GPIOD:
      *  2 -  SFP5
@@ -265,7 +278,7 @@ int main(void) {
     sync_time_us = 0;
     SysTick->LOAD = SYSTICK_INTERVAL_US / 1000 * SystemCoreClock / 1000; /* 10ms interrupt interval */
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
-    NVIC_EnableIRQ(SysTick_IRQn);
+    //NVIC_EnableIRQ(SysTick_IRQn);
 
     /* Configure DAC1 to generate various reference voltages */
     VREFBUF->CSR = (2<<VREFBUF_CSR_VRS_Pos) | VREFBUF_CSR_ENVR;
@@ -277,7 +290,7 @@ int main(void) {
     DAC2->CR = DAC_CR_EN1;
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
-    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | HRTIM_MCR_MREPU;
+    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT;
     HRTIM1->sMasterRegs.MPER = 378 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
@@ -334,7 +347,6 @@ int main(void) {
     HRTIM1->sTimerxRegs[5].RSTx1R = HRTIM_RST1R_CMP2;
     
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_TCCEN | HRTIM_MCR_TDCEN | HRTIM_MCR_TBCEN | HRTIM_MCR_TFCEN;
-    HRTIM1->sMasterRegs.MDIER |= HRTIM_MDIER_MREPIE;
 
     HRTIM1->sCommonRegs.ADC1R = HRTIM_ADC1R_AD1TBC3; /* hrtim_adc_trg1 signal (*NOT* ADC1!) */
     HRTIM1->sCommonRegs.ADC3R = HRTIM_ADC3R_AD3TBC4; /* hrtim_adc_trg3 signal (*NOT* ADC3!) */
@@ -401,8 +413,8 @@ int main(void) {
     ADC1->SMPR1 = (0x2<<ADC_SMPR1_SMP0_Pos); /* Sampling time 0x2 = 12.5 ADC clock cycles */
     ADC1->CR |= ADC_CR_ADSTART;
     ADC1->IER = ADC_IER_EOCIE;
-    NVIC_EnableIRQ(ADC1_2_IRQn);
     NVIC_SetPriority(ADC1_2_IRQn, 3);
+    //NVIC_EnableIRQ(ADC1_2_IRQn);
 
     ADC2->CFGR = ADC_CFGR_JQDIS
         | ADC_CFGR_DISCEN
@@ -426,18 +438,17 @@ int main(void) {
 
     DMA1_Channel1->CPAR = (uint32_t) &ADC1->DR;
     DMA1_Channel1->CMAR = (uint32_t) adc1_raw;
-    DMA1_Channel1->CNDTR = oversampling;
+    DMA1_Channel1->CNDTR = oversampling+4;
     DMA1_Channel1->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
         | DMA_CCR_CIRC
         | DMA_CCR_TCIE
-        | DMA_CCR_HTIE
         | DMA_CCR_EN;
 
     DMA1_Channel2->CPAR = (uint32_t) &ADC2->DR;
     DMA1_Channel2->CMAR = (uint32_t) adc2_raw;
-    DMA1_Channel2->CNDTR = oversampling;
+    DMA1_Channel2->CNDTR = oversampling+4;
     DMA1_Channel2->CCR = (1<<DMA_CCR_MSIZE_Pos)
         | (1<<DMA_CCR_PSIZE_Pos)
         | DMA_CCR_MINC
@@ -447,72 +458,62 @@ int main(void) {
 	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
 	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
-	NVIC_SetPriority(HRTIM1_Master_IRQn, 1);
-	NVIC_EnableIRQ(HRTIM1_Master_IRQn);
-
-
     while (!(HRTIM1->sCommonRegs.ISR & HRTIM_ISR_DLLRDY)) {
         /* Wait for DLL calibration to complete. */
     }
 
     /* Start the high-resolution timer */
-    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
     debug_plot_hook();
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
     while (23) {
         update_leds();
     }
 }
 
 void DMA1_Channel1_IRQHandler(void) {
-    if (DMA1->ISR & DMA_ISR_HTIF1) {
-        DMA1->IFCR = DMA_IFCR_CHTIF1;
-        GPIOA->BRR = (1<<1);
+    HRTIM1->sMasterRegs.MCR &= ~HRTIM_MCR_MCEN;
+    GPIOA->BSRR = (1<<1);
+    DMA1->IFCR = DMA_IFCR_CTCIF1;
 
-    } else {
-        GPIOA->BSRR = (1<<1);
-        DMA1->IFCR = DMA_IFCR_CTCIF1;
+    /* Note: We don't divide the mean by the number of samples here to maximize extracted data. We have enough bit
+     * width anyway. */
+    int mean1 = 0, sqmean1 = 0;
+    int mean2 = 0, sqmean2 = 0;
+    for (size_t i=2; i<oversampling+2; i++) {
+        int entry = adc1_raw[i];
+        mean1 += entry;
+        sqmean1 += entry*entry;
 
-        /* Note: We don't divide the mean by the number of samples here to maximize extracted data. We have enough bit
-         * width anyway. */
-        int mean1 = 0, sqmean1 = 0;
-        int mean2 = 0, sqmean2 = 0;
-        for (size_t i=0; i<oversampling; i++) {
-            int entry = adc1_raw[i];
-            mean1 += entry;
-            sqmean1 += entry*entry;
+        entry = adc2_raw[i];
+        mean2 += entry;
+        sqmean2 += entry*entry;
+    }
+    adc1_readings[sampling_phase] = mean1;
+    adc1_variance[sampling_phase] = sqmean1*oversampling - mean1*mean1;
+    adc2_readings[sampling_phase] = mean2;
+    adc2_variance[sampling_phase] = sqmean2*oversampling - mean2*mean2;
 
-            entry = adc2_raw[i];
-            mean2 += entry;
-            sqmean2 += entry*entry;
+    sampling_phase ++;
+    if (sampling_phase == COUNT_OF(adc1_readings)) {
+        sampling_phase = 0;
+        GPIOC->BRR = 1<<2;
+        debug_plot_hook();
+        GPIOC->BSRR = 1<<2;
+        for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
+            adc1_readings[i] = 0;
         }
-        adc1_readings[sampling_phase] = mean1;
-        adc1_variance[sampling_phase] = sqmean1 - mean1*mean1;
-        adc2_readings[sampling_phase] = mean2;
-        adc2_variance[sampling_phase] = sqmean2 - mean2*mean2;
-
-        sampling_phase ++;
-        if (sampling_phase == COUNT_OF(adc1_readings)) {
-            sampling_phase = 0;
-            debug_plot_hook();
-            for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
-                adc1_readings[i] = 0;
-            }
-            for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
-                adc2_readings[i] = 0;
-            }
+        for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
+            adc2_readings[i] = 0;
         }
     }
-}
-
-void HRTIM1_Master_IRQHandler(void) {
-    HRTIM1->sMasterRegs.MICR = HRTIM_MICR_MREP;
 
     HRTIM1->sTimerxRegs[2].CMP1xR = stim_offset*0x20 + sampling_phase; 
     HRTIM1->sTimerxRegs[2].CMP2xR = stim_offset*0x20 + HRTIM1->sMasterRegs.MPER/2 + sampling_phase;
+    HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
 }
 
 void update_leds() {
-    int blink_flag = (sys_time_us % 1000000) < 300000;
+    int blink_flag = (sys_time_us % 1000000) > 100000;
 
     if (blink_flag) {
         GPIOC->BSRR = (1<<3);

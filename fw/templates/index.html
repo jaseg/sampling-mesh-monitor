@@ -35,20 +35,25 @@
                 RF_TERM_SHORT
             </label>
             <label for="sampling_phase_inp">
-                Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="2" data-dev-setting="sampling_phase_var"/>
+                Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="6" data-dev-setting="sampling_phase_var"/>
             </label>
             <label for="sampling_width_inp">
                 Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="2" data-dev-setting="sampling_width"/>
             </label>
             <label for="stim_offset_inp">
-                Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="64" data-dev-setting="stimulus_offset"/>
+                Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="104" data-dev-setting="stimulus_offset"/>
             </label>
             <label for="oversampling_inp">
-                Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="8" data-dev-setting="oversampling"/>
+                Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="256" data-dev-setting="oversampling"/>
             </label>
         </div>
 
-        <h4>ADC 1</h4>
+        <h4>Download data</h4>
+        <div class="download">
+            <label for="dl_meta_info">Meta info: <input type="text" id="dl_meta_info"/> <a id="download-button" href="#">Download</a>
+        </div>
+
+        <h4 id="adc1_heading">ADC 1</h4>
         <div id="plot_adc1"></div>
         <div class="measurement" id="meas_adc1_thr">
             <h5>Threshold</h5>
@@ -88,7 +93,7 @@
             </div>
         </div>
 
-        <h4>ADC 2</h4>
+        <h4 id="adc2_heading">ADC 2</h4>
         <div id="plot_adc2"></div>
         <div class="measurement" id="meas_adc2_thr">
             <h5>Threshold</h5>
@@ -202,13 +207,15 @@
             }
 
             class DataPlot {
-                constructor(plot_div, table_div, meas_div) {
+                constructor(plot_div, table_div, meas_div, heading_div) {
+                    this.heading = document.querySelector(heading_div);
                     this.div = document.querySelector(plot_div);
                     this.layout_settings = {
                         margin: {t: 20, l: 60, r: 20, b: 40},
                         hovermode: 'closest',
                         yaxis: {title: {text: 'V [V]'}},
-                        xaxis: {title: {text: 't [ns]'}}};
+                        xaxis: {title: {text: 't [ns]'}},
+                        showlegend: false};
                     this.plot = Plotly.newPlot(this.div,
                         [
                             {'x': [], 'y': [], 'type': 'scatter'},
@@ -219,10 +226,16 @@
                     this.div.on('plotly_click', (evt) => {
                         this.stats.set_thr(evt.points[0].y, evt.points[0].x);
                     });
+                    this.adc_data = null;
+                    this.var_data = null;
                 }
 
                 update_plot (in_adc, in_var) {
                     /* 168 MHz system clock, 32 delay-mapped subdivisions per system clock cycle in HRTIM */
+
+                    this.adc_data = in_adc;
+                    this.var_data = in_var;
+
                     const sampling_period_ns = 1000 / 168 / 32;
                     let adc_t = Array(in_adc.length);
                     let var_t = Array(2*in_adc.length);
@@ -234,8 +247,8 @@
                         var_t[i] = i * sampling_period_ns;
                         var_t[i2] = i * sampling_period_ns;
 
-                        var_data[i2] = in_adc[i] + in_var[i];
-                        var_data[i] = in_adc[i] - in_var[i];
+                        var_data[i2] = in_adc[i] + Math.sqrt(in_var[i]);
+                        var_data[i] = in_adc[i] - Math.sqrt(in_var[i]);
                     }
 
                     /* This cursed way of doing variance shading is from plotly's own docs lol.
@@ -252,17 +265,36 @@
                             'showlegend': false,
                         }, {
                             'x': adc_t,
-                            'y': adc_data,
+                            'y': in_adc,
                             'type': 'scatter',
                             'line': {'color': 'rgba(255,0,0,1.0)'}
                         }], this.layout_settings);
 
-                    this.stats.update(adc_t, adc_data);
+                    this.stats.update(adc_t, in_adc);
+                    this.heading.style.backgroundColor = 'red';
+                    window.setTimeout(() => {this.heading.style.backgroundColor = null;}, 100);
                 }
             };
 
-            adc1_plot = new DataPlot('#plot_adc1', '#table_adc1', '#meas_adc1_thr');
-            adc2_plot = new DataPlot('#plot_adc2', '#table_adc2', '#meas_adc2_thr');
+            adc1_plot = new DataPlot('#plot_adc1', '#table_adc1', '#meas_adc1_thr', '#adc1_heading');
+            adc2_plot = new DataPlot('#plot_adc2', '#table_adc2', '#meas_adc2_thr', '#adc2_heading');
+
+            document.querySelector('#download-button').addEventListener('click', (evt) => {
+                let a = document.createElement('a');
+                a.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify({
+                    meta: document.querySelector('#dl_meta_info').value,
+                    settings: dbg_settings(),
+                    adc1: adc1_plot.adc_data,
+                    var1: adc1_plot.var_data,
+                    adc2: adc2_plot.adc_data,
+                    var2: adc2_plot.var_data,
+                }));
+                a.setAttribute('download', 'adc-capture-' + (new Date).toISOString() + '.json');
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
 
             const socket = io();
             socket.on('graph_update', (arg, callback) => {
@@ -270,13 +302,25 @@
                 adc2_plot.update_plot(arg['adc2'], arg['var2']);
             });
 
-            document.querySelectorAll('input[data-dev-setting]').forEach((inp) => {
-                inp.addEventListener('change', (evt) => {
+            function dbg_settings() {
+                let out = {};
+                document.querySelectorAll('input[data-dev-setting]').forEach((inp) => {
                     const key = inp.getAttribute('data-dev-setting');
+                    const value = inp.type == 'checkbox' ? inp.checked : inp.value;
+                    out[key] = value;
+                });
+                return out;
+            }
+            
+            document.querySelectorAll('input[data-dev-setting]').forEach((inp) => {
+                const key = inp.getAttribute('data-dev-setting');
+                inp.addEventListener('change', (evt) => {
                     const value = inp.type == 'checkbox' ? inp.checked : inp.value;
                     socket.emit('dev_settings', {[key]: value});
                 });
             });
+            console.log("Sending defaults");
+            socket.emit('dev_settings', dbg_settings());
         </script>
     </body>
 </html>

@@ -5,6 +5,7 @@ from pathlib import Path
 import base64
 import threading
 import struct
+import json
 
 import numpy as np
 from flask import Flask, render_template, url_for
@@ -15,16 +16,7 @@ app = Flask(__name__)
 sock = SocketIO(app)
 app.logger.setLevel(logging.INFO)
 
-dbg_settings = {
-        'mesh_flip': False,
-        'mesh_flip_n': True,
-        'rf_term': False,
-        'rf_term_short': False,
-        'sampling_phase_var': 2,
-        'sampling_width': 2,
-        'stimulus_offset': 64,
-        'oversampling': 8,
-        }
+dbg_settings = None
 
 @app.route('/')
 def index():
@@ -40,26 +32,36 @@ def watch_adc_graphs(sock):
         in_handle = inotify.adapters.Inotify()
         in_handle.add_watch('/tmp/adc2_variance.bin', mask=inotify.constants.IN_CLOSE_WRITE)
         for event in in_handle.event_gen(yield_nones=False):
-            app.logger.info('graph update')
-            scale = 3.3 / (2**12) / int(dbg_settings['oversampling'])
+            if dbg_settings is None: # not yet initialized from UI
+                print('ignoring update')
+                continue
 
-            def read_data(fn):
-                data = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
+            app.logger.info('graph update')
+            oversampling = int(dbg_settings['oversampling']);
+            scale = 3.3 / (2**12) / oversampling;
+
+            def read_data(fn, scale):
+                data = np.frombuffer(Path(fn).read_bytes(), dtype=np.uint32)
                 data = data[::-1] # restore causality ;)
-                data *= scale
+                data = data * scale
                 return data.tolist()
             
-            sock.emit('graph_update', {'adc1': read_data('/tmp/adc1_readings.bin'),
-                                       'var1': read_data('/tmp/adc1_variance.bin'),
-                                       'adc2': read_data('/tmp/adc2_readings.bin'),
-                                       'var2': read_data('/tmp/adc2_variance.bin')})
+            sock.emit('graph_update', {'adc1': read_data('/tmp/adc1_readings.bin', scale),
+                                       'var1': read_data('/tmp/adc1_variance.bin', scale**2/oversampling),
+                                       'adc2': read_data('/tmp/adc2_readings.bin', scale),
+                                       'var2': read_data('/tmp/adc2_variance.bin', scale**2/oversampling)})
 
     adc_thr = threading.Thread(target=handler, daemon=True)
     adc_thr.start()
 
 @sock.on('dev_settings')
 def handle(data):
-    dbg_settings.update(data)
+    global dbg_settings
+    if dbg_settings is None:
+        dbg_settings = data
+    else:
+        dbg_settings.update(data)
+
     out = 0
     for i, key in enumerate(['mesh_flip_n', 'mesh_flip', 'rf_term', 'rf_term_short']):
         if dbg_settings[key]:
