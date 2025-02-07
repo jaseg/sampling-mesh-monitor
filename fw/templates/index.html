@@ -19,32 +19,32 @@
         <h4>Device settings</h4>
         <div>
             <label for="cb_dev_mesh_flip">
-                <input type="checkbox" id="cb_dev_mesh_flip"/>
+                <input type="checkbox" id="cb_dev_mesh_flip" data-dev-setting="mesh_flip"/>
                 MESH_FLIP
             </label>
             <label for="cb_dev_mesh_flip_n">
-                <input type="checkbox" id="cb_dev_mesh_flip_n" checked/>
+                <input type="checkbox" id="cb_dev_mesh_flip_n" checked data-dev-setting="mesh_flip_n"/>
                 MESH_FLIP_N
             </label>
             <label for="cb_dev_rf_term">
-                <input type="checkbox" id="cb_dev_rf_term"/>
+                <input type="checkbox" id="cb_dev_rf_term" data-dev-setting="rf_term"/>
                 RF_TERM
             </label>
             <label for="cb_dev_rf_term_short">
-                <input type="checkbox" id="cb_dev_rf_term_short"/>
+                <input type="checkbox" id="cb_dev_rf_term_short" data-dev-setting="rf_term_short"/>
                 RF_TERM_SHORT
             </label>
             <label for="sampling_phase_inp">
-                Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="2"/>
+                Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="2" data-dev-setting="sampling_phase_var"/>
             </label>
             <label for="sampling_width_inp">
-                Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="2"/>
+                Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="2" data-dev-setting="sampling_width"/>
             </label>
             <label for="stim_offset_inp">
-                Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="64"/>
+                Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="64" data-dev-setting="stimulus_offset"/>
             </label>
             <label for="oversampling_inp">
-                Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="8"/>
+                Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="8" data-dev-setting="oversampling"/>
             </label>
         </div>
 
@@ -193,7 +193,6 @@
                 }
 
                 set_thr(thr_v, thr_t) {
-                    console.log('thr', thr_v, thr_t);
                     this.thr_v = thr_v;
                     this.thr_t = thr_t;
                     this.control_div.querySelector('.v_spin').value = thr_v;
@@ -202,73 +201,81 @@
                 }
             }
 
-            let div_adc1 = document.querySelector('#plot_adc1');
-            let div_adc2 = document.querySelector('#plot_adc2');
-            const layout_settings1 = {
-                margin: {t: 20, l: 60, r: 20, b: 40},
-                hovermode: 'closest',
-                yaxis: {title: {text: 'V [V]'}},
-                xaxis: {title: {text: 't [ns]'}}};
-            const layout_settings2 = {
-                margin: {t: 20, l: 60, r: 20, b: 40},
-                hovermode: 'closest',
-                yaxis: {title: {text: 'V [V]'}},
-                xaxis: {title: {text: 't [ns]'}}};
-            let plot_adc1 = Plotly.newPlot(div_adc1, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings1);
-            let plot_adc2 = Plotly.newPlot(div_adc2, [{'x': [], 'y': [], 'type': 'scatter'}], layout_settings2);
-            let stats_adc1 = new ThresholdStats(document.querySelector('#table_adc1'), document.querySelector('#meas_adc1_thr'));
-            let stats_adc2 = new ThresholdStats(document.querySelector('#table_adc2'), document.querySelector('#meas_adc2_thr'));
+            class DataPlot {
+                constructor(plot_div, table_div, meas_div) {
+                    this.div = document.querySelector(plot_div);
+                    this.layout_settings = {
+                        margin: {t: 20, l: 60, r: 20, b: 40},
+                        hovermode: 'closest',
+                        yaxis: {title: {text: 'V [V]'}},
+                        xaxis: {title: {text: 't [ns]'}}};
+                    this.plot = Plotly.newPlot(this.div,
+                        [
+                            {'x': [], 'y': [], 'type': 'scatter'},
+                            {'x': [], 'y': [], 'type': 'scatter'}
+                        ], this.layout_settings);
+                    this.stats = new ThresholdStats(document.querySelector(table_div), document.querySelector(meas_div));
+
+                    this.div.on('plotly_click', (evt) => {
+                        this.stats.set_thr(evt.points[0].y, evt.points[0].x);
+                    });
+                }
+
+                update_plot (in_adc, in_var) {
+                    /* 168 MHz system clock, 32 delay-mapped subdivisions per system clock cycle in HRTIM */
+                    const sampling_period_ns = 1000 / 168 / 32;
+                    let adc_t = Array(in_adc.length);
+                    let var_t = Array(2*in_adc.length);
+                    let var_data = Array(2*in_adc.length);
+                    for (var i=0; i<in_adc.length; i++) {
+                        adc_t[i] = i * sampling_period_ns;
+
+                        const i2 = var_t.length - 1 - i;
+                        var_t[i] = i * sampling_period_ns;
+                        var_t[i2] = i * sampling_period_ns;
+
+                        var_data[i2] = in_adc[i] + in_var[i];
+                        var_data[i] = in_adc[i] - in_var[i];
+                    }
+
+                    /* This cursed way of doing variance shading is from plotly's own docs lol.
+                       https://plotly.com/python/continuous-error-bars/ */
+                    this.plot = Plotly.react(this.div, [
+                        {
+                            'x': var_t,
+                            'y': var_data,
+                            'type': 'scatter',
+                            'fill': 'toself',
+                            'fillcolor': 'rgba(255,0,0,0.2)',
+                            'line': {'color': 'rgba(255,0,0,0.0)'},
+                            'hoverinfo': 'skip',
+                            'showlegend': false,
+                        }, {
+                            'x': adc_t,
+                            'y': adc_data,
+                            'type': 'scatter',
+                            'line': {'color': 'rgba(255,0,0,1.0)'}
+                        }], this.layout_settings);
+
+                    this.stats.update(adc_t, adc_data);
+                }
+            };
+
+            adc1_plot = new DataPlot('#plot_adc1', '#table_adc1', '#meas_adc1_thr');
+            adc2_plot = new DataPlot('#plot_adc2', '#table_adc2', '#meas_adc2_thr');
 
             const socket = io();
             socket.on('graph_update', (arg, callback) => {
-                const sampling_period_ns = 1000 / 168 / 32;
-                let adc1_t = Array(arg['adc1'].length)
-                for (var i=0; i<adc1_t.length; i++) {
-                    adc1_t[i] = i * sampling_period_ns;
-                }
-                let adc2_t = Array(arg['adc2'].length)
-                for (var i=0; i<adc2_t.length; i++) {
-                    adc2_t[i] = i * sampling_period_ns;
-                }
-                const adc1_data = arg['adc1'];
-                const adc2_data = arg['adc2'];
-                plot_adc1 = Plotly.react(div_adc1, [{'x': adc1_t, 'y': adc1_data, 'type': 'scatter'}], layout_settings1);
-                plot_adc2 = Plotly.react(div_adc2, [{'x': adc2_t, 'y': adc2_data, 'type': 'scatter'}], layout_settings2);
-                stats_adc1.update(adc1_t, adc1_data);
-                stats_adc2.update(adc2_t, adc2_data);
+                adc1_plot.update_plot(arg['adc1'], arg['var1']);
+                adc2_plot.update_plot(arg['adc2'], arg['var2']);
             });
 
-            div_adc1.on('plotly_click', (evt) => {
-                stats_adc1.set_thr(evt.points[0].y, evt.points[0].x);
-            });
-
-            div_adc2.on('plotly_click', (evt) => {
-                stats_adc2.set_thr(evt.points[0].y, evt.points[0].x);
-            });
-
-            document.querySelector('#cb_dev_mesh_flip').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'mesh_flip': evt.target.checked});
-            });
-            document.querySelector('#cb_dev_mesh_flip_n').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'mesh_flip_n': evt.target.checked});
-            });
-            document.querySelector('#cb_dev_rf_term').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'rf_term': evt.target.checked});
-            });
-            document.querySelector('#cb_dev_rf_term_short').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'rf_term_short': evt.target.checked});
-            });
-            document.querySelector('#sampling_phase_inp').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'sampling_phase_var': evt.target.value});
-            });
-            document.querySelector('#sampling_width_inp').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'sampling_width': evt.target.value});
-            });
-            document.querySelector('#stim_offset_inp').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'stimulus_offset': evt.target.value});
-            });
-            document.querySelector('#oversampling_inp').addEventListener('change', (evt) => {
-                socket.emit('dev_settings', {'oversampling': evt.target.value});
+            document.querySelectorAll('input[data-dev-setting]').forEach((inp) => {
+                inp.addEventListener('change', (evt) => {
+                    const key = inp.getAttribute('data-dev-setting');
+                    const value = inp.type == 'checkbox' ? inp.checked : inp.value;
+                    socket.emit('dev_settings', {[key]: value});
+                });
             });
         </script>
     </body>

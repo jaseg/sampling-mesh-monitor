@@ -34,18 +34,25 @@ def watch_adc_graphs(sock):
     def handler():
         Path('/tmp/adc1_readings.bin').touch()
         Path('/tmp/adc2_readings.bin').touch()
+        Path('/tmp/adc1_variance.bin').touch()
+        Path('/tmp/adc2_variance.bin').touch()
 
         in_handle = inotify.adapters.Inotify()
-        in_handle.add_watch('/tmp/adc2_readings.bin', mask=inotify.constants.IN_CLOSE_WRITE)
+        in_handle.add_watch('/tmp/adc2_variance.bin', mask=inotify.constants.IN_CLOSE_WRITE)
         for event in in_handle.event_gen(yield_nones=False):
             app.logger.info('graph update')
-            adc1 = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
-            adc2 = np.frombuffer(Path('/tmp/adc2_readings.bin').read_bytes(), dtype=np.uint32)
-            adc1, adc2 = adc1[::-1], adc2[::-1] # restore causality ;)
             scale = 3.3 / (2**12) / int(dbg_settings['oversampling'])
-            adc1, adc2 = adc1 * scale, adc2 * scale
-            sock.emit('graph_update', {'adc1': adc1.tolist(),
-                                       'adc2': adc2.tolist()})
+
+            def read_data(fn):
+                data = np.frombuffer(Path('/tmp/adc1_readings.bin').read_bytes(), dtype=np.uint32)
+                data = data[::-1] # restore causality ;)
+                data *= scale
+                return data.tolist()
+            
+            sock.emit('graph_update', {'adc1': read_data('/tmp/adc1_readings.bin'),
+                                       'var1': read_data('/tmp/adc1_variance.bin'),
+                                       'adc2': read_data('/tmp/adc2_readings.bin'),
+                                       'var2': read_data('/tmp/adc2_variance.bin')})
 
     adc_thr = threading.Thread(target=handler, daemon=True)
     adc_thr.start()

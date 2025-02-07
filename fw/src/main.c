@@ -21,8 +21,10 @@ int adc_backoff = 60;
 int oversampling = 8;
 uint16_t adc1_raw[512];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[2048];
+uint32_t adc1_readings[1024];
 uint32_t adc2_readings[COUNT_OF(adc1_readings)];
+uint32_t adc1_variance[COUNT_OF(adc1_readings)];
+uint32_t adc2_variance[COUNT_OF(adc1_readings)];
 
 void debug_plot_hook(void);
 void debug_plot_hook(void){
@@ -469,12 +471,25 @@ void DMA1_Channel1_IRQHandler(void) {
     } else {
         GPIOA->BSRR = (1<<1);
         DMA1->IFCR = DMA_IFCR_CTCIF1;
+
+        /* Note: We don't divide the mean by the number of samples here to maximize extracted data. We have enough bit
+         * width anyway. */
+        int mean1 = 0, sqmean1 = 0;
+        int mean2 = 0, sqmean2 = 0;
         for (size_t i=0; i<oversampling; i++) {
-            adc1_readings[sampling_phase] += adc1_raw[i];
+            int entry = adc1_raw[i];
+            mean1 += entry;
+            sqmean1 += entry*entry;
+
+            entry = adc2_raw[i];
+            mean2 += entry;
+            sqmean2 += entry*entry;
         }
-        for (size_t i=0; i<oversampling; i++) {
-            adc2_readings[sampling_phase] += adc2_raw[i];
-        }
+        adc1_readings[sampling_phase] = mean1;
+        adc1_variance[sampling_phase] = sqmean1 - mean1*mean1;
+        adc2_readings[sampling_phase] = mean2;
+        adc2_variance[sampling_phase] = sqmean2 - mean2*mean2;
+
         sampling_phase ++;
         if (sampling_phase == COUNT_OF(adc1_readings)) {
             sampling_phase = 0;
