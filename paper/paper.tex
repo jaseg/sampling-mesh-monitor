@@ -47,14 +47,16 @@
 Modules}
 \maketitle
 
+% FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
+
 \begin{abstract}
     Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs) to
     detect attempts at physical intrusion into the HSM's protective shell. In this paper, we present an optimized,
     embeddable security mesh monitoring circuit that applies the principles behind Time Domain Reflectometry (TDR) to
     create a unique fingerprint of a mesh, and to detect not only DC faults, but also attempts at bridging and removing
     parts of the mesh. Our TDR circuit improves over previous low-cost TDR approaches by utilizing exclusively low-cost,
-    consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\$ while achieving a
-    multi-gigahertz bandwidth.
+    consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\$ while achieving a time
+    resolution better than \qty{200}{\pico\second}.
     % We validate our mesh monitoring system in a number of realistic attack scenarios using a real-time, embeddable
     % Machine Learning (ML) classifier.
     % TODO: Use Dynamic Time Warping to compare traces?
@@ -64,6 +66,70 @@ Modules}
 \todo{In abstract: Add machine learning / "AI" classifier.}
 
 \section{Introduction}
+
+Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
+attacks must be prevented. Security meshes usually consist of two or more conductive traces that are laid out in a
+meandering pattern to cover a surface, and which are monitored electrically to detect attempts at penetrating this
+surface. Security meshes can be implemented at the macro scale, covering entire Printed Circuit Board Assemblies
+(PCBAs) in applications such as Hardware Security Modules (HSMs) or card payment terminals, or they can be implemented
+at the micro scale to prevent the readout of secrets from Integrated Circuits (ICs) such as smartcards or Trusted
+Platform Modules (TPMs). Micro-scale tamper sensing meshes are usually as passive sensors without a continuous power
+supply, and are only checked once during system powerup, macro-scale meshes are usually implemented as active sensors
+with a continuous backup power supply so as to not give the attacker a window of attack when the remaining system is
+powered down.
+
+There are some academic works suggesting the use of security meshes as Physically Uncloneable Functions (PUFs) to
+provide a high-fidelity tamper sensor that can even detect attempts at patching the mesh to fix traces broken in a
+drilling attack. While early work in this area was limited in the size of the protected envelope, recent advancements
+allow for the protection of entire PCBAs similar in size to common commercial systems such as HSMs or the processing
+subsystems of card payment terminals.
+
+As is often the case with security technologies, in practice there exists a tension between the level of security
+offered by a particular security mesh implementation, and its implementation cost. The most secure meshes require
+specialized manufacturing techniques that aim to produce what is essentially a Flexible Printed Circuit (FPC) whose
+materials are specifically chosen to be as fragile as possible such that it breaks even during careful manipulation by
+an attacker.
+
+In contrast to this in the industry, simpler approaches are still commonly used for their ease of implementation. Often,
+standard copper/polyimide FPCs are used because of the wide availability of manufacturing services. In some
+lower-security applications such as card payment terminals, meshes manufactured from simple PCBs are even used to
+provide protection in directions considered especially vulnerable, without enclosing the whole PCBA.
+
+In this paper, we introduce an approach for the design of security mesh monitoring circuitry that provides dramatically
+higher fidelity compared to state-of-the-art conductivity monitoring, improving the sensitivity of meshes even when
+manufactured using less advanced technologies such as standard FPC or PCB processes. Our approach 
+
+
+
+% FIXME old text below.
+In sensitive applications such as payment processing, healthcare data management and secure communication, on top of
+cryptographic techniques, Hardware Security Modules (HSMs) are used to perform cryptographic operations while
+protecting cryptographic secrets at rest. While state-of-the-art cryptographic techniques have largely solved the
+problem of protecting data in transit or at rest, cryptography exists embedded in a physical world and the problem of
+protecting its keys against physical attackers remains difficult to approach even today.
+
+HSMs fill this gap by incorporating always-on sensors that will quickly erase stored keys when physical tampering is
+detected. HSMs differ from devices such as smartcards or trusted platform modules in that their tamper sensors are
+continuously powered from a backup power supply to detect tampering attempts even while the rest of the system is shut
+down.
+% While often the term HSM is usually applied to a class of rackmount, datacenter devices that provide generic
+% cryptographic functions to their surrounding infrastructure, in this paper we apply the term more broadly to any
+% device that uses active tamper sensors that are designed to detect any conceivable physical attack.
+The level of active tamper sensing that is employed in HSMs differs from active tamper sensors in other devices such as
+electricity meters or vending machines in its scope. While in many applications such as these, few simple sensors such
+as contacts placed on removable panels are sufficient to detect the most tampering attempts, HSMs aim to detect even
+sophisticated attacks. A key requirement in HSMs is the ability to detect an attacker drilling through its enclosure to
+place probes inside the device. In general, this requires placing sensitive components inside of a tamper sensing
+barrier. Usually this barrier is implemented by wrapping the device in a flexible foil entirely covered by a pattern of
+meandering conductive traces, called a \emph{security mesh}, that is monitored for changes. 
+
+
+
+
+\todo{citations for applications}
+
+HSMs predate modern cryptography.
+\cite{nsaHistoryUSCommunications1973, nsaHistoryUSCommunications1981}
 
 \section{Related Work}
 
