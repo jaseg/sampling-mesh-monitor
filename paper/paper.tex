@@ -1,4 +1,4 @@
-\documentclass[journal,12pt,onecolumn,draftclsnofoot]{IEEEtran}
+\documentclass[submission]{iacrtrans}
 
 \usepackage[T1]{fontenc}
 \usepackage[
@@ -38,11 +38,9 @@
 
 \begin{document}
 
-% TODO
-
-\date{December 11 2024}
-\author{\IEEEauthorblockN{Jan Sebastian Götte}\thanks{Jan Sebastian Götte is with the Technical University of Darmstadt,
-64283 Darmstadt, Germany (e-mail: jan.goette@tu-darmstadt.de).}}
+\author{Jan Sebastian Götte\inst{1} \and Björn Scheuermann\inst{2}}
+\institute{Technical University of Darmstadt, Darmstadt, Germany, \email{jan.goette@tu-darmstadt.de}\and
+    Technical University of Darmstadt, Darmstadt, Germany, \email{bjoern.scheuermann@kom.tu-darmstadt.de}}
 \title{Low-Cost, Embeddable Time Domain Reflectometry for High-Fidelity Security Mesh Monitoring in Hardware Security
 Modules}
 \maketitle
@@ -97,41 +95,69 @@ provide protection in directions considered especially vulnerable, without enclo
 
 In this paper, we introduce an approach for the design of security mesh monitoring circuitry that provides dramatically
 higher fidelity compared to state-of-the-art conductivity monitoring, improving the sensitivity of meshes even when
-manufactured using less advanced technologies such as standard FPC or PCB processes. Our approach 
-
-
-
-% FIXME old text below.
-In sensitive applications such as payment processing, healthcare data management and secure communication, on top of
-cryptographic techniques, Hardware Security Modules (HSMs) are used to perform cryptographic operations while
-protecting cryptographic secrets at rest. While state-of-the-art cryptographic techniques have largely solved the
-problem of protecting data in transit or at rest, cryptography exists embedded in a physical world and the problem of
-protecting its keys against physical attackers remains difficult to approach even today.
-
-HSMs fill this gap by incorporating always-on sensors that will quickly erase stored keys when physical tampering is
-detected. HSMs differ from devices such as smartcards or trusted platform modules in that their tamper sensors are
-continuously powered from a backup power supply to detect tampering attempts even while the rest of the system is shut
-down.
-% While often the term HSM is usually applied to a class of rackmount, datacenter devices that provide generic
-% cryptographic functions to their surrounding infrastructure, in this paper we apply the term more broadly to any
-% device that uses active tamper sensors that are designed to detect any conceivable physical attack.
-The level of active tamper sensing that is employed in HSMs differs from active tamper sensors in other devices such as
-electricity meters or vending machines in its scope. While in many applications such as these, few simple sensors such
-as contacts placed on removable panels are sufficient to detect the most tampering attempts, HSMs aim to detect even
-sophisticated attacks. A key requirement in HSMs is the ability to detect an attacker drilling through its enclosure to
-place probes inside the device. In general, this requires placing sensitive components inside of a tamper sensing
-barrier. Usually this barrier is implemented by wrapping the device in a flexible foil entirely covered by a pattern of
-meandering conductive traces, called a \emph{security mesh}, that is monitored for changes. 
-
-
+manufactured using less advanced technologies such as standard FPC or PCB processes. Our approach consists of an
+optimized, low-cost differential Time Domain Reflectometry (TDR) frontend that provides better than
+\qty{200}{\pico\second}( resolution, connected to a security mesh. Using our TDR frontend, mesh integrity can be
+characterized at high fidelity, producing several hundred measurements for each meter of mesh trace length.
 
 
 \todo{citations for applications}
 
-HSMs predate modern cryptography.
-\cite{nsaHistoryUSCommunications1973, nsaHistoryUSCommunications1981}
+%HSMs predate modern cryptography.
+%\cite{nsaHistoryUSCommunications1973, nsaHistoryUSCommunications1981}
 
 \section{Related Work}
+
+% cite satoToucheEnhancingTouch2012 on capacitive fingerprinting
+
+While security meshes are widely used in practice, their design is only covered by a sparse research corpus.
+
+% TODO more citations to their papers here
+\paragraph{Meshes as capacitive PUFs}
+The most advanced mesh designs such as \textcite{obermaierMeasurementSystemCapacitive2018} use a specialized security
+mesh as a Physically Uncloneable Function (PUF), combining tamper sensing with cryptographic key storage. In their
+design, the mesh consists of a cross-hatch pattern made up from several dozen individually adressable capacitive
+electrodes. Their analog frontend measures the precise mutual capacitance of each pair of electrodes, and they use the
+resulting capacitance matrix as the basis of their PUF.
+
+Advantages of their system include very high sensitivity, and that as a PUF, the system does not require a continuous
+power supply. Disadvantages include limited mesh surface area and resulting small volume, the specialized and thus
+costly mesh manufacturing process, and a cost-intensive monitoring circuit.
+
+\paragraph{Bridge measurement of capacitive interdigital meshes}
+
+\textcite{dupontMiniaturizedUltraLowPowerTamper2022} introduce a simple analog circuit approach for monitoring meshes
+laid out as a set of capacitive interdigital structures not unlike the combs found in Micro-Electromechanical System
+(MEMS) accelerometers and gyroscopes. They subdivide the mesh into four equal-sized quadrants, each containing two
+equal-size interdigital electrodes. They connect the resulting eight electrodes in a capacitive bridge configuration,
+and measure the bridge's balance using a simple analog monitoring circuit.
+
+Advantages of their system include the simple, low power monitoring circuit made up from basic, cheap components and the
+capability to work with single-layer meshes such as those produced using Laser Direct Structuring (LDS).
+
+\paragraph{Frequency-domain mesh characterization}
+\textcite{vasileProtectingSecretsAdvanced2019} introduce a monitoring method where they feed a variable-frequency signal
+into one end of a continuous mesh trace, and measure the power of the signal coming out of the other end. In essence,
+their setup measures $S_{12}$ magnitude in a similar way to a network analyzer.
+
+Advantages of their design include the simple implementation, and the potentially robust nature of frequency-domain
+measurements. Disadvantages include a nonstandard three-layer mesh stackup, as well as the susceptibility of the system
+to attack by emulation given that the log power sensor they are using at the mesh output is designed to be insensitive
+to any signal characteristics apart from total signal power.
+
+\paragraph{Time-domain mesh monitoring}
+\textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017} propose monitoring the time-domain
+response of a mesh using a circuit made up from a pulse generator and a fast analog-to-digital converter (ADC). To avoid
+the need for a full high-speed data processing pipeline, their design is centered around a specialized high-speed ADC
+that has a small built-in sample memory, allowing them to capture a pulse at high speed before slowly processing it from
+sample memory.
+
+Advantages of their design include better sensitivity to changes in total mesh trace length compared to simple
+continuity monitoring and the low complexity of their analog frontend. Disadvantages include the high cost of the
+specialized components, coarse time resolution of \qty{5}{\nano\second} and the choice of a $S_{12}$ measurement
+configuration, which while sensitive to changes in \emph{length}, is insensitive to changes in \emph{impedance}. In
+contrast, a TDR approach measuring $S_11$ when used with a reflector at the far end of the mesh will detect both changes
+in overall length and changes in impedance.
 
 \subsection{Security Mesh Monitoring and Design}
 
@@ -148,7 +174,60 @@ HSMs predate modern cryptography.
 
 \section{Time-Domain Reflectometry}
 
+An issue with a plain TDR measurement is that it only measures reflected signal components. If we connected a TDR
+frontend to one end of a security mesh, then placed termination matched to the mesh's characteristic impedance at the
+far end of the mesh, in an intact mesh that has constant impedance along its length, our TDR would measure nothing. The
+transmitted pulse would simply tranverse the mesh, and be absorbed entirely by the termination. In this scenario, an
+attacker could cut the mesh at any point along its length by simply placing matched termination there.
+
+The obvious solution to this issue would be to measure not just the reflected signal component, but also its transmitted
+component. However, this solution would incur additional component cost and requires the far end of the mesh to return
+to the TDR circuit.
+
+A better solution to this issue is to exploit the low insertion loss of the mesh and to place an impedance discontinuity
+at the far end of the mesh, resulting in most of the incident pulse being reflected back. In an intact mesh, this will
+lead to a TDR return after twice the mesh's transit time. By realizing this impedance discontinuity as a short, the
+reflection will have opposite sign to the incident pulse, allowing for easy detection during signal processing.
+
 \section{Circuit Design and Driving Approach}
+
+A TDR can be broken down into three basic components. First, we need a source of fast pulses (or fast edges!) to
+stimulate the mesh. Second, we need a coupler that allows us to couple the stimulus pulses into the mesh, and their
+reflections out of it. Finally, we need a fast ADC to capture the reflections.
+
+The focus of our circuit design is on cost. Since physical attacks happen on a time scale of minutes or hours, we do not
+need a fast acquisition rate. Thus, we chose an equivalent-time sampling setup instead of direct conversion, reducing
+the requirements of our data acquisition and signal processing fronted from gigasamples per second to mere megasamples,
+well within the range what a commodity microcontroller can handle.
+
+Since an intact mesh has low insertion loss, the amplitude of the response of an intact mesh is large. Thus, we do not
+need a high dynamic range in either the frontend amplifiers nor in the ADC, enabling the use of commodity operational
+amplifiers (opamps) and the built-in ADC of a commodity microcontroller. Further, the strong signal allows us to use a
+comparatively lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
+directionality, but in our case the incident pulse can never interfere with reflections at the sampling output of the
+divider because of causality.
+
+To implement a picosecond-timescale sampler, we chose a simple diode bridge sampler made from contemporary commodity RF
+schottky diodes, which offer rise time better than \qty{100}{\pico\second} for less than 1€.
+
+We base our circuit around a STM32G474RB, a 5€-class commodity ARM microcontroller. Beyond sheer processing speed, this
+microcontroller offers two features that are critical to our design. First, its internal ADCs are both higher resolution
+and faster than those of many older parts. % FIXME concrete numbers
+Second, it is one of a few parts in its series that include a \emph{high-resolution timer} (HRTIM) peripheral that provides
+several outputs that can be controlled with better than \qty{200}{\pico\second} resolution through per-output,
+self-calibrating delay line circuitry. We use this peripheral to produce both the stimulus pulse and the
+phase-adjustable sampling pulse.
+
+While the HRTIM peripheral allows us to finely adjust the phase of its output waveform, the digital output structures of
+the STM32G4 series are still limited to nanosecond-scale rise and fall times. % FIXME concrete numbers
+We work around this issue applying two circuit tricks. First, we send its output through a fast amplifier that was
+originally intended as a signal conditioner (\emph{redriver}) for DisplayPort applications. This amplifier squares up
+the edges to a rise time better than \qty{500}{\pico\second}, and can drive its output at up to \qty{1200}{\milli\volt}
+amplitude, which is plenty to turn on our schottky diode bridges. The remaining problem is that while we now have nice and
+crisp square pulses, due to constraints of the HRTIM peripheral, at several nanoseconds these pulses are still much too
+wide to be useful. We solve this issue by applying a clip line pulse forming network at the output of the amplifier
+similar to the one used in \todo{some tek sampling head}--i.e.\ we connect the amplifier's output to the load in
+parallel with a short, terminated transmission line stub. The length of this stub determines pulse width.
 
 \section{Anomaly Detection through Machine Learning}
 
