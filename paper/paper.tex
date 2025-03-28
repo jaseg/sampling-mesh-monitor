@@ -41,7 +41,7 @@
 \author{Jan Sebastian Götte\inst{1} \and Björn Scheuermann\inst{2}}
 \institute{Technical University of Darmstadt, Darmstadt, Germany, \email{jan.goette@tu-darmstadt.de}\and
     Technical University of Darmstadt, Darmstadt, Germany, \email{bjoern.scheuermann@kom.tu-darmstadt.de}}
-\title{High Fidelity Security Mesh Monitoring using a Low-Cost, Embedded Time Domain Reflectometer}
+\title{High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
 \maketitle
 
 % FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
@@ -274,7 +274,63 @@ parallel with a short, terminated transmission line stub. The length of this stu
 
 \section{Experimental Evaluation}
 
-% self-measured rise times for PI3HDX12211 with AND without clipline (-> ad-hoc change board!), 74LVC1G157, MAX3748, ONET8501 and TDP0604.
+\subsection{Rise time measurement}
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{fig_edge_risetime.pdf}
+    \end{center}
+    \caption{The trailing edge of the stimulus pulse with no mesh connected measured by the board itself, using
+    different amplifier ICs. Both positive and negative channels of the differential pair are shown individually.
+    Vertical scale is in Volts at the sampling amplifier output, which is not comparable in absolute value between ICs
+    because amplifier gain and frequency compensation are tuned individually.}
+    \label{fig_edge_risetime}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
+    \end{center}
+    \caption{}
+    \label{fig_mesh_length}
+\end{figure}
+
+\begin{table}
+    \begin{center}
+        \begin{tabular}{r|cccc}
+            \textbf{IC}
+            &\texttt{74LVC1G157}
+            &\texttt{MAX3748}
+            &\texttt{TDP0604}
+            &\texttt{PI3HDX12211}\\\hline
+            \textbf{$t_r$}&
+            \qty{497}{\pico\second}&
+            \qty{998}{\pico\second}&
+            \qty{951}{\pico\second}&
+            \qty{145}{\pico\second}
+        \end{tabular}
+    \end{center}
+    \caption{Single-ended stimulus edge rise times for different amplifier ICs. The single-ended rise times of both
+    positive and negative half of the differential pair have been averaged.}
+    \label{tab_edge_risetime}
+\end{table}
+
+\subsection{Tamper tests}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{fig_manip_shape.pdf}
+    \end{center}
+    \caption{}
+    \label{fig_manip_shape}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{fig_probe_shape.pdf}
+    \end{center}
+    \caption{}
+    \label{fig_probe_shape}
+\end{figure}
 % spectrum analyzer-measured reconstructed rise times for PI3HDX12211 (new measuremewnts!) ONET8501 and TDP0604
 % Length measurements for all four different meshes
 % One constructed mesh discontinuity example
@@ -290,8 +346,6 @@ faults or manipulations that disturb the mesh without causing breaks, but it wil
 where the fault occurs along the mesh. Compared to previous work, our approach provides an additional time dimension in
 its characterization of a security mesh while simultaneously being less expensive, enabling more sophisticated tamper
 detection algorithms.
-
-
 
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today.
