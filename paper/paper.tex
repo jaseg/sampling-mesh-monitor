@@ -281,6 +281,18 @@ parallel with a short, terminated transmission line stub. The length of this stu
 
 \section{Conclusion}
 
+In this paper, we presented a design for a low-cost frontend for the integrity monitoring security meshes in
+applications such as HSMs based on the principles of sub-nanosecond Time-Domain Reflectometry. Our design
+repurposes an inexpensive HDMI redriver IC to produce sharp edges for the TDR stimulus, and applies a microwave clip
+line to form fast pulses for TDR sampling. Our design not only enables the monitoring of continuity and length of the
+mesh's traces, but also allows monitoring the impedance at every point along the mesh. Our approach will not only detect
+faults or manipulations that disturb the mesh without causing breaks, but it will also physically localize the point
+where the fault occurs along the mesh. Compared to previous work, our approach provides an additional time dimension in
+its characterization of a security mesh while simultaneously being less expensive, enabling more sophisticated tamper
+detection algorithms.
+
+
+
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today.
 
