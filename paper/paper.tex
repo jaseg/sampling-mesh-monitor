@@ -252,29 +252,106 @@ amplifier feeding into the internal ADC of our microcontroller. We use an intern
 microcontroller to generate both stimulus and sample pulses, so we can easily phase-lock the internal ADC to the same
 timer.
 
-We base our circuit around a STM32G474RB microcontroller, a 5€-class commodity ARM microcontroller. Beyond sheer
-processing speed, this microcontroller offers two features that are critical to our design. First, its internal ADCs are
-both higher resolution and faster than those of many older parts. % FIXME concrete numbers Second, it is one of a few
-parts in its series that include a \emph{high-resolution timer} (HRTIM) peripheral that provides several outputs that
-can be controlled with better than \qty{200}{\pico\second} resolution through per-output, self-calibrating delay line
-circuitry. We use this peripheral to produce both the stimulus pulse and the phase-adjustable sampling pulse.
+We base our circuit around a STM32G474RB microcontroller, a 5€-class commodity ARM microcontroller. Besides adequate
+processing speed for its price class, this microcontroller offers two features that are critical to our design. First,
+its internal ADCs are both higher resolution and faster than those of many older parts. % FIXME concrete numbers
+Second, it is one of a few parts in its series that include a \emph{high-resolution timer} (HRTIM) peripheral that
+provides several outputs that can be controlled with better than \qty{200}{\pico\second} resolution through per-output,
+self-calibrating delay line circuitry. We use this peripheral to produce both the stimulus pulse and the
+phase-adjustable sampling pulse.
 
 While the HRTIM peripheral allows us to finely adjust the phase of its output waveform, the digital output structures of
-the STM32G4 series are still limited to nanosecond-scale rise and fall times. % FIXME concrete numbers
-We work around this issue applying two circuit tricks. First, we send its output through a fast amplifier that was
-originally intended as a signal conditioner (\emph{redriver}) for DisplayPort applications. This amplifier squares up
-the edges to a rise time better than \qty{500}{\pico\second}, and can drive its output at up to \qty{1200}{\milli\volt}
-amplitude, which is plenty to turn on our schottky diode bridges. The remaining challenge is that while we now have
-pulses with crisp edges, due to constraints of the HRTIM peripheral, at several nanoseconds these pulses are still much
-too wide to be useful. We solve this issue by applying a clip line pulse forming network at the output of the amplifier
-similar to the one used in \todo{some tek sampling head}--i.e.\ we connect the amplifier's output to the load in
-parallel with a short, terminated transmission line stub. The length of this stub determines pulse width.
+the STM32G4 series are still limited to nanosecond-scale rise and fall times with the datasheet quoting
+$t_r=t_f=\qty{1.7}{\nano\second}$ into a \qty{10}{\pico\farad} load when using the fastest GPIO output drive strength
+setting and a \qty{3.3}{\volt} supply\todo{cite datasheet properly}. We work around this issue applying two circuit
+tricks. First, we send its output through a fast amplifier to square up the edges to a rise time better than
+\qty{500}{\pico\second}. The remaining challenge is that while we now have pulses with crisp edges, due to constraints
+of the HRTIM peripheral, at more than \qty{10}{\nano\second}, these pulses are still much too wide to be useful. We
+solve this issue by applying a clip line pulse forming network at the output of the amplifier similar to the one used in
+\todo{some tek sampling head}--i.e.\ we connect the amplifier's output to the load in parallel with a short, terminated
+transmission line stub. The length of this stub determines pulse width.
+
+\subsection{Driver Selection}
+%that was
+%originally intended as a signal conditioner (\emph{redriver}) for DisplayPort applications. This amplifier squares
+%, and can drive its output at up to \qty{1200}{\milli\volt} amplitude, which is plenty to turn on our schottky diode bridges
+
+There are several types of amplifiers that can be used in our pulse shaping application. Common to all options, we
+require differential outputs. In practice, for most parts this means we are looking for a part with Current Mode Logic
+(CML) outputs. CML is a differential signaling standard that is widely used in high-speed logic. In CML, a current
+source feeds a pair of transistors that steer current between the two outputs of the differential pair. By steering
+current between the two outputs, common-mode currents are minimized which both reduces the effect of power supply
+impedance at the transmitter, and reduces electromagnetic emissions from the differential pair's PCB traces.
+
+\paragraph{Standard logic ICs}
+As a baseline, we will evaluate the \texttt{74LVC1G157} logic IC. This IC contains a single multiplexer. We are not
+interested in the multiplexer functionality, however. The interesting trivia about this chip is that it also is one of
+the only \texttt{74} series standard logic parts that has complimentary outputs. According to manufacturer
+specifications, at a comparable \qty{20}{\pico\farad} load, 74LVC series parts have slightly faster rise and fall times
+compared to our STM32 micrcontroller's digital IO pins\todo{cite
+\url{https://www.renesas.com/en/document/apn/224-alvclvc-logic-characteristics-and-apps}}.
+
+\paragraph{CML-Output Comparators} such as Analog's \texttt{ADCMP606} are easily-available, general purpose components
+and are easy to interface given their universal input topology. A disadvantage of this path is that we would need one
+comparator each for the stimulus and strobe pulses, and these parts are not cheap at \qtyrange{5}{10}{\euro} for one, or
+about \qty{3}{\euro} at a hundreds quantity.
+
+\paragraph{Laser Drivers}
+
+\paragraph{Linear High-Speed Bus Redrivers}
+
+\paragraph{Limiting High-Speed Bus Redrivers}
+
+\subsection{Analog Delay Control}
+
+While the STM32's \texttt{HRTIM} peripheral offers edge position control at a precision of $\frac{1}{32}$ system clock
+cycle using an automatically adjusted delay-locked loop at each output driver, due to the comparatively slow maximum
+system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing resolution of \qty{184}{\pico\second}.
+In our measurements, we observed that end-to-end jitter of our sampler is low enough that 
+
+\subsection{Scan Scheduling}
+\subsection{Frontend Characterization}
+
 
 \section{Anomaly Detection through Machine Learning}
 
 \section{Experimental Evaluation}
 
-\subsection{Rise time measurement}
+To validate our design, we will perform a two-fold evaluation. First, we want to measure the performance of our sampling
+circuit as a time-doimain reflectometer. The most relevant figure to our mesh monitoring application is the pulse
+generators' rise time, which determines the frontend's sampling speed and consequently the level of detail that we are
+able to extract from a connected mesh during one scan. Since we aim at fingerprinting a connected mesh, not at
+performing absolute measurements, we do not need to characterize the transfer function of our TDR frontend.
+
+Second, we will characterize the end-to-end performance of our design on a mesh test specimen, and we will evaluate its
+performance on a number of realistic tamper attempts. As a baseline characterization, we will show measurements of both
+short and open mesh traces, allowing us to evaluate our designs' capacity to spatially localize faults. Building upon
+this baseline, we will then demonstrate a probing attack, in which we will measure our design's response to a standard
+\qty{100}{\mega\hertz} bandwidth $\qty{10}{\mega\ohm}||\qty{10}{\pico\farad}$ oscilloscope probe. Compared to the
+baseline open/short test, this provides a much greater challenge due to the probe's intentionally high impedance and
+minimal capacitive loading.
+
+\subsection{Rise Time Measurement}
+
+We measure two figures of merit to characterize frontend speed. First, we measure pulse rise time at the mesh interface
+using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal analyzer to evaluate the rise time of our pulse
+generator. This figure gives an indication of the raw performance of our pulse generator. Second, we use our circuit to
+perform a TDR measurement of a mesh test specimen, and measure the rise time of the sampling pulse as seen by the
+circuit itself. This figure gives an indication of the actual measurement performance of our circuit. In general, this
+rise time will be faster than the pulse rise time because of the non-linear characteristic of the sampling schottky
+pairs. Depending on the IC, our pules generator produces output waveforms with \qtyrange{1200}{2400}{\milli\volt}
+differential voltage swing. Since the sampling diode pairs start to conduct at a combined forward voltage of
+approximately \qty{500}{\milli\volt}, they will transition from high impedance to low impedance during a corresponding
+\qty{500}{\milli\volt} window at the middle of the strobe pulse's edge. Thus, even if the strobe pulse shows a low-pass
+response with rounding at both ends, as long as its slew rate $\frac{\mathrm{d}V}{\mathrm{d}t}$ during the zero crossing
+is fast enough, the pulse will still result in a sharp turn-on knee of the sampling diodes.
+
+\subsubsection{Stimulus Pulse Rise Time at the Mesh}
+
+
+
+\subsubsection{Self-Characterization}
+
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{fig_edge_risetime.pdf}
