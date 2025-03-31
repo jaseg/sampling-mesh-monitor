@@ -283,33 +283,133 @@ source feeds a pair of transistors that steer current between the two outputs of
 current between the two outputs, common-mode currents are minimized which both reduces the effect of power supply
 impedance at the transmitter, and reduces electromagnetic emissions from the differential pair's PCB traces.
 
-\paragraph{Standard logic ICs}
-As a baseline, we will evaluate the \texttt{74LVC1G157} logic IC. This IC contains a single multiplexer. We are not
-interested in the multiplexer functionality, however. The interesting trivia about this chip is that it also is one of
-the only \texttt{74} series standard logic parts that has complimentary outputs. According to manufacturer
-specifications, at a comparable \qty{20}{\pico\farad} load, 74LVC series parts have slightly faster rise and fall times
-compared to our STM32 micrcontroller's digital IO pins\todo{cite
+\paragraph{Standard logic ICs.}
+As a baseline, we will evaluate the \texttt{74LVC1G157} logic IC. This IC contains a single multiplexer, however, we are
+not interested in the multiplexer functionality. The interesting trivia about this chip is that it also is one of the
+only \texttt{74} series standard logic parts that has complimentary outputs. According to manufacturer specifications,
+at a comparable \qty{20}{\pico\farad} load, 74LVC series parts have slightly faster rise and fall times compared to our
+STM32 micrcontroller's digital IO pins\todo{cite
 \url{https://www.renesas.com/en/document/apn/224-alvclvc-logic-characteristics-and-apps}}.
 
-\paragraph{CML-Output Comparators} such as Analog's \texttt{ADCMP606} are easily-available, general purpose components
-and are easy to interface given their universal input topology. A disadvantage of this path is that we would need one
-comparator each for the stimulus and strobe pulses, and these parts are not cheap at \qtyrange{5}{10}{\euro} for one, or
-about \qty{3}{\euro} at a hundreds quantity.
+\paragraph{CML-Output Comparators.} Fast comparators with CML outputs such as Analog's \texttt{ADCMP606} are
+easily-available, general purpose components and are easy to interface given their universal input topology. A
+disadvantage of this path is that we would need one comparator each for the stimulus and strobe pulses, and these parts
+are not cheap at \qtyrange{5}{10}{\euro} for one, or about \qty{3}{\euro} at a hundreds quantity.
 
-\paragraph{Laser Drivers}
+\paragraph{Optical Networking Chipsets.}
+Another category of CML-output drivers suitable for our application are a class of optical networking chipset ICs. While
+today, the construction of optical transmitters has moved to direct bonding of optical components and driver ICs to
+minimize parasitics, discrete driver ICs for some chipsets from the mid-2000s era are still available at reasonable
+cost. Both the laser driver used to drive the transmitter laser diode, and the limiting amplifier used to amplify the
+receiver photodiode's output can be used in our application, with the limiting amplifier part requiring less additional
+circuitry in our application due to its lack of output bias control. In our evaluation below, we include
+\texttt{MAX3748} limiting amplifier as a representative part from this category that is still commercially available. A
+drawback of relying on a part like this is that its future availability is uncertain given the evolution of the
+industry.
 
-\paragraph{Linear High-Speed Bus Redrivers}
+\paragraph{Bus Redrivers.}
+The final category of amplifiers suitable for our pulse shaping needs is redrivers intended for high-speed data
+interfaces such as USB 3, PCI express, HDMI or DisplayPort. All of these interfaces use CML, with differential voltage
+levels usually in the order of \qty{1000}{\milli\volt}. Such redriver ICs are intended to be used to amplify the
+sensitive high-speed bus signal at the edge of a PCBA, either before it leaves the board through a connector to ensure
+adequate signal levels at the connector, or after it enters through a connector to compensate for loss in the PCB traces
+between the connector and the signal's destination. For our application, redrivers intended for HDMI and DisplayPort
+applications are most suitable, as they can usually be configured to act as simple amplifiers without processing any
+protocol logic on the signals that are amplified. In contrast, both USB 3 and PCIe redrivers usually implement power
+saving features that try to parse parts of the actual signal transmitted through them, which are hard to bypass in our
+application.
 
-\paragraph{Limiting High-Speed Bus Redrivers}
+There are several types of redrivers available on the market. The first distinction is between retimers and redrivers.
+Where redrivers are usually just amplifiers with some equalization features, retimers include a full
+serialization/deserialization (SerDes) setup used to parse the low-level protocol of the bus in order to reconstruct
+bit-level timing. We focus only on the simpler amplifying redrivers here.
+
+Amplifying redrivers can be separated into two general approaches. One approach is that of limiting redrivers. A
+limiting redriver is configured to have a high gain such that any small input signal will be amplified to the full
+output voltage swing. Limiting redrivers are well-suited for our application, but they have come out of fashion since
+they interfere with link training and with power saving features of most bus protocols.
+
+The most common class of amplifying redriver available today is Linear Redrivers. Linear redrivers are structurally
+similar to limiting redrivers, but they are constructed with a low gain instead. This low gain is enough for them to
+perform their intended function, but simultaneously makes them transparent to various bus protocol features such as link
+training. To compensate for their reduced gain, linear redrivers usually contain configurable equalizers that can be
+used to apply targeted compensations for particular signal defects, such as boosting high-frequency gain or providing a
+set amount of overshoot.
+
+In our evaluation below, we include \texttt{PI3HDX12211} as a linear redriver intended for DisplayPort and HDMI
+applications, as well as TPD0604 as a ``hybrid'' linear or limiting redriver for HDMI applications, configured for
+limiting mode in our experiments. An attractive feature of both of these chips as well as comparable devices is that
+they usually include at least four independent channels, so only one chip is needed for both pulse paths. Additionally,
+they are consumer mass market parts, resulting in a low price. For instance, \texttt{PI3HDX12211} is available at
+\qty{2.11}{\euro} in single quantity and less than \qty{1.30}{\euro} at several hundred quantity, and \texttt{TPD0604}
+is available at \qty{4.72}{\euro} and \qty{3.44}{\euro}, respectively.
+
+\todo{cite \url{https://www.lcsc.com/product-detail/Interface-Specialized_Diodes-Incorporated_C2674037.html}}
+\todo{cite \url{https://eu.mouser.com/c/?marcom=171928938} on TDP0604}
 
 \subsection{Analog Delay Control}
 
 While the STM32's \texttt{HRTIM} peripheral offers edge position control at a precision of $\frac{1}{32}$ system clock
 cycle using an automatically adjusted delay-locked loop at each output driver, due to the comparatively slow maximum
 system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing resolution of \qty{184}{\pico\second}.
-In our measurements, we observed that end-to-end jitter of our sampler is low enough that 
+In our measurements, we observed that end-to-end jitter of our sampler is low enough that our circuit would benefit from
+finer delay control. For this reason, we decided to implement a \texttt{74LVC} series buffer in between of the
+\texttt{HRTIM} outputs and the pulse amplifier. By feeding this buffer from an adjustable power supply controlled
+through one of the microcontroller's digital-to-analog converter (DAC) channels, we can exploit the supply voltage
+dependency of the propagation delay of \texttt{74LVC} series CMOS logic to create a digitally controllable delay with
+picosecond resolution. It is likely that the internal DLL of the \texttt{HRTIM} peripheral is implemented in a similar
+way.
+\todo{How should we clarify here that this is future work?}
 
-\subsection{Scan Scheduling}
+\subsection{Measurement Principle and Scan Scheduling}
+
+The goal of a time-domain reflectometer is to send a pulse into the Device Under Test (DUT)--i.e.\ in our application,
+the mesh--and to record all reflections returning from the DUT afterwards. In something like a security mesh whose
+traces might only be a few meters long in total, the time span between the pulse being sent and the last reflections
+from the very end of the mesh arriving is in the order of several tens of nanoseconds. Directly recording a response at
+this timescale would be infeasible using a commodity microcontroller, so we utilize an equivalent-time sampling
+approach.
+
+Our analog frontend contains amplifiers that produce the stimulus pulse, a sampling gate with amplifiers, and a coupler
+that couples the pulse into the mesh and that couples the reflections back into the sampling gate. The microcontroller
+controls this frontend with two primary signals: A stimulus pulse, and a sampling pulse. By adjusting the timing between
+these two pulses every time a stimulus pulse is sent, the microcontroller can select a particular point in time after
+the stimulus pulse to record using the sampling gate. By slowly sweeping across the whole timespan, the microcontroller
+can reconstruct the waveform of the reflected signal at the sampling gate across one period of the stimulus pulse. The
+recording rate of this waveform is limited by the repetition rate of the stimulus pulse as well as the time step size.
+
+The attainable repetition rate of our stimulus and sampling circuits is limited by two main components. First, the
+sampling post-amplifier's bandwidth limits the maximum sample rate. In our design, we chose an \texttt{OPA1656}
+\qty{50}{\mega\hertz} Gain-Bandwidth Product (GBP) FET input low noise operational amplifier. We need a FET input part
+to avoid loading the sampling gate. The comparatively high GBP and low noise input stage of this device allow us to
+amplify small signals that could result from weak reflections in small impedance discontinuities inside the mesh.
+
+The second major factor limiting repetition rate is the microcontroller's ADC speed, as well as the speed of the
+software processing the ADC's output. At full \qty{12}{b} resolution, this corresponds to a sampling rate of
+approximately \qty{4}{MSps}.
+
+Combining these factors, we settled for a sampling rate of \qty{1}{MSps} across both channels of the differential pair.
+At this sampling rate, it is feasible to control the sample timing on a sample-by-sample basis. For all measurements in
+this paper, we use a sequential sampling approach where the microcontroller takes a series of measurements for
+oversampling at a particular delay, then increases the delay by one \texttt{HRTIM} output clock interval.
+
+While for our development, this sequential scanning method is adequate, in a practical security mesh monitoring
+application, there are two simple optimizations that would decrease the time to detection for an attack. First, in a
+practical application, the range of scanned delays should be adjusted to the length of the particular security mesh in
+use. For this paper, we always scanned a time range starting before one stimulus pulse and ending shortly before the
+next stimulus pulse so that any waveform artifacts will be visible. In a practical application, there would be little
+information gained by sampling much beyond the edges of the expected mesh response, so the scan window should be kept
+small to increase scan rate.
+
+Secondly, in a practical application, the feature that is most relevant to detect tamper attempts is the trailing edge
+of the mesh's response. This trailing edge corresponds to the return of the stimulus pulse's reflection at the far end
+of the mesh. Any attack that affects the impedance even only of part of the mesh has a high chance to affect its delay,
+and thus this trailing edge is likely to move. In a practical application, it would thus be efficient to use a heuristic
+scan schedule instead of the sequential scan we are using in our research prototype. Such a heuristic schedule would
+sample delays near the expected trailing edge of the particular mesh in use more frequently compared to delays that lie
+somewhere else, such as in the middle of the mesh's return window. As this optimization relies upon a particular mesh
+layout, we leave its implementation to future work\todo{Mention this here, or better later?}.
+
 \subsection{Frontend Characterization}
 
 
