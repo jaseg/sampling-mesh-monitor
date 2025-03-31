@@ -448,9 +448,44 @@ is fast enough, the pulse will still result in a sharp turn-on knee of the sampl
 
 \subsubsection{Stimulus Pulse Rise Time at the Mesh}
 
-
+\todo{Measurements with Marc on Thursday}
 
 \subsubsection{Self-Characterization}
+
+Figure\ \ref{fig_edge_risetime} shows the result of our self-characterization experiments. In these experiments, we ran
+a measurement using $256\times$ oversampling at \qty{12}{b} ADC resolution. The plots show time in nanoseconds on the
+horizontal axis, and voltage at the amplifier output on the vertical axis. The absolute value of this voltage is not
+relevant here - only the rise time is. Since we use some of these amplifiers--particularly the redriver ICs--well
+outside of their intended application, the actual voltage they develop across the nonlinear load our sampling gate's
+diode bridge presents depends on implementation details of the amplifiers's CML output stage. Additionally, we
+individually tuned amplification and bandwidth of each post-sampling amplifier for each IC to minimize ringing. When
+poorly tuned, the output of the amplifier rings, which causes jitter in the ADC's sampling period to directly feed
+through to the ADC output value. Since in STM32 MCUs, the ADC is clocked independently of the rest of the system, its
+precie sampling timing is poorly controlled and this jitter causes a significant error unless the amplifier is
+well-compensated. The key figure for us is how fast our sampling gate turns on, not how hard, so we can largely ignore
+the units on the graph's vertical scale.
+
+Table\ \ref{tab_edge_risetime} shows rise times calculated from each trace, averaged across both traces of the
+differential pair. From these results and from graphs in Figure\ \ref{fig_edge_risetime} we can see that both the
+optical networking limiting amplifier as well as the \texttt{TDP0604} ``hybrid'' redriver produce comparatively slow
+edges with almost \qty{1}{\nano\second} rise time. We suspect that in both cases, this is caused by a combination of the
+slow input signal transition as well as that these IC's CML output structures are poorly matched to the nonlinear
+impedance presented by our sampling gate's diode bridges. \texttt{MAX3748} also has the lowest output voltage swing of
+all parts tested with only \qty{780}{\milli\volt} typical listed in its datasheet. Surprisingly, the straight
+\texttt{74LVC1G157} baseline unit has a rise time of only about \qty{500}{\pico\second}, improving over both previous
+parts by almost a factor of two. We suspect this is largely caused by the large output voltage swing of this part, going
+from ground to its $V_{CC}$ at \qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in
+the short period between its input differential voltage crossing zero and it rising above the combined forward voltage
+of both series schottky diodes. Thus, while the \texttt{74LVC} might have rather slow edges when looking at it as a whole
+including the transitions at both ends of the edge, its slew rate in the critical region in the middle of its output
+transition might rival the two preivously mentioned, ostensibly faster parts simply due to its large output voltage
+swing.
+
+Finally, we observed the best result overall with the \texttt{PI3HDX12211} redriver, resulting in a rise time of
+\qty{145}{\pico\second}. In this test specimen, we fed the pulse through the amplifier twice since we had two unused
+channels, and we used \qty{200}{\pico\second} clip lines on the amplifier's output for pulse shaping. We could only use
+the clip lines in this specimen as in all other specimens, the amplifiers' output did not contain sufficient harmonic
+content such that it was still able to turn on the sampling gate's diode bridge when used with the clip line.
 
 \begin{figure}
     \begin{center}
@@ -458,17 +493,8 @@ is fast enough, the pulse will still result in a sharp turn-on knee of the sampl
     \end{center}
     \caption{The trailing edge of the stimulus pulse with no mesh connected measured by the board itself, using
     different amplifier ICs. Both positive and negative channels of the differential pair are shown individually.
-    Vertical scale is in Volts at the sampling amplifier output, which is not comparable in absolute value between ICs
-    because amplifier gain and frequency compensation are tuned individually.}
+    Vertical scale is in Volts at the sampling amplifier output.}
     \label{fig_edge_risetime}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-        \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
-    \end{center}
-    \caption{}
-    \label{fig_mesh_length}
 \end{figure}
 
 \begin{table}
@@ -490,6 +516,14 @@ is fast enough, the pulse will still result in a sharp turn-on knee of the sampl
     positive and negative half of the differential pair have been averaged.}
     \label{tab_edge_risetime}
 \end{table}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
+    \end{center}
+    \caption{}
+    \label{fig_mesh_length}
+\end{figure}
 
 \subsection{Tamper tests}
 
