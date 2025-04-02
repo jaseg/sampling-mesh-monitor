@@ -242,6 +242,7 @@
 
             class DataPlot {
                 constructor(plot_div, table_div, meas_div, heading_div) {
+                    this.lock = false;
                     this.heading = document.querySelector(heading_div);
                     this.div = document.querySelector(plot_div);
                     this.layout_settings = {
@@ -266,6 +267,9 @@
 
                 update_plot (in_adc, in_var) {
                     /* 168 MHz system clock, 32 delay-mapped subdivisions per system clock cycle in HRTIM */
+                    if (this.lock) {
+                        return;
+                    }
 
                     this.adc_data = in_adc;
                     this.var_data = in_var;
@@ -317,6 +321,8 @@
                 let a = document.createElement('a');
                 const meta = document.querySelector('#dl_meta_info').value;
                 const suffix = document.querySelector('input[name="meta_suffix"]:checked').value;
+                adc1_plot.lock = true;
+                adc2_plot.lock = true;
                 a.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify({
                     meta: meta + suffix,
                     settings: dbg_settings(),
@@ -325,6 +331,8 @@
                     adc2: adc2_plot.adc_data,
                     var2: adc2_plot.var_data,
                 }));
+                adc1_plot.lock = false;
+                adc2_plot.lock = false;
                 a.setAttribute('download', 'adc-capture-' + (new Date).toISOString() + '.json');
                 a.style.display = 'none';
                 document.body.appendChild(a);
