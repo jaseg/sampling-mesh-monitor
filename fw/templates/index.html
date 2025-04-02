@@ -38,7 +38,7 @@
                 Sampling phase <input type="number" id="sampling_phase_inp" min="0" max="180" step="1" value="6" data-dev-setting="sampling_phase_var"/>
             </label>
             <label for="sampling_width_inp">
-                Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="2" data-dev-setting="sampling_width"/>
+                Sampling pulse width <input type="number" id="sampling_width_inp" min="2" max="180" step="1" value="12" data-dev-setting="sampling_width"/>
             </label>
             <label for="stim_offset_inp">
                 Stimulus pulse offset <input type="number" id="stim_offset_inp" min="0" max="180" step="1" value="104" data-dev-setting="stimulus_offset"/>
@@ -50,7 +50,41 @@
 
         <h4>Download data</h4>
         <div class="download">
-            <label for="dl_meta_info">Meta info: <input type="text" id="dl_meta_info"/> <a id="download-button" href="#">Download</a>
+            <div>
+                <label for="dl_meta_info">Meta info: <input type="text" id="dl_meta_info"/> <a id="download-button" href="#">Download</a>
+            </div>
+            <div>
+                <input type="radio" id="dl_meta_suffix_0" name="meta_suffix" value=""/>
+                <label for="dl_meta_suffix_1">&lt;none&gt;</label> 
+                <input type="radio" id="dl_meta_suffix_1" name="meta_suffix" value="_baseline1"/>
+                <label for="dl_meta_suffix_1">baseline1</label> 
+                <input type="radio" id="dl_meta_suffix_2" name="meta_suffix" value="_short1"/>
+                <label for="dl_meta_suffix_2">short1</label> 
+                <input type="radio" id="dl_meta_suffix_3" name="meta_suffix" value="_short2"/>
+                <label for="dl_meta_suffix_3">short2</label> 
+                <input type="radio" id="dl_meta_suffix_4" name="meta_suffix" value="_short3"/>
+                <label for="dl_meta_suffix_4">short3</label> 
+                <input type="radio" id="dl_meta_suffix_5" name="meta_suffix" value="_baseline2"/>
+                <label for="dl_meta_suffix_5">baseline2</label> 
+                <input type="radio" id="dl_meta_suffix_6" name="meta_suffix" value="_probe1a"/>
+                <label for="dl_meta_suffix_6">probe1a</label> 
+                <input type="radio" id="dl_meta_suffix_7" name="meta_suffix" value="_probe1b"/>
+                <label for="dl_meta_suffix_7">probe1b</label> 
+                <input type="radio" id="dl_meta_suffix_8" name="meta_suffix" value="_probe2a"/>
+                <label for="dl_meta_suffix_8">probe2a</label> 
+                <input type="radio" id="dl_meta_suffix_9" name="meta_suffix" value="_probe2b"/>
+                <label for="dl_meta_suffix_9">probe2b</label> 
+                <input type="radio" id="dl_meta_suffix_10" name="meta_suffix" value="_probe3a"/>
+                <label for="dl_meta_suffix_10">probe3a</label> 
+                <input type="radio" id="dl_meta_suffix_11" name="meta_suffix" value="_probe3b"/>
+                <label for="dl_meta_suffix_11">probe3b</label> 
+                <input type="radio" id="dl_meta_suffix_12" name="meta_suffix" value="_baseline3"/>
+                <label for="dl_meta_suffix_12">baseline3</label> 
+                <input type="radio" id="dl_meta_suffix_13" name="meta_suffix" value="_cut"/>
+                <label for="dl_meta_suffix_13">cut</label> 
+                <input type="radio" id="dl_meta_suffix_14" name="meta_suffix" value="_baseline4"/>
+                <label for="dl_meta_suffix_14">baseline4</label> 
+            </div>
         </div>
 
         <h4 id="adc1_heading">ADC 1</h4>
@@ -281,8 +315,10 @@
 
             document.querySelector('#download-button').addEventListener('click', (evt) => {
                 let a = document.createElement('a');
+                const meta = document.querySelector('#dl_meta_info').value;
+                const suffix = document.querySelector('input[name="meta_suffix"]:checked').value;
                 a.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify({
-                    meta: document.querySelector('#dl_meta_info').value,
+                    meta: meta + suffix,
                     settings: dbg_settings(),
                     adc1: adc1_plot.adc_data,
                     var1: adc1_plot.var_data,
