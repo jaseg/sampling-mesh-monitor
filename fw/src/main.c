@@ -290,8 +290,8 @@ int main(void) {
     DAC2->CR = DAC_CR_EN1;
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
-    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT;
-    HRTIM1->sMasterRegs.MPER = 378 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
+    HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | HRTIM_MCR_MREPU;
+    HRTIM1->sMasterRegs.MPER = 21 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
      */
@@ -310,12 +310,14 @@ int main(void) {
      * registers, is 186.0 ps.
      */
 
+    /* FIXME changes for spectral anlysis only! */
+
     /* Channel C: Stimulus pulse */
     HRTIM1->sTimerxRegs[2].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[2].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[2].RSTxR = HRTIM_RSTR_MSTPER;
-    HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_CMP2;
-    HRTIM1->sTimerxRegs[2].RSTx1R = HRTIM_RST1R_CMP1;
+    HRTIM1->sTimerxRegs[2].SETx1R = HRTIM_SET1R_MSTPER;
+    HRTIM1->sTimerxRegs[2].RSTx1R = HRTIM_RST1R_MSTCMP1;
 
     /* Channel D: Diode sampler pulse */
     HRTIM1->sTimerxRegs[3].TIMxCR = HRTIM_TIMCR_MSTU;
@@ -328,8 +330,8 @@ int main(void) {
     //HRTIM1->sTimerxRegs[3].CMP4xR = HRTIM1->sTimerxRegs[3].CMP3xR + sampling_width;
     //HRTIM1->sTimerxRegs[3].SETx1R = HRTIM_SET1R_CMP1;
     //HRTIM1->sTimerxRegs[3].RSTx1R = HRTIM_RST1R_CMP2;
-    HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_MSTPER | HRTIM_SET2R_CMP2 | HRTIM_SET2R_CMP3;
-    HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_MSTCMP1 | HRTIM_RST2R_CMP1 | HRTIM_RST2R_CMP4;
+    HRTIM1->sTimerxRegs[3].SETx2R = HRTIM_SET2R_MSTPER;
+    HRTIM1->sTimerxRegs[3].RSTx2R = HRTIM_RST2R_MSTCMP1;
 
     /* Channel B: ADC trigger */
     HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
