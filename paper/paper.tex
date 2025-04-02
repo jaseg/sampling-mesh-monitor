@@ -517,6 +517,110 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \label{tab_edge_risetime}
 \end{table}
 
+\begin{table}
+    \begin{center}
+        \begin{tabular}{r|cccc}
+            \textbf{Specimen}
+            &1
+            &2
+            &3
+            &4\\\hline
+
+            \textbf{Trace width}&
+            \qty{150}{\micro\meter}&
+            \qty{200}{\micro\meter}&
+            \qty{300}{\micro\meter}&
+            \qty{500}{\micro\meter}\\
+
+            \textbf{Trace spacing}&
+            \qty{150}{\micro\meter}&
+            \qty{200}{\micro\meter}&
+            \qty{300}{\micro\meter}&
+            \qty{500}{\micro\meter}\\
+
+            \textbf{Trace pitch}&
+            \qty{300}{\micro\meter}&
+            \qty{400}{\micro\meter}&
+            \qty{600}{\micro\meter}&
+            \qty{1.00}{\milli\meter}\\\hline
+
+            \textbf{Trace length}&
+            \qty{1.07}{\meter}&
+            \qty{1.93}{\meter}&
+            \qty{2.86}{\meter}&
+            \qty{3.86}{\meter}\\
+
+            \textbf{Approximate Delay}&
+            \qty{7.1}{\nano\second}&
+            \qty{13}{\nano\second}&
+            \qty{19}{\nano\second}&
+            \qty{26}{\nano\second}\\
+        \end{tabular}
+    \end{center}
+    \caption{Specifications of mesh test specimens used in the experiments in this paper. All four speciments were
+    placed on a single, four-layer, \qty{1.0}{\milli\meter} thickness PCB. The meshes were placed two per side on the
+    outer layers, and the inner layers were used as ground. Approximate signal delays were calculated using wave
+    velocity $v=\frac{c}{\sqrt{\epsilon_r}}\approx\frac{c}{2}$\cite{wheelerTransmissionLinePropertiesParallel1965}
+    assuming $\epsilon_r\approx 4$\cite{mumbyDielectricPropertiesFR41989} for the test specimens' FR-4 substrate.}
+    \label{tab_mesh_spec}
+\end{table}
+
+\begin{table}
+    \begin{center}
+        \begin{tabular}{r|cccc|cc}
+            &\multicolumn{4}{c|}{Specimen}&\multicolumn{2}{c}{Fit}\\
+            &
+            1&
+            2&
+            3&
+            4&
+            $c$&
+            $\Delta t$
+            \\\hline
+
+            \texttt{PI3HDX12211}&
+            \qty{16.9}{\nano\second}&
+            \qty{26.0}{\nano\second}&
+            \qty{36.4}{\nano\second}&
+            \qty{46.1}{\nano\second}&
+            $\qty{1.90d8}{\meter\per\second}$&
+            $\qty{5.74}{\nano\second}$
+            \\
+
+            \texttt{74LVC1G157}&
+            \qty{17.1}{\nano\second}&
+            \qty{26.4}{\nano\second}&
+            \qty{36.6}{\nano\second}&
+            \qty{48.2}{\nano\second}&
+            $\qty{1.80d8}{\meter\per\second}$&
+            $\qty{5.01}{\nano\second}$
+            \\
+
+            \texttt{MAX3748}&
+            \qty{17.2}{\nano\second}&
+            \qty{26.4}{\nano\second}&
+            \qty{36.6}{\nano\second}&
+            \qty{45.6}{\nano\second}&
+            $\qty{1.95d8}{\meter\per\second}$&
+            $\qty{6.50}{\nano\second}$
+            \\
+
+            \texttt{TDP0604}&
+            \qty{17.0}{\nano\second}&
+            \qty{26.2}{\nano\second}&
+            \qty{36.5}{\nano\second}&
+            \qty{45.8}{\nano\second}&
+            $\qty{1.92d8}{\meter\per\second}$&
+            $\qty{6.01}{\nano\second}$
+            \\
+        \end{tabular}
+    \end{center}
+    \caption{Speed of light and time offset calculated from delays read from the graphs in Figure\
+    \ref{fig_mesh_length}. $c$ is the speed of light determined by linear fit. $\Delta t$ is a residual time offset
+    common to all four mesh measurements.}
+    \label{tab_speed_of_light}
+\end{table}
+
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
