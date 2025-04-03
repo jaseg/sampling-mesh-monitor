@@ -497,6 +497,43 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \label{fig_edge_risetime}
 \end{figure}
 
+\begin{figure}
+    \begin{center}
+        \begin{subfigure}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{fig_spec_risetime_74lvc.pdf}
+            \caption{74LVC1G157}
+            \label{fig_spec_risetime_74lvc}
+        \end{subfigure}
+        \unskip\begin{subfigure}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{fig_spec_risetime_max3748.pdf}
+            \caption{MAX3748}
+            \label{fig_spec_risetime_max3748}
+        \end{subfigure}
+
+        \begin{subfigure}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{fig_spec_risetime_tdp0604.pdf}
+            \caption{TDP0604}
+            \label{fig_spec_risetime_tdp0604}
+        \end{subfigure}
+        \unskip\begin{subfigure}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{fig_spec_risetime_pi3hdx.pdf}
+            \caption{PI3HDX12211}
+            \label{fig_spec_risetime_pi3hdx}
+        \end{subfigure}
+    \end{center}
+    \caption{Spectrum measurements and re-constructed time-domain pulse edge shape of the stimulus pulse measured at the
+    mesh interface for each of the four driver ICs. Amplitudes were normalized for risetime plots, but it is worthy of
+    note that the TDP0604 and MAX3748 variants have much lower amplitude compared to the other specimens. The
+    $\frac{1}{f}$ curve in the spectrum plots shows the peak amplitude of the frequency components of an ideal
+    infinite-bandwidth square wave. The horizontal gray lines in the time-domain plots show thresholds used for risetime
+    calculation.}
+    \label{fig_edge_risetime}\todo{concrete amplitude values from home scope}
+\end{figure}
+
 \begin{table}
     \begin{center}
         \begin{tabular}{r|cccc}
