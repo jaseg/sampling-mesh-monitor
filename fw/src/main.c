@@ -291,7 +291,7 @@ int main(void) {
     DAC2->DHR12R1 = 0xfff; /* VBIAS_DAC */
 
     HRTIM1->sMasterRegs.MCR = HRTIM_MCR_CONT | HRTIM_MCR_MREPU;
-    HRTIM1->sMasterRegs.MPER = 21 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
+    HRTIM1->sMasterRegs.MPER = 2 * 0x20; /* We have to translate all counter values to the 32x oversampled high-resolution clock */
     /* The master period should now be 168 HRTIM bus clock cycles, which at 168 MHz corresponds to 1.00 µs.
      * Note that the HRTIM doc is very unclear if we should set the register to 168 or 167 for that, let's just see.
      */
