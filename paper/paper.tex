@@ -52,7 +52,7 @@
     embeddable security mesh monitoring circuit that applies the principles behind Time Domain Reflectometry (TDR) to
     create a unique fingerprint of a mesh, and to detect not only DC faults, but also attempts at bridging and removing
     parts of the mesh. Our TDR circuit improves over previous low-cost TDR approaches by utilizing exclusively low-cost,
-    consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\$ while achieving a time
+    consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\euro while achieving a time
     resolution better than \qty{200}{\pico\second}.
     % Should we validate our mesh monitoring system in a number of realistic attack scenarios using a real-time,
     % embeddable Machine Learning (ML) classifie?
@@ -246,28 +246,31 @@ reflections out of it. Finally, we need a fast ADC to capture the reflections.
 The focus of our circuit design is on cost. Since physical attacks happen on a time scale of minutes or hours, we do not
 need a fast acquisition rate. Thus, we chose an equivalent-time sampling setup instead of direct conversion, reducing
 the requirements of our data acquisition and signal processing fronted from gigasamples per second to mere megasamples,
-well within the range what a commodity microcontroller can handle.
-\todo{compare to that sram adc design}
-A challenge in equivalent-time sampling is
-precisely phase-synchronizing the sampling pulse to the fundamental frequency of the input signal, which is usually
-implemented by using a high-speed comparator. We can avoid this expensive component here since our TDR frontend
-generates the stimulus signal itself. Thus, we only have to generate a sampling pulse at an adjustable phase to the
-stimulus pulse.
+well within the range what a commodity microcontroller can handle. An example of a direct-conversion setup is
+\textcite{vasileActiveTamperDetection2017}, where they used a specialty discrete Analog-to-Digital Converter (ADC) that
+has a large internal buffer to avoid the need for a high-speed digital data processing chain. Compared to our design,
+their ADC alone at \qty{15.95}{\euro} at quantity 1000 costs more than our entire circuit while providing more than
+$25\times$ worse time resolution.
+
+A challenge in equivalent-time sampling is precisely phase-synchronizing the sampling pulse to the fundamental frequency
+of the input signal, which is usually implemented by using a high-speed comparator. In a TDR-style frontend like ours,
+this expensive component can be avoided because the stimulus signal is generated in the frontend, simplifying the
+challenge to generating a synchronized sampling pulse at an adjustable phase to the stimulus pulse.
 
 Since an intact mesh has low insertion loss, the amplitude of the response of an intact mesh is large. Thus, we do not
 need a high dynamic range in either the frontend amplifiers nor in the ADC, enabling the use of commodity operational
 amplifiers (opamps) and the built-in ADC of a commodity microcontroller. Further, the strong signal allows us to use a
-comparatively lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
+comparativeky lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
 directionality, but in our case the incident pulse can never interfere with reflections at the sampling output of the
 divider because of causality.
 
 To implement a sub-nanosecond sampler, we chose a simple four-diode bridge sampling gate made from contemporary
-commodity RF schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} for less than 1€. The
-four-diode configuration requires only two dual diode packages. In contrast to \todo{cite magazine article and that one
-thesis here}, in our system, double sampling is not necessary - instead, we follow the sampling gate directly with an
-amplifier feeding into the internal ADC of our microcontroller. We use an internal timer peripheral of the same
-microcontroller to generate both stimulus and sample pulses, so we can easily phase-lock the internal ADC to the same
-timer.
+commodity \texttt{BAT17-04W} RF schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
+\qty{0.13}{\euro} per device at quantity 1000. The four-diode configuration requires only two dual diode packages. In
+contrast to \todo{cite magazine article and that one thesis here}, in our system, double sampling is not necessary -
+instead, we follow the sampling gate directly with an amplifier feeding into the internal ADC of our microcontroller. We
+use an internal timer peripheral of the same microcontroller to generate both stimulus and sample pulses, so we can
+easily phase-lock the internal ADC to the same timer.
 
 We base our circuit around a STM32G474RB microcontroller, a 5€-class commodity ARM microcontroller. Besides adequate
 processing speed for its price class, this microcontroller offers two features that are critical to our design. First,
@@ -301,7 +304,7 @@ current between the two outputs, common-mode currents are minimized which both r
 impedance at the transmitter, and reduces electromagnetic emissions from the differential pair's PCB traces.
 
 \paragraph{Standard logic ICs.}
-As a baseline, we will evaluate the \texttt{74LVC1G157} logic IC. This IC contains a single multiplexer, however, we are
+As a baseline, we will evaluate the \texttt{74LVC2G157} logic IC. This IC contains a single multiplexer, however, we are
 not interested in the multiplexer functionality. The interesting trivia about this chip is that it also is one of the
 only \texttt{74} series standard logic parts that has complimentary outputs. According to manufacturer specifications,
 at a comparable \qty{20}{\pico\farad} load, 74LVC series parts have slightly faster rise and fall times compared to our
@@ -487,7 +490,7 @@ edges with almost \qty{1}{\nano\second} rise time. We suspect that in both cases
 slow input signal transition as well as that these IC's CML output structures are poorly matched to the nonlinear
 impedance presented by our sampling gate's diode bridges. \texttt{MAX3748} also has the lowest output voltage swing of
 all parts tested with only \qty{780}{\milli\volt} typical listed in its datasheet. Surprisingly, the straight
-\texttt{74LVC1G157} baseline unit has a rise time of only about \qty{500}{\pico\second}, improving over both previous
+\texttt{74LVC2G157} baseline unit has a rise time of only about \qty{500}{\pico\second}, improving over both previous
 parts by almost a factor of two. We suspect this is largely caused by the large output voltage swing of this part, going
 from ground to its $V_{CC}$ at \qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in
 the short period between its input differential voltage crossing zero and it rising above the combined forward voltage
@@ -517,7 +520,7 @@ content such that it was still able to turn on the sampling gate's diode bridge 
         \begin{subfigure}{0.48\textwidth}
             \centering
             \includegraphics[width=\textwidth]{fig_spec_risetime_74lvc.pdf}
-            \caption{74LVC1G157}
+            \caption{74LVC2G157}
             \label{fig_spec_risetime_74lvc}
         \end{subfigure}
         \unskip\begin{subfigure}{0.48\textwidth}
@@ -553,7 +556,7 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \begin{center}
         \begin{tabular}{r|cccc}
             \textbf{IC}
-            &\texttt{74LVC1G157}
+            &\texttt{74LVC2G157}
             &\texttt{MAX3748}
             &\texttt{TDP0604}
             &\texttt{PI3HDX12211}\\\hline
@@ -651,7 +654,7 @@ content such that it was still able to turn on the sampling gate's diode bridge 
             $\qty{5.74}{\nano\second}$
             \\
 
-            \texttt{74LVC1G157}&
+            \texttt{74LVC2G157}&
             \qty{17.1}{\nano\second}&
             \qty{26.4}{\nano\second}&
             \qty{36.6}{\nano\second}&
@@ -729,6 +732,85 @@ content such that it was still able to turn on the sampling gate's diode bridge 
 % spectrum analyzer-measured reconstructed rise times for PI3HDX12211 (new measuremewnts!) ONET8501 and TDP0604
 % Length measurements for all four different meshes
 % One constructed mesh discontinuity example
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{pic_short_2_small.jpg}
+        \caption{Short circuit test specimen}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{pic_cut_1_small.jpg}
+        \caption{Cut trace test specimen}
+    \end{subfigure}
+    \caption{Photos of the short circuit and cut trace test specimens. To measure short circuit response, one of the
+    three marked locations on the test specimen was shorted using a soldering iron. To measure baseline values, the
+    short circuit specimen was used without placing a short.}
+    \label{fig_pic_specimes}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{pic_pi3hdx_small.jpg}
+        \caption{PI3HDX12211}
+    \end{subfigure}
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{pic_74lvc_small.jpg}
+        \caption{74LVC2G157}
+    \end{subfigure}
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{pic_max3748_small.jpg}
+        \caption{MAX3748}
+    \end{subfigure}
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{pic_tdp0604_small.jpg}
+        \caption{TDP0604}
+    \end{subfigure}
+    \caption{Circuit-board implementation of the four pulse amplifier variants of the design. Amplifiers were mounted
+    dead bug style on a piece of copper tape connected to one of the supply rails, and hooked up with
+    \qty{120}{\micro\meter} diameter wire according to their respective datasheets. Supply rails were hooked up using
+    copper tape where possible to reduce series impedance. Additional \qty{10}{\micro\farad} MLCC power supply
+    decoupling capacitors were placed close to the ICs on the copper tape to reduce loop area..}
+    \label{fig_pic_amps}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{pic_board_setup_2_small.jpg}
+    \caption{Measurement setup. Shown are the test specimen board on the left, and the frontend board with one of the
+    four pulse amplifiers in the center. The frontend board is powered through a USB-C connection, and data is sent to a
+    computer through an Single-Wire Debug (SWD) interface.}
+    \label{fig_pic_board}
+\end{figure}
+
+\begin{table}
+    \begin{tabular}{c|c|c|l}
+        \textbf{Part number}&\textbf{Amount}&\textbf{Cost in \euro}&\textbf{Description}\\\hline
+        PI3HDX12211&1&1.37&Pulse amplifier\\
+        STM32G474RB&1&3.51&Main microcontroller\\
+        OPA1656&1&1.25&Sampling post-amplifier\\
+        TMUXHS4212&2\footnote{Amount depends on signal routing requirements. Configuration shown here allows flipping
+        the mesh back to front.}&0.64&Signal routing switch\\
+        SKYA21003&2\footnote{Can be omitted when termination does not need to be switched
+        dynamically}&0.49&Termination switch\\
+        74LVC2G157&2\footnote{Can be omitted when both timer outputs
+        are used}&0.15&Pulse pre-conditioning\\
+        BAT17-04W&4&0.12&Sampling gates\\
+        &25&0.01&Various MLCC capacitors\\
+        &25&0.01&Various resistors\\\hline
+        \multicolumn{2}{r}{}&\textbf{9.67}&\textbf{Total}\\\hline
+    \end{tabular}
+    \caption{A cost breakdown of the major components of our design. Listed prices are for 1000 pieces order quantity to
+    make prices more comparable between distributors.}
+    \label{tab_bom}
+\end{table}
 
 \section{Conclusion}
 
