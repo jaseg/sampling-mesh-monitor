@@ -54,51 +54,68 @@
     parts of the mesh. Our TDR circuit improves over previous low-cost TDR approaches by utilizing exclusively low-cost,
     consumer-grade components with a total Bill of Materials (BoM) cost of less than 10\$ while achieving a time
     resolution better than \qty{200}{\pico\second}.
-    % We validate our mesh monitoring system in a number of realistic attack scenarios using a real-time, embeddable
-    % Machine Learning (ML) classifier.
+    % Should we validate our mesh monitoring system in a number of realistic attack scenarios using a real-time,
+    % embeddable Machine Learning (ML) classifie?
     % TODO: Use Dynamic Time Warping to compare traces?
 \end{abstract}
 
 \todo{In abstract: specific bandwidth / risetime numbers.}
-\todo{In abstract: Add machine learning / "AI" classifier.}
 
 \section{Introduction}
 
 Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
 attacks must be prevented. Security meshes usually consist of two or more conductive traces that are laid out in a
 meandering pattern to cover a surface, and which are monitored electrically to detect attempts at penetrating this
-surface. Security meshes can be implemented at the macro scale, covering entire Printed Circuit Board Assemblies
+surface. While commercial designs often only monitor for short circuits or breaks in the mesh traces, monitoring this
+coarse is incapable of detecting even less sophisticated attacks attempting to circumvent part of the mesh, thus
+requring the mesh to be made from a special material that is difficult to manipulate without breaking it.
+
+To enable the ues of less expensive, commodity materials such as Printed Circuit Boards (PCBs), the mesh's integrity
+must be monitored with higher fidelity. In this paper, we present a low-cost monitoring circuit for security meshes
+based on a Time-Domain Reflectometry (TDR) approach that provides such improved measurement fidelity compared to
+commercial systems, and enables the use of less sophisticated meshes made from less expensive materials.
+Compared to previous academic designs, our approach can be implemented at much lower cost since it exclusively uses
+inexpensive, commercially available mass-market components. Utilizing a proper TDR frontend, we improve over previous,
+delay-based approaches in monitoring fidelity, achieving sufficient sensitivity for the detection of high-impedance
+oscilloscope probes despite such probes being specifically designed to conduct measurements without disturbing the
+circuit under test. Unlike previous, capacitance-based approaches, our design is compatible with inexpensive signal
+switch ICs, enabling the protection of arbitrarily large meshes at minimal cost without compromising sensitivity.
+
+Security meshes can be implemented at the macro scale, covering entire Printed Circuit Board Assemblies
 (PCBAs) in applications such as Hardware Security Modules (HSMs) or card payment terminals, or they can be implemented
 at the micro scale to prevent the readout of secrets from Integrated Circuits (ICs) such as smartcards or Trusted
-Platform Modules (TPMs). Micro-scale tamper sensing meshes are usually as passive sensors without a continuous power
-supply, and are only checked once during system powerup, macro-scale meshes are usually implemented as active sensors
-with a continuous backup power supply so as to not give the attacker a window of attack when the remaining system is
-powered down.
+Platform Modules (TPMs). Commercial implementations of macro-scale security mesh monitoring circuits are largely limited
+to simple trace continuity monitoring due to cost constraints. A limited amount of academic work on higher-fidelity
+monitoring approaches exists, but comes with the use of expensive, specialty components and has not yet found practical
+adoption. 
 
-There are some academic works suggesting the use of security meshes as Physically Uncloneable Functions (PUFs) to
+Micro-scale tamper sensing meshes are usually implemented as passive sensors without a continuous power supply, and are
+only checked once during system powerup, while macro-scale meshes are usually implemented as active sensors with a
+continuous backup power supply so as to not give the attacker a window of attack when the remaining system is powered
+down. There are some academic works suggesting the use of security meshes as Physically Uncloneable Functions (PUFs) to
 provide a high-fidelity tamper sensor that can even detect attempts at patching the mesh to fix traces broken in a
 drilling attack. While early work in this area was limited in the size of the protected envelope, recent advancements
 allow for the protection of entire PCBAs similar in size to common commercial systems such as HSMs or the processing
-subsystems of card payment terminals.
+subsystems of card payment terminals\todo{cite ihsm paper}.
 
-As is often the case with security technologies, in practice there exists a tension between the level of security
-offered by a particular security mesh implementation, and its implementation cost. The most secure meshes require
-specialized manufacturing techniques that aim to produce what is essentially a Flexible Printed Circuit (FPC) whose
-materials are specifically chosen to be as fragile as possible such that it breaks even during careful manipulation by
-an attacker.
-
-In contrast to this in the industry, simpler approaches are still commonly used for their ease of implementation. Often,
+As is often the case with security technologies, in practice a tension exists between the level of security offered by a
+particular security mesh implementation, and its implementation cost. The most secure meshes require specialized
+manufacturing techniques that aim to produce what is essentially a Flexible Printed Circuit (FPC) whose materials are
+specifically chosen to be as fragile as possible such that it breaks even during careful manipulation by an attacker. In
+contrast to this, industrially simpler approaches are still commonly used for their ease of implementation. Often,
 standard copper/polyimide FPCs are used because of the wide availability of manufacturing services. In some
-lower-security applications such as card payment terminals, meshes manufactured from simple PCBs are even used to
-provide protection in directions considered especially vulnerable, without enclosing the whole PCBA.
+lower-security applications such as card payment terminals, meshes manufactured from simple PCBs are used without
+enclosing the whole PCBA.
 
 In this paper, we introduce an approach for the design of security mesh monitoring circuitry that provides dramatically
-higher fidelity compared to state-of-the-art conductivity monitoring, improving the sensitivity of meshes even when
+higher fidelity compared to state-of-the-art conductivity monitoring and improves the sensitivity of meshes even when
 manufactured using less advanced technologies such as standard FPC or PCB processes. Our approach consists of an
-optimized, low-cost differential Time Domain Reflectometry (TDR) frontend that provides better than
-\qty{200}{\pico\second}( resolution, connected to a security mesh. Using our TDR frontend, mesh integrity can be
-characterized at high fidelity, producing several hundred measurements for each meter of mesh trace length.
-
+optimized, low-cost differential Time Domain Reflectometry (TDR) frontend built around a commodity microcontroller and
+an amplifier IC originally intended for digital video applications that together achieve pulse risetimes below
+\qty{200}{\pico\second}, corresponding to only \qty{3}{\centi\meter} of wave propagation inside the mesh at the speed of
+light in PCB material. Using our TDR frontend, mesh integrity can be characterized at high fidelity, producing 70 data
+points for each meter of mesh length, resulting in a measurement density per mesh area of
+\qty{150}{\bit\per\centi\meter^2} when using a mesh manufactured in a commercial PCB process.
 
 \todo{citations for applications}
 
@@ -203,8 +220,6 @@ article} to reconstruct a downsampled copy of the input signal in the analog dom
 
 \subsection{Low-Cost Time Domain Reflectometry}
 
-\subsection{Machine Learning and Anomaly Detection}
-
 \section{Time-Domain Reflectometry}
 
 An issue with a plain TDR measurement is that it only measures reflected signal components. If we connected a TDR
@@ -231,7 +246,9 @@ reflections out of it. Finally, we need a fast ADC to capture the reflections.
 The focus of our circuit design is on cost. Since physical attacks happen on a time scale of minutes or hours, we do not
 need a fast acquisition rate. Thus, we chose an equivalent-time sampling setup instead of direct conversion, reducing
 the requirements of our data acquisition and signal processing fronted from gigasamples per second to mere megasamples,
-well within the range what a commodity microcontroller can handle. A challenge in equivalent-time sampling is
+well within the range what a commodity microcontroller can handle.
+\todo{compare to that sram adc design}
+A challenge in equivalent-time sampling is
 precisely phase-synchronizing the sampling pulse to the fundamental frequency of the input signal, which is usually
 implemented by using a high-speed comparator. We can avoid this expensive component here since our TDR frontend
 generates the stimulus signal itself. Thus, we only have to generate a sampling pulse at an adjustable phase to the
@@ -413,8 +430,6 @@ layout, we leave its implementation to future work\todo{Mention this here, or be
 \subsection{Frontend Characterization}
 
 
-\section{Anomaly Detection through Machine Learning}
-
 \section{Experimental Evaluation}
 
 To validate our design, we will perform a two-fold evaluation. First, we want to measure the performance of our sampling
@@ -563,6 +578,18 @@ content such that it was still able to turn on the sampling gate's diode bridge 
             &3
             &4\\\hline
 
+            \textbf{Size}&
+            $35\times\qty{70}{\milli\meter}$&
+            $35\times\qty{70}{\milli\meter}$&
+            $35\times\qty{70}{\milli\meter}$&
+            $35\times\qty{70}{\milli\meter}$\\
+
+            \textbf{Area}&
+            $\qty{24.5}{\centi\meter^2}$&
+            $\qty{24.5}{\centi\meter^2}$&
+            $\qty{24.5}{\centi\meter^2}$&
+            $\qty{24.5}{\centi\meter^2}$\\\hline
+
             \textbf{Trace width}&
             \qty{150}{\micro\meter}&
             \qty{200}{\micro\meter}&
@@ -662,7 +689,12 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \begin{center}
         \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
     \end{center}
-    \caption{}
+    \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four mesh test
+    speciments. The four specimens cover the same area using four different densities, resulting in a length ratio of
+    approximately $1:2:3:4$. The shown time range covers the primary reflection of the stimulus pulse's falling edge.
+    The vertical scale of all four graphs is in Volts at the ADC. Note that due to different characteristics of the
+    pulse amplifiers, the four circuit variants use different tuning of the post-sampling amplifier before the
+    adc---thus the vertical scale should not be compared between ICs.}
     \label{fig_mesh_length}
 \end{figure}
 
@@ -672,7 +704,13 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \begin{center}
         \includegraphics[width=\textwidth]{fig_manip_shape.pdf}
     \end{center}
-    \caption{}
+    \caption{TDR responses captured using our design under four different attack scenarios. In three scenarios, the
+    mesh's traces are shorted in one of three locations. Location 1 is \qty{558}{\milli\meter}, location 2 is
+    \qty{125}{\milli\meter} and location 3 is \qty{850}{\milli\meter} from the start of the mesh. In the fourth
+    scenario, one mesh trace is cut midway through the mesh. The left and right plots show the positive and negative
+    trace of the differential pair, respectively. The black traces show four baseline measurements with no manipulations
+    taken in between attacks. The vertical offset between the baseline measurements is caused by temperature drift,
+    which causes a small DC offset in our design. The vertical scale is in Volts at the ADC.}
     \label{fig_manip_shape}
 \end{figure}
 
@@ -680,7 +718,12 @@ content such that it was still able to turn on the sampling gate's diode bridge 
     \begin{center}
         \includegraphics[width=\textwidth]{fig_probe_shape.pdf}
     \end{center}
-    \caption{}
+    \caption{The circuit's TDR response under a probing attack using an oscilloscope probe. Black traces are a series of
+    un-probed baseline measurements taken between attacks. All traces are plotted relative to a separate baseline trace
+    taken at the begginning of the experiment. The probe used was a Rigol PVP3150 $\times 1/\times 10$ probe used with
+    ground clip grounded to the mesh ground and used without tip attachment. In each traces, the mesh was probed in one
+    of three locations as in Figure\ \ref{fig_manip_shape}, and on one of the two mesh traces. The shown time range
+    shows the primary reflection of the stimulus pulse's rising edge.}
     \label{fig_probe_shape}
 \end{figure}
 % spectrum analyzer-measured reconstructed rise times for PI3HDX12211 (new measuremewnts!) ONET8501 and TDP0604
