@@ -126,7 +126,14 @@ points for each meter of mesh length, resulting in a measurement density per mes
 
 % cite satoToucheEnhancingTouch2012 on capacitive fingerprinting
 
-While security meshes are widely used in practice, their design is only covered by a sparse research corpus.
+While security meshes are widely used in practice, their design is only covered by a sparse research corpus. As
+\textcite{andersonSecurityEngineeringGuide2020} notes, while a lot of research in this area happens in the commercial
+sphere, there, security-by-obscurity is often considered a good idea and often no detail is published on physical
+security implementation. The academic work listed below should be understood with this caveat in mind. One of the goals
+of this paper is raising the bar in the academic state of the art to a level that likely lies beyond the current state
+of the art in the commercial sphere.
+
+\subsection{Security Mesh Monitoring and Design}
 
 % TODO more citations to their papers here
 \paragraph{Meshes as capacitive PUFs}
@@ -171,14 +178,17 @@ sample memory.
 Advantages of their design include better sensitivity to changes in total mesh trace length compared to simple
 continuity monitoring and the low complexity of their analog frontend. Disadvantages include the high cost of the
 specialized components, coarse time resolution of \qty{5}{\nano\second} and the choice of a $S_{12}$ measurement
-configuration, which while sensitive to changes in \emph{length}, is insensitive to changes in \emph{impedance}. In
-contrast, a TDR approach measuring $S_11$ when used with a reflector at the far end of the mesh will detect both changes
-in overall length and changes in impedance.
+configuration, which while sensitive to changes in \emph{length}, is insensitive to changes in \emph{impedance} and
+additionally is not sensitive to fault location along the mesh. In contrast, a TDR approach measuring $S_11$ when used
+with a reflector at the far end of the mesh will detect both changes in overall length and is able to localize faults.
 
-\subsection{Security Mesh Monitoring and Design}
-
+\cite{andersonCryptographicProcessorsASurvey2006}
 \cite{vasileTemperatureSensitiveActive2017}
 \cite{vasileActiveTamperDetection2017}
+\todo{Cite patents.
+\cite{longMichaelFisherPoughkeepsie,nortonTamperDetectingCases2019,razaghiTamperDetectionSystem2020,wesselhoffTamperResponsiveSensor2020,hall72InventorsAlan,wesselhoffTamperResponsiveSensor2018,dangler54METHODMANUFACTURING,wadeTamperProtectionMesh2016,wadeMagneticStripeReader2015,wernerFabricatingTamperrespondentSensors2024,busbyTamperDetectionEnclosuretoboard2020,chockPointSaleTerminal2009}}
+\cite{tehranipoorHardwareSecurityPrimitives2023}
+\cite{https://www.ti.com/lit/an/slaa715/slaa715.pdf}
 
 \subsection{Hardware Security Module System Design}
 
