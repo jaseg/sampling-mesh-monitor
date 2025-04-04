@@ -133,6 +133,12 @@ security implementation. The academic work listed below should be understood wit
 of this paper is raising the bar in the academic state of the art to a level that likely lies beyond the current state
 of the art in the commercial sphere.
 
+Patent literature gives a partial view on commercial developments in this area. Even recent patents such as \todo{cite
+patents here!} from HSM manufacturers IBM and HP, ATM component manufacturer Cryptera as well as paymemnt terminal
+manufacturer Stripe continue to cite security mesh monitoring techniques that are no more sophisticated than trace
+resistance monitoring at best, suggesting that commercial systems are likely less sophisticated than what is proposed in
+the academic sphere.
+
 \subsection{Security Mesh Monitoring and Design}
 
 % TODO more citations to their papers here
@@ -169,18 +175,40 @@ to attack by emulation given that the log power sensor they are using at the mes
 to any signal characteristics apart from total signal power.
 
 \paragraph{Time-domain mesh monitoring}
-\textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017} propose monitoring the time-domain
+The prior work in the academic corpus that is probably closes to our proposal is the work of
+\textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}, where they propose monitoring the time-domain
 response of a mesh using a circuit made up from a pulse generator and a fast analog-to-digital converter (ADC). To avoid
 the need for a full high-speed data processing pipeline, their design is centered around a specialized high-speed ADC
 that has a small built-in sample memory, allowing them to capture a pulse at high speed before slowly processing it from
 sample memory.
 
 Advantages of their design include better sensitivity to changes in total mesh trace length compared to simple
-continuity monitoring and the low complexity of their analog frontend. Disadvantages include the high cost of the
-specialized components, coarse time resolution of \qty{5}{\nano\second} and the choice of a $S_{12}$ measurement
-configuration, which while sensitive to changes in \emph{length}, is insensitive to changes in \emph{impedance} and
-additionally is not sensitive to fault location along the mesh. In contrast, a TDR approach measuring $S_11$ when used
-with a reflector at the far end of the mesh will detect both changes in overall length and is able to localize faults.
+continuity monitoring and the low complexity of their analog frontend. However, their proposed design differs from our
+work in a number of fundamental aspects.
+
+\begin{itemize}
+    \item The design from \textcite{vasileActiveTamperDetection2017} is hinges on a specialized high-speed ADC
+        that has a large internal sample buffer. Not only is this part expensive at \qty{15.95}{\euro} at quantity 1000,
+        to our knowledge it is also the only part of its kind available on the market. Foregoing this part, and going
+        for a comparable fast ADC without this sample buffer would require a fast digital processing frontend, resulting
+        in even greater system cost. In contrast, our design uses widely available parts, all of which can easily be
+        substituted for other, similar parts from different manufacturers.
+    \item Their system is limited in time resolution by their choice of ADC. Even with the expensive part they chose,
+        their system only achieves a time resolution of \qty{5}{\nano\second}, less than \qty{1}{25} of our design.
+        Because the cost of ADCs quickly escalates with sampling speed, achieving sub-nanosecond resolution would be
+        difficult to achieve with their approach. For instance, the cheapest ADC available at distributor digikey that
+        would enable \qty{1}{\nano\second} resolution, still less than \qty{1}{5} of our design, would already cost more
+        than \qty{110}{\euro} at quantity 1000 and, due to its relevance to electronic warfare and radar applications,
+        require specialized clearance for export from countries such as the USA.
+    \item Their system only measures the mesh's \emph{transmission} characteristic, corresponding to a a $S_{12}$ S
+        parameter measurement configuration. This configuration is sensitive to changes in total mesh length, but is
+        insensitive to changes in impedance along this length. While the transmitted signal strength will be affected by
+        changes in impedance, all such changes manifest only in the height of the output pulse, resulting in the whole
+        information being mapped to only a few sparse ADC samples. Using such a measurement, it is not possible to
+        localize faults. In contrast, our approach measures the signal's \emph{reflected} component, which is sensitive
+        to both length, and to changes in impedance along the length. Additionally, our approach enables the
+        localization of faults.
+\end{itemize}
 
 \cite{andersonCryptographicProcessorsASurvey2006}
 \cite{vasileTemperatureSensitiveActive2017}
@@ -390,6 +418,11 @@ dependency of the propagation delay of \texttt{74LVC} series CMOS logic to creat
 picosecond resolution. It is likely that the internal DLL of the \texttt{HRTIM} peripheral is implemented in a similar
 way.
 \todo{How should we clarify here that this is future work?}
+
+Due to its \texttt{HRTIM} peripheral, the STM32 microcontroller is the component of our design that is hardest to
+replace. However, this part can still be replaced with a wide range of FPGAs, which commonly include digitally
+configurable delay lines on their IO pins for signal de-skewing. For instance, the \texttt{ODELAY} primitive of Xilinx 7
+Series FPGAs provides the same $\frac{1}{32}$ clock cycle resolution that the STM32 \texttt{HRTIM} peripheral provides.
 
 \subsection{Measurement Principle and Scan Scheduling}
 
