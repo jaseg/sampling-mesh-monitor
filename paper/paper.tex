@@ -422,6 +422,10 @@ experiments, we considered a number of parts and settled on four parts for evalu
 well as \partno{MAX3748}, a limiting amplifier for optical networking applications. We implemented four variants of our
 prototype using a steady hand under a microscope as shown in Figure\ \ref{fig_pic_amps}.
 
+One notable omission from our tests was the series of CML-output comparators such as \partno{ADCMP606} made by Analog
+Devices. These parts are easily available and are easy to interface and are popular with other designs. However, we
+avoided them in our design due to cost.
+
 \begin{figure}
     \centering
     \begin{subfigure}{0.23\textwidth}
@@ -460,11 +464,6 @@ specifications, at a comparable \qty{20}{\pico\farad} load, \partno{74LVC} serie
 fall times compared to our \partno{STM32} micrcontroller's digital IO pins\todo{cite
 \url{https://www.renesas.com/en/document/apn/224-alvclvc-logic-characteristics-and-apps}}.
 
-\paragraph{CML-Output Comparators.} Fast comparators with CML outputs such as Analog's \partno{ADCMP606} are
-easily-available, general purpose components and are easy to interface given their universal input topology. A
-disadvantage of this path is that we would need one comparator each for the stimulus and strobe pulses, and these parts
-are not cheap at \price{10}{\euro} for one, or about \qty{3}{\euro} at a hundreds quantity.
-
 \paragraph{Optical Networking Chipsets.}
 Another category of CML-output drivers suitable for our application are a class of optical networking chipset ICs. While
 today, the construction of optical transmitters has moved to direct bonding of optical components and driver ICs to
@@ -478,32 +477,30 @@ industry.
 
 \paragraph{Bus Redrivers.}
 The final category of amplifiers suitable for our pulse shaping needs is redrivers intended for high-speed data
-interfaces such as USB 3, PCI express, HDMI or DisplayPort. All of these interfaces use CML, with differential voltage
-levels usually in the order of \qty{1000}{\milli\volt}. Such redriver ICs are intended to be used to amplify the
-sensitive high-speed bus signal at the edge of a PCBA, either before it leaves the board through a connector to ensure
-adequate signal levels at the connector, or after it enters through a connector to compensate for loss in the PCB traces
-between the connector and the signal's destination. For our application, redrivers intended for HDMI and DisplayPort
-applications are most suitable, as they can usually be configured to act as simple amplifiers without processing any
-protocol logic on the signals that are amplified. In contrast, both USB 3 and PCIe redrivers usually implement power
-saving features that try to parse parts of the actual signal transmitted through them, which are hard to bypass in our
-application.
+interfaces such as USB 3, PCI express, HDMI or DisplayPort. All of these interfaces use CML drivers, with differential
+voltage levels usually in the order of \qtyrange{600}{1000}{\milli\volt}. \emph{Redriver} ICs are intended to be used to
+amplify the sensitive high-speed bus signal at the edge of a PCBA, either before it leaves the board through a connector
+to ensure adequate signal levels at the connector, or after it enters through a connector to compensate for loss in the
+PCB traces between the connector and the signal's destination. For our application, redrivers intended for HDMI and
+DisplayPort applications are most suitable, as they can usually be configured to act as simple amplifiers without
+processing any protocol logic on the signals that are amplified. In contrast, both USB 3 and PCIe redrivers usually
+implement power saving features that try to parse parts of the actual signal transmitted through them, which are hard to
+bypass in our application.
 
-There are several types of redrivers available on the market. The first distinction is between retimers and redrivers.
-Where redrivers are usually just amplifiers with some equalization features, retimers include a full
-serialization/deserialization (SerDes) setup used to parse the low-level protocol of the bus in order to reconstruct
-bit-level timing. We focus only on the simpler amplifying redrivers here.
+Redrivers can be classified according to their way of operation. \emph{Retimers} include include a full
+serialization/deserialization (SerDes) setup and parse the low-level protocol of the bus in order to reconstruct
+bit-level timing. We focus only on simpler redrivers that only contain amplifiers and (analog) equalizers here.
 
-Amplifying redrivers can be separated into two general approaches. One approach is that of limiting redrivers. A
-limiting redriver is configured to have a high gain such that any small input signal will be amplified to the full
-output voltage swing. Limiting redrivers are well-suited for our application, but they have come out of fashion since
-they interfere with link training and with power saving features of most bus protocols.
+Amplifying redrivers can be separated into two classes: Limiting and linear redrivers. A limiting redriver is configured
+to have a high gain such that a small input signal will be amplified to the full output voltage swing. Limiting
+redrivers are well-suited for our application, but they have come out of fashion since they interfere with link training
+and with power saving features of protocols like USB-3.
 
-The most common class of amplifying redriver available today is Linear Redrivers. Linear redrivers are structurally
-similar to limiting redrivers, but they are constructed with a low gain instead. This low gain is enough for them to
-perform their intended function, but simultaneously makes them transparent to various bus protocol features such as link
-training. To compensate for their reduced gain, linear redrivers usually contain configurable equalizers that can be
-used to apply targeted compensations for particular signal defects, such as boosting high-frequency gain or providing a
-set amount of overshoot.
+Linear redrivers are constructed with a low gain instead. Sufficient to compensate wiring losses, their gain is low
+enough tobut leave them transparent to bus protocol features such as link training or power saving features. To
+compensate for their reduced gain, linear redrivers usually contain configurable equalizers that can be used to apply
+targeted enhancements for particular signal defects, such as boosting high-frequency gain or providing a set amount of
+overshoot.
 
 In our evaluation below, we include \partno{PI3HDX12211} as a linear redriver intended for DisplayPort and HDMI
 applications, as well as \partno{TPD0604} as a ``hybrid'' linear or limiting redriver for HDMI applications, configured
@@ -1013,10 +1010,10 @@ While the \partno{STM32G4}'s \partno{HRTIM} peripheral offers edge position cont
 system clock cycle using an automatically adjusted delay-locked loop at each output driver, due to the comparatively
 slow maximum system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing resolution of
 \qty{184}{\pico\second}. While we have demonstrated this is sufficient to detect and localize several attack variants,
-it would be interesting to increase time resolution since in our measurements, we observed that end-to-end jitter of our
-sampler is low enough that our circuit would benefit from finer delay control. In our prototype, we implemented a--so
-far unused--adjustable power supply for the \partno{74LVC} series buffer in between of the \partno{HRTIM} outputs and
-the pulse amplifier. By adjusting this buffer's power supply through one of the microcontroller's digital-to-analog
+it would be interesting to increase time resolution since in our measurements, we observed that the end-to-end jitter of
+our sampler is low enough that our circuit would benefit from finer delay control. In our prototype, we implemented
+a--so far unused--adjustable power supply for the \partno{74LVC} series buffer in between of the \partno{HRTIM} outputs
+and the pulse amplifier. By adjusting this buffer's power supply through one of the microcontroller's digital-to-analog
 converter (DAC) channels, we expect that it should be possible to exploit the supply voltage dependency of the
 propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay with picosecond
 resolution. It is likely that the internal DLL of the \partno{HRTIM} peripheral is implemented in a similar way.
