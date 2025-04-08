@@ -1,4 +1,4 @@
-\documentclass[natbib=false]{acmart}
+\documentclass[submission]{iacrtrans}
 
 \usepackage[T1]{fontenc}
 \usepackage[
@@ -10,7 +10,7 @@
     eprint=false
     ]{biblatex}
 \addbibresource{paper.bib}
-%\usepackage{amssymb,amsmath}
+\usepackage{amssymb,amsmath}
 \usepackage{eurosym}
 \usepackage{wasysym}
 \usepackage[binary-units]{siunitx}
@@ -38,10 +38,11 @@
 
 \begin{document}
 
-%\author{Jan Sebastian Götte\inst{1} \and Björn Scheuermann\inst{2}}
-%\institute{Technical University of Darmstadt, Darmstadt, Germany, \email{jan.goette@tu-darmstadt.de}\and
-%    Technical University of Darmstadt, Darmstadt, Germany, \email{bjoern.scheuermann@kom.tu-darmstadt.de}}
+\author{Jan Sebastian Götte\inst{1} \and Björn Scheuermann\inst{2}}
+\institute{Technical University of Darmstadt, Darmstadt, Germany, \email{jan.goette@tu-darmstadt.de}\and
+    Technical University of Darmstadt, Darmstadt, Germany, \email{bjoern.scheuermann@kom.tu-darmstadt.de}}
 \title{High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
+\maketitle
 
 % FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
 
@@ -58,7 +59,6 @@
     % TODO: Use Dynamic Time Warping to compare traces?
 \end{abstract}
 
-\maketitle
 \todo{In abstract: specific bandwidth / risetime numbers.}
 
 \section{Introduction}
