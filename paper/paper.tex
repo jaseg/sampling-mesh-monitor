@@ -344,6 +344,13 @@ only detect, but distinguish and even localize several types of faults or attack
 
 \section{Circuit Design and Driving Approach}
 
+\begin{figure}
+    \centering
+    \includegraphics[height=70mm]{block_diagram.pdf}
+    \caption{Block diagram of our prototype sampling TDR security mesh monitoring circuit.}
+    \label{fig_block_diagram}
+\end{figure}
+
 A TDR can be broken down into three basic components. First, we need a source of fast pulses (or fast edges!) to
 stimulate the mesh. Second, we need a coupler that allows us to couple the stimulus pulses into the mesh, and their
 reflections out of it. Finally, we need a fast ADC to capture the reflections.
