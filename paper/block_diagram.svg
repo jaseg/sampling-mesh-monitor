@@ -25,9 +25,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showguides="true"
-     inkscape:zoom="0.78074963"
-     inkscape:cx="682.03683"
-     inkscape:cy="263.20858"
+     inkscape:zoom="1.1041467"
+     inkscape:cx="1284.7024"
+     inkscape:cy="600.46366"
      inkscape:window-width="3840"
      inkscape:window-height="2091"
      inkscape:window-x="0"
@@ -398,9 +398,9 @@
          transform="matrix(0.26458333,0,0,0.26458333,40.073512,-16.292442)"
          id="text18"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect19);display:inline"><tspan
-           x="775.70433"
-           y="325.50328"
-           id="tspan5">PI3HDX12211</tspan></text>
+           x="775.66435"
+           y="324.67931"
+           id="tspan40">PI3HDX12211</tspan></text>
     </g>
     <g
        id="g39" />
@@ -529,27 +529,27 @@
        x="-79.89341"
        y="0"><tspan
          x="746.53906"
-         y="325.50328"
-         id="tspan7"><tspan
-           style="text-align:start;text-anchor:start"
-           id="tspan6">Clip Line
+         y="324.67931"
+         id="tspan42"><tspan
+           style="text-align:start"
+           id="tspan41">Clip Line
 </tspan></tspan><tspan
          x="746.53906"
-         y="358.83666"
-         id="tspan9"><tspan
-           style="text-align:start;text-anchor:start"
-           id="tspan8">Pulse Shaping</tspan></tspan></text>
+         y="358.01269"
+         id="tspan44"><tspan
+           style="text-align:start"
+           id="tspan43">Pulse Shaping</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,81.948676,189.12517)"
        id="text53"
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect53);display:inline"><tspan
-         x="785.56436"
-         y="330.16992"
-         id="tspan10">Sampling </tspan><tspan
-         x="812.28436"
-         y="370.16992"
-         id="tspan11">Gates</tspan></text>
+         x="785.43634"
+         y="329.18116"
+         id="tspan45">Sampling </tspan><tspan
+         x="812.20438"
+         y="369.18116"
+         id="tspan46">Gates</tspan></text>
     <g
        id="g55"
        transform="translate(-229.70933,-22.370647)">
@@ -580,16 +580,16 @@
          id="text60"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect60);display:inline"><tspan
            x="788.2203"
-           y="325.50328"
-           id="tspan12">BAT17-04W</tspan></text>
+           y="324.67931"
+           id="tspan47">BAT17-04W</tspan></text>
       <text
          xml:space="preserve"
          transform="matrix(0.26458333,0,0,0.26458333,50.646671,229.58019)"
          id="text61"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect61);display:inline"><tspan
-           x="784.99359"
-           y="325.50328"
-           id="tspan13">RF Schottky</tspan></text>
+           x="784.92689"
+           y="324.67931"
+           id="tspan48">RF Schottky</tspan></text>
     </g>
     <g
        id="g67"
@@ -882,12 +882,12 @@
        transform="matrix(0.26458333,0,0,0.26458333,141.89071,189.12517)"
        id="text101"
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect101);display:inline"><tspan
-         x="751.22833"
-         y="330.16992"
-         id="tspan14">Post-Sampling </tspan><tspan
-         x="787.5484"
-         y="370.16992"
-         id="tspan15">Amplifier</tspan></text>
+         x="751.03632"
+         y="329.18116"
+         id="tspan49">Post-Sampling </tspan><tspan
+         x="787.32437"
+         y="369.18116"
+         id="tspan50">Amplifier</tspan></text>
     <g
        id="g112"
        transform="matrix(0,1,1,0,205.41682,-36.104534)">
@@ -994,24 +994,24 @@
        id="rect119"
        width="80.347801"
        height="89.451492"
-       x="438.88074"
+       x="445.11105"
        y="143.6774" />
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,147.10958,-59.532796)"
        id="text20"
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect21-8);display:inline"><tspan
-         x="773.49756"
-         y="330.16992"
-         id="tspan16">Pulse Amplifier</tspan></text>
+         x="773.17755"
+         y="329.18116"
+         id="tspan51">Pulse Amplifier</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,260.35802,139.98304)"
        id="text18-2"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect19-0);display:inline"><tspan
          x="784.97103"
-         y="325.50328"
-         id="tspan17">STM32G474</tspan></text>
+         y="324.67931"
+         id="tspan52">STM32G474</tspan></text>
     <path
        style="fill:#ffffff;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 449.9409,72.391413 v 19.77279 l -17.12372,-9.8864 17.12372,-9.88639"
@@ -1032,24 +1032,24 @@
        transform="matrix(0.26458333,0,0,0.26458333,246.62564,-38.586937)"
        id="text121"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect121-3);display:inline"><tspan
-         x="782.22437"
-         y="325.50328"
-         id="tspan18">74LVC2G157</tspan></text>
+         x="782.21101"
+         y="324.67931"
+         id="tspan53">74LVC2G157</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,213.9914,15.09284)"
        id="text122"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect122-8);display:inline"><tspan
-         x="775.58427"
-         y="325.50328"
-         id="tspan19">Single-Ended
+         x="775.55761"
+         y="324.67931"
+         id="tspan54">Single-Ended
 </tspan><tspan
-         x="773.85099"
-         y="358.83666"
-         id="tspan20">to Differential </tspan><tspan
-         x="787.14429"
-         y="392.17003"
-         id="tspan21">Conversion</tspan></text>
+         x="773.75766"
+         y="358.01269"
+         id="tspan55">to Differential </tspan><tspan
+         x="787.10431"
+         y="391.34606"
+         id="tspan56">Conversion</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 449.9409,52.743293 h 29.11374"
@@ -1085,15 +1085,15 @@
          transform="matrix(0.26458333,0,0,0.26458333,300.87774,-0.17833149)"
          id="text127"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect127);display:inline"><tspan
-           x="773.23937"
-           y="325.50328"
-           id="tspan22">Adjustable </tspan><tspan
-           x="790.70608"
-           y="358.83666"
-           id="tspan23">Voltage </tspan><tspan
-           x="778.07939"
-           y="392.17003"
-           id="tspan24">Regulator</tspan></text>
+           x="773.21267"
+           y="324.67931"
+           id="tspan57">Adjustable </tspan><tspan
+           x="790.66605"
+           y="358.01269"
+           id="tspan58">Voltage </tspan><tspan
+           x="778.02606"
+           y="391.34606"
+           id="tspan59">Regulator</tspan></text>
     </g>
     <path
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
@@ -1134,12 +1134,12 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect52-1);display:inline"
          x="-79.89341"
          y="0"><tspan
-           x="762.26601"
-           y="325.50328"
-           id="tspan25">Resistive </tspan><tspan
-           x="770.09274"
-           y="358.83666"
-           id="tspan26">Splitter</tspan></text>
+           x="762.19936"
+           y="324.67931"
+           id="tspan60">Resistive </tspan><tspan
+           x="770.03938"
+           y="358.01269"
+           id="tspan61">Splitter</tspan></text>
       <g
          id="g133"
          transform="translate(-6.5830348,11.489136)">
@@ -1547,9 +1547,9 @@
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect203);display:inline"
        x="-79.89341"
        y="0"><tspan
-         x="769.06436"
-         y="330.16992"
-         id="tspan27">Signal Routing &amp; Termination</tspan></text>
+         x="768.60022"
+         y="329.18116"
+         id="tspan62">Signal Routing &amp; Termination</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 186.08218,116.70594 v 77.91722"
@@ -1791,56 +1791,56 @@
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect52-1-6);display:inline"
        x="-79.89341"
        y="0"><tspan
-         x="775.23676"
-         y="330.16992"
-         id="tspan29"><tspan
+         x="775.17279"
+         y="329.18116"
+         id="tspan64"><tspan
            style="text-anchor:middle"
-           id="tspan28">Mesh </tspan></tspan><tspan
-         x="749.89282"
-         y="370.16992"
-         id="tspan31"><tspan
+           id="tspan63">Mesh </tspan></tspan><tspan
+         x="749.71677"
+         y="369.18116"
+         id="tspan66"><tspan
            style="text-anchor:middle"
-           id="tspan30">Interface</tspan></tspan></text>
+           id="tspan65">Interface</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,231.8298,99.725273)"
        id="text121-1"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect121-3-4);display:inline"><tspan
-         x="826.95772"
-         y="325.50328"
-         id="tspan32">ADC</tspan></text>
+         x="826.9444"
+         y="324.67931"
+         id="tspan67">ADC</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,243.31841,76.869993)"
        id="text256"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect257);display:inline"><tspan
-         x="813.58437"
-         y="325.50328"
-         id="tspan33">HRTIM</tspan></text>
+         x="813.57104"
+         y="324.67931"
+         id="tspan68">HRTIM</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,234.88125,65.602223)"
        id="text257"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect258);display:inline"><tspan
          x="825.2377"
-         y="325.50328"
-         id="tspan34">Ch A</tspan></text>
+         y="324.67931"
+         id="tspan69">Ch A</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,254.71038,65.602223)"
        id="text258"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect259);display:inline"><tspan
          x="824.65105"
-         y="325.50328"
-         id="tspan35">Ch B</tspan></text>
+         y="324.67931"
+         id="tspan70">Ch B</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,284.22644,74.171253)"
        id="text259"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect260);display:inline"><tspan
-         x="827.2244"
-         y="325.50328"
-         id="tspan36">DAC</tspan></text>
+         x="827.21107"
+         y="324.67931"
+         id="tspan71">DAC</tspan></text>
     <path
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
        d="m 380.13951,227.38536 h 8.58297"
@@ -1870,16 +1870,16 @@
        id="text262"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect262);display:inline"><tspan
          x="825.86438"
-         y="325.50328"
-         id="tspan37">Ch 1</tspan></text>
+         y="324.67931"
+         id="tspan72">Ch 1</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,231.1694,120.8109)"
        id="text263"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect263);display:inline"><tspan
          x="825.86438"
-         y="325.50328"
-         id="tspan38">Ch 2</tspan></text>
+         y="324.67931"
+         id="tspan73">Ch 2</tspan></text>
     <path
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.99999, 2.99999;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
        d="m 445.19575,173.48992 h 23.27497 v 39.89789 h -23.27497"
@@ -1894,9 +1894,9 @@
        transform="matrix(0.26458333,0,0,0.26458333,288.97247,109.58889)"
        id="text264"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect264);display:inline"><tspan
-         x="824.22439"
-         y="325.50328"
-         id="tspan39">SWD</tspan></text>
+         x="824.21106"
+         y="324.67931"
+         id="tspan74">SWD</tspan></text>
     <path
        style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:2.99999, 2.99999;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
        d="m 499.14297,173.48992 v 39.89789 h 26.4006"
@@ -1911,33 +1911,33 @@
        transform="matrix(0.26458333,0,0,0.26458333,154.24939,78.320263)"
        id="text60-0"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect60-2);display:inline"><tspan
-         x="801.36696"
-         y="325.50328"
-         id="tspan40">OPA1656</tspan></text>
+         x="801.35363"
+         y="324.67931"
+         id="tspan75">OPA1656</tspan></text>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-92.280499,121.88312)"
+       transform="matrix(0.26458333,0,0,0.26458333,-83.300081,121.88312)"
        id="text266"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect266);display:inline"><tspan
          x="789.68695"
-         y="325.50328"
-         id="tspan41">SKYA21003</tspan></text>
+         y="324.67931"
+         id="tspan76">SKYA21003</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-128.0906,67.153653)"
        id="text267"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';text-align:center;white-space:pre;shape-inside:url(#rect267);display:inline"><tspan
-         x="776.3936"
-         y="325.50328"
-         id="tspan42">TMUXHS4212</tspan></text>
+         x="776.36695"
+         y="324.67931"
+         id="tspan77">TMUXHS4212</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,244.61116,159.76563)"
        id="text270"
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:32px;line-height:1.25;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro Semi-Bold';text-align:center;white-space:pre;shape-inside:url(#rect271);display:inline"><tspan
-         x="766.76852"
-         y="330.16992"
-         id="tspan43">Core Microcontroller</tspan></text>
+         x="766.4325"
+         y="329.18116"
+         id="tspan78">Core Microcontroller</tspan></text>
     <g
        id="g273"
        transform="translate(-2.8755236)">
