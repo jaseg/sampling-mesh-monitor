@@ -143,8 +143,13 @@ point out prototype, measurements and tamper experiments} \todo{citations for ap
 
 A general introduction into Hardware Security Modules can be found in
 \textcite{andersonCryptographicProcessorsASurvey2006} as well as \textcite{tehranipoorHardwareSecurityPrimitives2023}.
-While security meshes are widely used in practice, their design is only covered by a sparse research corpus. As
-\textcite{andersonSecurityEngineeringGuide2020} notes, while this area is actively researched commercially, there,
+While security meshes are widely used in practice, their design is only covered by a sparse research corpus. Research in
+the area spans both improvements to security meshes
+\textcite{immlerBTREPIDBatterylessTamperresistant2018,garbTamperSensitiveDesignPUFBased,vasileProtectingSecretsAdvanced2019},
+as well as monitoring approaches that attempt to entirely replace security meshes using other
+primitives\cite{vaiSecureArchitectureEmbedded2015,vaiSecureArchitectureEmbedded2015}.
+
+As \textcite{andersonSecurityEngineeringGuide2020} notes, while this area is actively researched commercially, there,
 security-by-obscurity is often considered a good idea and with few exceptions, little detail is published on physical
 security implementations. The academic work listed below should be understood with this caveat in mind. One of the goals
 of this paper is raising the bar in the academic state of the art to a level that likely lies beyond the current state
@@ -166,7 +171,7 @@ Patent literature gives a partial view on commercial developments in this area. 
 \todo{Individually closely check each of these!} from HSM manufacturers IBM and HP, ATM component manufacturer Cryptera,
 payment terminal manufacturer Stripe as well as industry publications\cite{nisargaSystemLevelTamperProtection2016}
 continue to cite security mesh monitoring techniques that are no more sophisticated than trace resistance monitoring at
-best, suggesting that commercial systems might not be more sophisticated than current academic proposals.
+best, suggesting that commercial systems might not be more sophisticated than current academic proposals. 
 
 \subsection{Security Mesh Monitoring and Design}
 
@@ -1005,22 +1010,30 @@ measurement.
 
 \section{Future Work}
 
-While the \partno{STM32G4}'s \partno{HRTIM} peripheral offers edge position control at a precision of $\frac{1}{32}$
-system clock cycle using an automatically adjusted delay-locked loop at each output driver, due to the comparatively
-slow maximum system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing resolution of
-\qty{184}{\pico\second}. While we have demonstrated this is sufficient to detect and localize several attack variants,
-it would be interesting to increase time resolution since in our measurements, we observed that the end-to-end jitter of
-our sampler is low enough that our circuit would benefit from finer delay control. In our prototype, we implemented
-a--so far unused--adjustable power supply for the \partno{74LVC} series buffer in between of the \partno{HRTIM} outputs
-and the pulse amplifier. By adjusting this buffer's power supply through one of the microcontroller's digital-to-analog
-converter (DAC) channels, we expect that it should be possible to exploit the supply voltage dependency of the
-propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay with picosecond
-resolution. It is likely that the internal DLL of the \partno{HRTIM} peripheral is implemented in a similar way.
+\paragraph{Design variants.} While the \partno{STM32G4}'s \partno{HRTIM} peripheral offers edge position control at a
+precision of $\frac{1}{32}$ system clock cycle using an automatically adjusted delay-locked loop at each output driver,
+due to the comparatively slow maximum system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing
+resolution of \qty{184}{\pico\second}. While we have demonstrated this is sufficient to detect and localize several
+attack variants, it would be interesting to increase time resolution since in our measurements, we observed that the
+end-to-end jitter of our sampler is low enough that our circuit would benefit from finer delay control. In our
+prototype, we implemented a--so far unused--adjustable power supply for the \partno{74LVC} series buffer in between of
+the \partno{HRTIM} outputs and the pulse amplifier. By adjusting this buffer's power supply through one of the
+microcontroller's digital-to-analog converter (DAC) channels, we expect that it should be possible to exploit the supply
+voltage dependency of the propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay
+with picosecond resolution. It is likely that the internal DLL of the \partno{HRTIM} peripheral is implemented in a
+similar way.
 
-The work we presented in this paper is complementary to the work previously presented by
+\paragraph{System design.} The work we presented in this paper is complementary to the work previously presented by
 \textcite{gotteCantTouchThis2022}, where the authors improved security of a simple security mesh made from standard PCBs
 through mechanical motion. We are currently working on a prototype combining both approaches for a cost-efficient yet
 powerful physical security primitive.
+
+\paragraph{Auxiliary applications.} In this work, we have presented a design for a low-cost, embedded TDR frontend.
+Besides security mesh monitoring, through multiplexing this TDR frontend could be used for other system monitoring
+tasks from tamper sensing to system health monitoring. For instance, \textcite{vaiSecureArchitectureEmbedded2015}
+propose an approach for checking the integrity of a PCBA using an external Vector Network Analyzer (VNA) attached to
+test points on the PCBA's Power Distribution Network (PDN). TDR can produce fingerprints similar to a VNA, and it would
+be interesting to use the TDR frontend to measure parts of the secure subsystem other than its security mesh.
 
 \section{Conclusion}
 
