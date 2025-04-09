@@ -139,13 +139,14 @@ and present a practical prototype demonstrating our design's capabilities. The c
         standard low-cost commercial PCB process.
     \item Our approach consists of an optimized, low-cost differential Time Domain Reflectometry (TDR) frontend built
         around a commodity microcontroller and an amplifier IC originally intended for digital video applications. Our
-        design achieve pulse risetimes below \qty{200}{\pico\second}, corresponding to only \qty{3}{\centi\meter} of
+        design achieves pulse risetimes below \qty{200}{\pico\second}, corresponding to only \qty{3}{\centi\meter} of
         wave propagation inside the mesh at the speed of light in PCB material, a $25\times$ improvement over the
         closest previous work\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
     \item We explain the design rationale behind our design. Our design is based entirely around commercially available,
         inexpensive mass-market components, which means our design can be replicated and extended by anyone, without
         necessitating access to bespoke production equipment or semiconductor manufacturing capabilitiese. To facilitate
-        further research and practical applications, we publish our prototype under an Open Source license.
+        easy replication, further research and practical applications, we publish our prototype under an Open Source
+        license.
     \item We present a working prototype along extensive experimental results, including laboratory measurements of the
         technical performance of our design. Furthermore, we practically demonstrate that our design is able to not only
         detect, but distinguish and even localize faults in several realistic attack scenarios. We demonstrate that our
@@ -923,8 +924,7 @@ by applying the same electronic CAD/electromagnetic simulation co-design approac
         \end{tabular}
     \end{center}
     \caption{Speed of light and time offset calculated from delays read from the graphs in Figure\
-    \ref{fig_mesh_length}. $c$ is the speed of light determined by linear fit. $\Delta t$ is a residual time offset
-    common to all four mesh measurements.}
+    \ref{fig_mesh_length}. $c$ is the speed of light determined by linear fit.}
     \label{tab_speed_of_light}
 \end{table}
 
@@ -998,17 +998,15 @@ measurement.
         \centering
         \includegraphics[width=\textwidth]{fig_drill_mod_shape.pdf}
         \label{fig_drill_mod_shape_plot}
-        \caption{}
     \end{subfigure}
     \begin{subfigure}{0.2\textwidth}
         \centering
         \includegraphics[width=\textwidth]{pic_manip_microsoldering_small.jpg}
         \vspace*{2mm}
         \label{fig_drill_mod_shape_pic}
-        \caption{}
     \end{subfigure}
-    \caption{The circuit's TDR response under a manipulation attack attempting to bridge part of a trace to allow a
-        \qty{300}{\micro\meter} drill to penetrate. The mesh pitch used is \qty{240}{\micro\meter}. Red traces show
+    \caption{The circuit's TDR response under a manipulation attack bridging part of a trace to allow a
+        \qty{300}{\micro\meter} drill to penetrate. The mesh pitch is \qty{240}{\micro\meter}. Red traces show
         measurements with a looped wire patch comparable to \textcite{immlerSecurePhysicalEnclosures2018}, black traces
         show the same gap bridged with a minimally short straight piece of wire. The photo shows the looped wire patch
         with a \qty{1}{\milli\meter} pitch ruler for reference. Traces are normalized as in Figure\
