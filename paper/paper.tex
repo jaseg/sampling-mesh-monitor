@@ -930,26 +930,6 @@ by applying the same electronic CAD/electromagnetic simulation co-design approac
 
 \subsection{Tamper tests}
 
-\begin{figure}
-    \centering
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=0.8\textwidth]{pic_short_2_small.jpg}
-        \ref{fig_pic_speciments_short}
-        \caption{Short circuit test specimen}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=0.8\textwidth]{pic_cut_1_small.jpg}
-        \ref{fig_pic_speciments_open}
-        \caption{Cut trace test specimen}
-    \end{subfigure}
-    \caption{Photos of the short circuit and cut trace test specimens. To measure short circuit response, one of the
-    three marked locations on the test specimen was shorted using a soldering iron. To measure baseline values, the
-    short circuit specimen was used without placing a short.}
-    \label{fig_pic_specimens}
-\end{figure}
-
 After validating our prototype's electrical performance as well as our mesh specimen designs in the previous sections,
 we performed a series of experiments where we performed tampering attempts on a mesh specimen while monitoring it using
 our TDR prototype, capturing responses both before and after tampering. We performed two sets of experiments.
@@ -970,11 +950,11 @@ our TDR prototype, capturing responses both before and after tampering. We perfo
 \end{figure}
 
 In our first experiment, we tested both short and open circuit conditions. We tested a short circuit between the two
-mesh traces in each of three locations as shown in Figure\ \ref{fig_pic_specimens}, as well as a cut trace halfway
-through the mesh. Figure\ \ref{fig_manip_shape} shows the result of our experiment. The graphs show a clear response of
-our monitoring circuit to all four tampering scenarios. Short and open circuit conditions can clearly be distinguished
-from each other, and in all cases, the fault location can be determined with sub-nanosecond precision, corresponding to
-several centimeters in distance along the mesh.
+mesh traces in three locations as well as a cut trace halfway through the mesh. Figure\ \ref{fig_pic_specimens} in
+Appendix\ \ref{appendix_photos} shows photos of our test specimen. Figure\ \ref{fig_manip_shape} shows the result of our
+experiment. The graphs show a clear response of our monitoring circuit to all four tampering scenarios. Short and open
+circuit conditions can clearly be distinguished from each other, and in all cases, the fault location can be determined
+with sub-nanosecond precision, corresponding to several centimeters in distance along the mesh.
 
 \subsubsection{Probing by Oscilloscope Probe}
 
@@ -1121,7 +1101,32 @@ LaTeX source for this paper, all hardware design files, and firmware and analysi
 
 \center{Note: URL elided for peer review}
 % \center{\url{https://git.jaseg.de/ihsm-sampling-mesh-monitor-hw.git}}
-
 \FloatBarrier
+
 \printbibliography[heading=bibintoc]
+
+\appendix
+\section{Additional photos}
+\label{appendix_photos}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{pic_short_2_small.jpg}
+        \label{fig_pic_speciments_short}
+        \caption{Short circuit test specimen}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{pic_cut_1_small.jpg}
+        \label{fig_pic_speciments_open}
+        \caption{Cut trace test specimen}
+    \end{subfigure}
+    \caption{Photos of the short circuit and cut trace test specimens. To measure short circuit response, one of the
+    three marked locations on the test specimen was shorted using a soldering iron. To measure baseline values, the
+    short circuit specimen was used without placing a short.}
+    \label{fig_pic_specimens}
+\end{figure}
+
 \end{document}
