@@ -48,14 +48,14 @@
 % FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
 
 \begin{abstract}
-    Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs) to
-    detect attempts at physical intrusion into the HSM's protective shell. In this paper, we present an optimized,
-    embeddable security mesh monitoring circuit that applies the principles behind Time Domain Reflectometry (TDR) to
-    create a unique fingerprint of a mesh, and to detect not only DC faults, but also attempts at bridging and removing
-    parts of the mesh. We demonstrate a working prototype of our TDR circuit, which improves over previous approaches by
-    utilizing exclusively inexpensive, consumer-grade components with a total Bill of Materials (BoM) cost of less than
-    10\euro while achieving a time resolution better than \qty{200}{\pico\second}. We demonstrate our prototype's
-    capability to detect and localize faults in several practical attack scenarios.
+    Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs)
+    and other systems to detect attempts at physical intrusion into the device's protective shell. In this paper, we
+    present an embeddable security mesh monitoring circuit constructed from low-cost, standard components that applies
+    the principle of Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach is able to
+    detect not only DC faults, but also attempts at bridging and removing parts of the mesh. We demonstrate a working
+    prototype of our TDR circuit with a total Bill of Materials (BoM) cost of less than \price{10}{\euro} that achieves
+    both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our prototype's capability to
+    detect and localize faults in several practical attack scenarios.
 \end{abstract}
 
 \section{Introduction}
