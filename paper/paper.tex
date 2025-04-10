@@ -37,6 +37,21 @@
 \newlength{\figurescale}
 \setlength{\figurescale}{0.75\textwidth}
 
+% By default, our biblatex style will print "In: [name of proceedings]. [year] [name of event]" for every conference
+% paper. Since the name of the proceedings is usually near-identical to the name of the event, this adds a lot of noise.
+% Suppress the name of the proceedings when both are given.
+\AtEveryBibitem{
+    \ifentrytype{inproceedings}{
+        \iffieldundef{booktitle}{
+        }{
+            \iffieldundef{eventtitle}{
+            }{
+                \clearfield{booktitle}
+            }
+        }
+    }{
+    }}
+
 \begin{document}
 
 \author{Jan Sebastian Götte\inst{1} \and Björn Scheuermann\inst{2}}
