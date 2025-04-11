@@ -72,18 +72,41 @@
 
 \section{Introduction}
 
+% Tobi: Intro Reihenfolge der Topics
+% Hin- und Her-Switchen
+% Related Work in Intro nach vorne
+
+% Im Abstact kurz auf related work eingehen.
+
+% Related work: Bullets zu lang
+% Bullet-Listen sind uneven
+% Capacitive PUFs: bei Limitaitons zitieren, welche der Arbeiten gemeint ist.
+% Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
+% 2.2 / 2.3 Wie related? Warum interessant? In Intro erwähnen?
+% In Intro herausstellen, dass TDR-Setup neu ist.
+
+% zitierte patente zu 4-5 zusammenstreichen
+% in intro kein vergleich zu commercial systems
+
+% Unterschied zu time domain mesh monitoring besser rausstellen?
+% Storyline für Intro: Wir sind die ersten die die Auflösung hinbekommen, und deshalb geht bei uns TDR.
+% Vielleicht Standardkomponenten besser herausstellen? USA?
+% Intro besser in einen klaren Storyfaden bauen: Generelle Intro, was machen andere, was machen wir.
+% Conclusion time domain besser rausstellen. Fingerprint erwähnen!
+% Figure 10: 2A/2B a/b klarer machen
+
 Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
 applications for such meshes include Hardware Security Modules (HSMs) used to store and process cryptographic keys while
 applying certain security standards such as
 FIPS-140-2\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002} or ISO/IEC
-24759\cite{ISOIEC24759}, as well as card payment terminals where PCI PTS HSM
+24759\cite{ISOIEC24759}. Other applications include as card payment terminals where PCI PTS HSM
 standards\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicable. Security meshes usually consist of
 two or more conductive traces that are laid out in a meandering pattern to cover a surface, and which are monitored
-electrically to detect attempts at penetrating this surface. While commercial designs often only monitor for short
-circuits or breaks in the mesh traces, monitoring this coarse is incapable of detecting even less sophisticated attacks
-attempting to circumvent part of the mesh, thus requring the mesh to be made from a special material that is difficult
-to manipulate without breaking it.
+electrically to detect attempts at penetrating this surface. Commercial designs often only monitor for short circuits or
+breaks in the mesh traces and are incapable of detecting attacks that circumvent part of the mesh, thus requring the
+mesh to be made from a special material that is difficult to manipulate without breaking it. Cretaing such meshes
+is expensive and requires specialized technology.
 
 To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs), mesh integrity must be
 monitored with higher fidelity. In this paper, we present a low-cost monitoring circuit for security meshes based on a
