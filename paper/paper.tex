@@ -67,9 +67,9 @@
     low cost. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
     standard components utilizing Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach
     is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as security
-    mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} that
-    achieves both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our prototype's
-    capability to detect and localize faults in several practical attack scenarios including probing using a
+    mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
+    components that achieves both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our
+    prototype's capability to detect and localize faults in several practical attack scenarios including probing using a
     high-impedance oscilloscope probe and a patching attempt using micro soldering.
 \end{abstract}
 
@@ -77,26 +77,16 @@
 
 % Tobi: Intro Reihenfolge der Topics
 % Hin- und Her-Switchen
-% Related Work in Intro nach vorne
 
-% Im Abstact kurz auf related work eingehen.
-
-% Related work: Bullets zu lang
-% Bullet-Listen sind uneven
-% Capacitive PUFs: bei Limitaitons zitieren, welche der Arbeiten gemeint ist.
 % Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
 % 2.2 / 2.3 Wie related? Warum interessant? In Intro erwähnen?
 % In Intro herausstellen, dass TDR-Setup neu ist.
-
-% zitierte patente zu 4-5 zusammenstreichen
-% in intro kein vergleich zu commercial systems
 
 % Unterschied zu time domain mesh monitoring besser rausstellen?
 % Storyline für Intro: Wir sind die ersten die die Auflösung hinbekommen, und deshalb geht bei uns TDR.
 % Vielleicht Standardkomponenten besser herausstellen? USA?
 % Intro besser in einen klaren Storyfaden bauen: Generelle Intro, was machen andere, was machen wir.
 % Conclusion time domain besser rausstellen. Fingerprint erwähnen!
-% Figure 10: 2A/2B a/b klarer machen
 
 Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
@@ -106,30 +96,40 @@ FIPS-140-2\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsC
 24759\cite{ISOIEC24759}. Other applications include as card payment terminals where PCI PTS HSM
 standards\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicable. Security meshes usually consist of
 two or more conductive traces that are laid out in a meandering pattern to cover a surface, and which are monitored
-electrically to detect attempts at penetrating this surface. Commercial designs often only monitor for short circuits or
-breaks in the mesh traces and are incapable of detecting attacks that circumvent part of the mesh, thus requring the
-mesh to be made from a special material that is difficult to manipulate without breaking it. Creating such meshes
-is expensive and requires specialized technology.
+electrically to detect attempts at penetrating this surface.
 
-To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs), mesh integrity must be
-monitored with higher fidelity. In this paper, we present a low-cost monitoring circuit for security meshes based on a
-Time Domain Reflectometry (TDR) approach that provides high measurement fidelity and enables the use of meshes made from
-less expensive materials.
+As is often the case with security technologies, in practice a tension exists between the level of security offered by a
+particular security mesh implementation, and its implementation cost. Commercial designs often only coarsely monitor the
+conductivity of the mesh traces and are incapable of detecting attacks that manipulate small parts of the mesh. The most
+secure meshes are made in custom manufacturing processes. Materials such as polymer substrates are specifically chosen
+such that the mesh is difficult to manipulate without breaking it. A drawback of this approach is that the specialized
+manufacturing processes are difficult to replicate, and that the resulting cost of the mesh is high. In some
+lower-security applications such as card payment terminalsin the industry, simpler approaches are still commonly used
+for their ease of implementation. Often, standard copper/polyimide Flexible Printed Circuits (FPCs) or even standard
+Printed Circuit Boards (PCBs) are used because of the wide availability of manufacturing services.
 
-Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
-mesh. While the pulse traverses the mesh, parts of it are reflected on imperfections inside the mesh. Our circuit
-receives, amplifies and records these reflections with lower than \qty{200}{\pico\second} time resolution.
-
-We demonstrate a working prototype of our design, and present practical measurements of its electrical parameters as
-well as its performance under several practical attack scenarios. A photo of our prototype setup including a security
-mesh specimen is shown in Figure\ \ref{fig_pic_board}.
-
-Compared to previous academic designs, our approach can be implemented at lower cost using exclusively inexpensive,
-commercially available mass-market components. Utilizing a TDR frontend, we improve over previous, delay-based
-approaches in monitoring fidelity. Our design achieves sufficient sensitivity to detect high-impedance oscilloscope
-probes despite such probes being specifically designed to conduct measurements without disturbing the circuit under
-test. Unlike previous, capacitance-based approaches, our design is compatible with inexpensive signal switch ICs,
-enabling the protection of arbitrarily large meshes at minimal cost without compromising sensitivity.
+Several academic approaches exist that target low cost\cite{
+    vasileActiveTamperDetection2017,
+    vasileTemperatureSensitiveActive2017,
+    dupontMiniaturizedUltraLowPowerTamper2022,
+    vasileProtectingSecretsAdvanced2019,
+} or high performance mesh monitoring\cite{
+    immlerBTREPIDBatterylessTamperresistant2018,
+    immlerSecurePhysicalEnclosures2018,
+    garbTamperSensitiveDesignPUFBased,
+}. Some academic works even try to replace the security mesh with entirely different
+primitives\cite{
+    staatAntiTamperRadioSystemLevel2022,
+    vaiSecureArchitectureEmbedded2015,}.
+High performance mesh monitoring approaches try to characterize the mesh's physical properties with high accuracy, but
+often come at the cost of specialized, expensive circuitry. Low cost approaches utilize advanced analog techniques in
+their circuitry to extract precise measurements using few components. They trade off measurement precision for lower
+component cost. Besides simple monitoring, detecting tamper attempts by replacing the mesh with a macro-scale Physically
+Uncloneable Function (PUF) has also been researched\cite{
+    immlerBTREPIDBatterylessTamperresistant2018,
+    staatAntiTamperRadioSystemLevel2022,
+    vaiSecureArchitectureEmbedded2015,}, albeit this comes with complex monitoring circuits that utilize expensive,
+specialty components.
 
 \begin{figure}
     \centering
@@ -141,33 +141,31 @@ enabling the protection of arbitrarily large meshes at minimal cost without comp
     \label{fig_pic_board}
 \end{figure}
 
-Security meshes can be implemented at the macro scale, covering entire Printed Circuit Board Assemblies
-(PCBAs) in applications such as Hardware Security Modules (HSMs) or card payment terminals, or they can be implemented
-at the micro scale to prevent the readout of secrets from Integrated Circuits (ICs) such as smartcards or Trusted
-Platform Modules (TPMs). Commercial implementations of macro-scale security mesh monitoring circuits are largely limited
-to simple trace continuity monitoring due to cost constraints. Some academic work on higher-fidelity monitoring
-approaches exists, but comes with the use of expensive, specialty components and has not yet found widespread adoption. 
+To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs) without compromising
+security, mesh integrity must be monitored with high fidelity. In this paper, we present a low-cost monitoring circuit
+for security meshes that combines Time Domain Reflectometry (TDR) with equivalent time sampling. Our approach provides
+high measurement fidelity and enables the use of meshes made from less expensive materials in high security
+applications.
 
-Micro-scale tamper sensing meshes are usually implemented as passive sensors without a continuous power supply, and are
-only checked once during system powerup, while macro-scale meshes are usually implemented as active sensors with a
-continuous backup power supply so as to not give the attacker a window of attack when the remaining system is powered
-down. There are academic works proposing the use of security meshes as Physically Uncloneable Functions (PUFs) to
-provide a high-fidelity tamper sensor that can even detect attempts at patching the mesh to fix traces broken in a
-drilling attack\cite{
-    immlerBTREPIDBatterylessTamperresistant2018,
-    immlerSecurePhysicalEnclosures2018,
-    garbTamperSensitiveDesignPUFBased}.
+Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
+mesh. While the pulse traverses the mesh, parts of its energy are reflected on imperfections inside the mesh, including
+those caused by tampering attempts. Our circuit uses a fast, low-cost equivalent time sampling frontend to receive,
+amplify and records these reflections to create a \emph{fingerprint} of the mesh that is highly sensitive to changes
+caused by tampering.
 
-As is often the case with security technologies, in practice a tension exists between the level of security offered by a
-particular security mesh implementation, and its implementation cost. The most secure meshes require specialized
-manufacturing techniques that pattern conductive traces onto a flexible polymer substrate, with all materials being
-specifically chosen to be as fragile as possible such that the mesh breaks even during careful manipulation by an
-attacker. In contrast to this, industrially simpler approaches are still commonly used for their ease of implementation.
-Often, standard copper/polyimide FPCs are used because of the wide availability of manufacturing services. In some
-lower-security applications such as card payment terminals, meshes manufactured from simple PCBs are used.
+We demonstrate a working prototype of our design, and present practical measurements of its electrical parameters as
+well as its performance under several practical attack scenarios. A photo of our prototype setup including a security
+mesh specimen is shown in Figure\ \ref{fig_pic_board}.
 
-In this paper, we introduce an approach for the design of improved, higher fidelity security mesh monitoring circuitry
-and present a practical prototype demonstrating our design's capabilities. The contributions of our work are as follows:
+Compared to previous academic designs, our approach can be implemented at lower cost using exclusively inexpensive,
+commercially available mass-market components. Our TDR frontend improves upon previous, delay-based approaches in
+monitoring fidelity\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}. Our design achieves
+sufficient sensitivity to detect high-impedance oscilloscope probes despite such probes being specifically designed to
+conduct measurements without disturbing the circuit under test. Unlike previous, capacitance-based approaches, our
+design is compatible with inexpensive signal switch ICs, enabling the protection of arbitrarily large meshes at minimal
+cost without compromising sensitivity.
+
+The contributions of our work are as follows:
 
 \begin{itemize}
     \item To our knowledge, our design is first to apply a low-cost embedded differential Time Domain Reflectometry
@@ -190,72 +188,75 @@ and present a practical prototype demonstrating our design's capabilities. The c
 
 \section{Related Work}
 
-A general introduction into Hardware Security Modules can be found in
-\textcite{andersonCryptographicProcessorsASurvey2006} as well as \textcite{tehranipoorHardwareSecurityPrimitives2023}.
-While security meshes are widely used in practice, their design is only covered by a sparse research corpus. Research in
-the area spans both improvements to security meshes
-\cite{immlerBTREPIDBatterylessTamperresistant2018,garbTamperSensitiveDesignPUFBased,vasileProtectingSecretsAdvanced2019},
-as well as monitoring approaches that attempt to entirely replace security meshes using other
-primitives\cite{vaiSecureArchitectureEmbedded2015,vaiSecureArchitectureEmbedded2015}.
+Tamper sensing meshes are used in numerous applications from Hardware Security Modules (HSMs) to card payment terminals
+\cite{andersonCryptographicProcessorsASurvey2006,tehranipoorHardwareSecurityPrimitives2023}. Despite their widespread
+use, security mesh design and monitoring is covered by a sparse research corpus. Commercially, security-by-obscurity is
+often considered a good idea and little detail is published on physical security
+implementations\cite{andersonSecurityEngineeringGuide2020}.
 
-As \textcite{andersonSecurityEngineeringGuide2020} notes, while this area is actively researched commercially, there,
-security-by-obscurity is often considered a good idea and with few exceptions, little detail is published on physical
-security implementations. The academic work listed below should be understood with this caveat in mind. One of the goals
-of this paper is raising the bar in the academic state of the art to a level that likely lies beyond the current state
-of the art in the commercial sphere.
+Patent literature gives a partial view on commercial developments in this area. Even in recent patents such as\cite{
+    brodskyTamperRespondentAssemblyFlexible2019, % IBM. ok, mentions conductivity monitoring but mostly on mesh
+    nortonTamperDetectingCases2019, % HP. ok, mentions continuity monitoring only but mostly on mesh
+    razaghiTamperDetectionSystem2020, % Square. ok. mentions what is effectively conductivity monitoring
+    wesselhoffTamperResponsiveSensor2020, % Cryptera. ok. Very basic, only uses the mesh in the power supply.
+    leekTamperDetection2021, % Texas Instruments. ok. Monitors capacitance.
+    chockPointSaleTerminal2009, % Zilog. ok. Monitors conductivity and tries to detect emulation.
+}
+from HSM manufacturers IBM and HP, ATM component manufacturer Cryptera, payment terminal manufacturer Stripe, and chip
+manufacturers Texas Instruments and Zilog, cited monitoring methods are basic and do not go beyond a simple measurement
+of resistance or capacitance.
 
-Patent literature gives a partial view on commercial developments in this area. Even recent patents such as\cite{
-    longMichaelFisherPoughkeepsie,
-    nortonTamperDetectingCases2019,
-    razaghiTamperDetectionSystem2020,
-    wesselhoffTamperResponsiveSensor2020,
-    hall72InventorsAlan,
-    wesselhoffTamperResponsiveSensor2018,
-    dangler54METHODMANUFACTURING,
-    wadeTamperProtectionMesh2016,
-    wadeMagneticStripeReader2015,
-    wernerFabricatingTamperrespondentSensors2024,
-    busbyTamperDetectionEnclosuretoboard2020,
-    chockPointSaleTerminal2009}
-\todo{Individually closely check each of these!} from HSM manufacturers IBM and HP, ATM component manufacturer Cryptera
-and payment terminal manufacturer Stripe as well as industry publications\cite{nisargaSystemLevelTamperProtection2016}
-continue to cite security mesh monitoring techniques that are no more sophisticated than trace resistance monitoring,
-suggesting that commercial systems might not be more sophisticated than current academic proposals. 
+Academic research in the area is more advanced and spans both improvements to security meshes and their monitoring
+circuits \cite{
+    immlerBTREPIDBatterylessTamperresistant2018,
+    dupontMiniaturizedUltraLowPowerTamper2022,
+    vasileProtectingSecretsAdvanced2019},
+as well as approaches that entirely replace the security mesh with other primitives based on e.g.\ radio frequency or
+optical measurements that aim to sense tampering
+with a device\cite{staatAntiTamperRadioSystemLevel2022,vaiSecureArchitectureEmbedded2015}. A drawback of techniques
+aiming to replace security meshes with other sensor types is that it is difficult to prove such sensors do not have
+blind spots.
 
 \subsection{Security Mesh Monitoring and Design}
 
 \paragraph{Meshes as capacitive PUFs.}
-\textcite{immlerBTREPIDBatterylessTamperresistant2018,obermaierMeasurementSystemCapacitive2018,garbTamperSensitiveDesignPUFBased}
+\textcite{
+    immlerBTREPIDBatterylessTamperresistant2018,
+    obermaierMeasurementSystemCapacitive2018,
+    garbTamperSensitiveDesignPUFBased}
 propose one of the most advanced security mesh designs in the current academic state of the art. They use a specialized
 security mesh as a Physically Uncloneable Function (PUF), combining tamper sensing with cryptographic key storage. In
 their design, the mesh consists of a cross-hatch pattern made from several dozen individually adressable capacitive
-electrodes. Their analog frontend measures the precise mutual capacitance of each pair of electrodes using an approach
-similar to \textcite{satoToucheEnhancingTouch2012}, and they use the resulting capacitance matrix as the basis of their
-PUF.
+electrodes. They manufacture their meshes in a specialized process that results in unpredictable, random variations in
+capacitance between electrodes. They propose an analog frontend that measures the precise mutual capacitance of each
+pair of electrodes\cite{obermaierMeasurementSystemCapacitive2018} using an approach similar to
+\textcite{satoToucheEnhancingTouch2012}, and they use the resulting capacitance matrix as the basis of their PUF. In
+further work, they demonstrate a custom IC integrating the monitoring
+circuit\cite{garbFORTRESSFORtifiedTamperResistant2021}.
 
 Advantages of their system include high sensitivity to modifications, as well as that as a PUF, the system does not
-require a continuous power supply. However, there are several significant differences between their proposed system and
-our design.
+require a continuous power supply. Disadvantages include the limited mesh size a single circuit can support due to
+dynamic range constraints, the specialized manufacturing process needed for the mesh as well as the high cost of the
+monitoring circuit.
 
-% Cannot delete keys during tamper response!
+Common physical security standards require systems to actively destroy all key material when tampering is
+detected\cite{
+    usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002,
+    ISOIEC24759,
+    pcisecuritystandardscouncilPaymentCardIndustry2021}.
+Like other PUF-based systems, their system naturally lacks this capability.
 
+% FIXME go more into multiplexing larger meshes in our system below
+Key differences of our system include:
 \begin{itemize}
-    \item Their system is limited by sensing circuit dynamic range, which they compensate by using a large number (32)
-        of electrodes in parallel. Covering larger volumes with such a system would require increasing electrode count
-        further, resulting in a linear increase in frontend cost when targeting the same scanning speed. In contrast to
-        this, our system can cover larger volumes by daisychaining or through the addition of inexpensive signal
-        switches, sharing one frontend between multiple mesh segments.
-    \item Their system requires a mesh manufactured in a specialized manufacturing process. Additionally, precise
-        control of this process is critical to maintain the PUF property of the device. In particular, if the
-        manufacturing process is \emph{too consistent}, it could result in multiple PUFs exhibiting the same or similar
-        responses, breaking the PUF property of the system and enabling key recovery through statistical attacks.
-    \item Their system requires a complex frontend circuit. Initial prototypes used a large number (one per channel) of
-        specialty operational amplifiers along with a specific Junction Field Effect Transistor (JFET) that has since
-        become unavailable due to obsolescence. Later, they developed a custom IC containing the frontend circuit for an
-        envelope foil measuring approximately \qty{18}{\centi\meter} by
-        \qty{10}{\centi\meter}\cite{obermaierMeasurementSystemCapacitive2018,garbFORTRESSFORtifiedTamperResistant2021}.
-        In contrast, our system requires only widely available, low-cost commodity components, for each of which
-        alternative substitutes from other manufacturers are available.
+    \item Our system can cover larger meshes without loss of precision using a single TDR frontend through multiplexing.
+
+    \item Our system supports meshes manufactured using standard, low-cost PCB processes.
+
+    \item Our design requires only widely available, low-cost commodity components, for each of which alternative
+        substitutes from other manufacturers are available.
+
+    \item Our approach has improved resiliency to electromagnetic interference and works with unshielded meshes.
 \end{itemize}
 
 \paragraph{Bridge measurement of capacitive interdigital meshes.} \textcite{dupontMiniaturizedUltraLowPowerTamper2022}
@@ -279,39 +280,38 @@ to attack by emulation given that the log power sensor they are using at the mes
 to any signal characteristics apart from total signal power.
 
 \paragraph{Time domain mesh monitoring.}
-The prior work in the academic corpus that is probably closest to our proposal is the work of
-\textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}, where they propose monitoring the
-time domain response of a mesh using a circuit made from a pulse generator and a fast Analog-to-Digital Converter (ADC).
-To avoid the need for a full high-speed data processing pipeline, their design is centered around a specialized
-high-speed ADC that has a small built-in sample memory, allowing them to capture a pulse at high speed before slowly
-processing it from sample memory.
+Time-Domain Reflectometry has been proposed for tamper sensing in nuclear arms control
+applications\cite{parsonsTamperRadiationResistant1977}. However, compared to our design, the systems proposed in this
+field are usually much larger, using standard benchtop measurement equipment to perform TDR. Additionally, they target
+lower time resolution since they are designed to monitor spans of cable up to several hundred meters in length.
+
+Closest to our proposal in the academic corpus is the work of
+\textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}, where they propose monitoring the time
+domain response of a mesh using a circuit made from a pulse generator and a fast Analog-to-Digital Converter (ADC). To
+avoid an expensive, high-speed digital processing pipeline, their design is centered around a specialized high-speed ADC
+that has a built-in sample memory. Using this part, they capture a pulse at high speed after it traverses the mesh.
+Subsequently, they slowly processing the captured data from memory.
 
 Advantages of their design include better sensitivity to changes in total mesh trace length compared to simple
-continuity monitoring and the low complexity of their analog frontend. However, their proposed design differs from our
-work in several aspects.
+continuity monitoring and the low complexity of their analog frontend. Disadvantages include the reliance on a specialty
+ADC that cannot easily be replaced with any other commercially available component, and the coarse time resolution.
 
+Key differences between their design and our proposal include:
 \begin{itemize}
-    \item The design from \textcite{vasileActiveTamperDetection2017} is hinges on a specialized high-speed ADC
-        that has a large internal sample buffer. Not only is this part expensive at \price{15.95}{\euro} at quantity
-        1000, to our knowledge it is also the only part of its kind available on the market. Foregoing this part, and
-        going for a comparable fast ADC without this sample buffer would require a fast digital processing frontend,
-        resulting in greater system cost. In contrast, our design uses widely available parts, all of which can easily
-        be substituted for other, similar parts from different manufacturers.
-    \item Their system is limited in time resolution by their choice of ADC. Despite using a high performance ADC, their
-        system only achieves a time resolution of \qty{5}{\nano\second}, less than $\frac{1}{25}$ of our design. Because
-        the cost of ADCs quickly escalates with sampling speed, achieving sub-nanosecond resolution would be difficult
-        with their approach. For instance, the cheapest ADC available at distributor digikey that would enable
-        \qty{1}{\nano\second} resolution--still less than $\frac{1}{5}$ of our design--would already cost more than
-        \price{110}{\euro} at quantity 1000 and due to its relevance to electronic warfare and radar applications might
-        require specialized clearance for export from countries such as the USA.
-    \item Their system only measures the mesh's \emph{transmission} characteristic, corresponding to a a $S_{12}$
-        S-parameter measurement configuration. This configuration is sensitive to changes in total mesh length, but is
-        insensitive to changes in impedance along this length. While the transmitted signal strength will be affected by
-        changes in impedance, such changes manifest only in the height of the output pulse, collapsing all detail into a
-        small number of ADC samples. Using such a measurement, it is not possible to localize faults. In contrast, our
-        approach measures the signal's \emph{reflected} component ($S_{11}$), which is sensitive to both length, and to
-        changes in impedance along the length. Our approach spreads information over time and enables the localization
-        of faults.
+    \item Their design is sensitive to total length, but not to the location of faults. Their design measures the mesh's
+        \emph{transmission} characteristic, which collapsing detail about faults along the mesh into a small number of
+        ADC samples at the pulse edge. Using such a measurement, it is not possible to localize faults. In contrast, our
+        approach measures the signal's \emph{reflected} component, which spreads information over time and enables us to
+        localize faults.
+        
+    \item Our design uses only inexpensive, widely available parts. All parts in our design can easily be substituted
+        for other, similar parts from different manufacturers.
+
+    \item Our design provides $25\times$ higher time resolution. This is a fundamental limitation, as the cost of ADCs
+        and their associated circuitry increases steeply with speed\footnote{ For reference, the least expensive ADC
+        available at distributor digikey that would match the \qty{200}{\pico\second} time resolution of our approach
+        would cost \price{320}{\euro} at quantity 100 and require national security clearance for export from its
+        manufacturer in the USA.}.
 \end{itemize}
 
 \subsection{Equivalent-Time Sampling}
@@ -374,14 +374,15 @@ length.
 
 In this paper, we apply TDR to monitor a security mesh for changes caused by an attack. Our prototype setup consists of
 a custom circuit board containing a low-cost embedded TDR frontend that can be connected to a security mesh specimen to
-measure its response. We construct a security mesh with a ground plane underneath similar to previous
-work\cite{immlerBTREPIDBatterylessTamperresistant2018,
-obermaierMeasurementSystemCapacitive2018,
-garbTamperSensitiveDesignPUFBased}, which when viewed in the microwave domain constitutes what is essentially a delay
-line. Security meshes commonly use a pair of two traces to capture short circuit condition between adjacent traces,
-which we treat as a differential pair for improved resiliency against electromagnetic interference. We constructed our
-frontend such that it excites the two traces differentially, but allows for both single-ended and for differential
-measurements.
+measure its response, creating a fingerprint of the mesh. In a standard PCB manufacturing process, we construct a
+security mesh with a ground plane underneath that works similar to previous work\cite{
+    immlerBTREPIDBatterylessTamperresistant2018,
+    obermaierMeasurementSystemCapacitive2018,
+    garbTamperSensitiveDesignPUFBased}.
+When viewed in the microwave domain, such meshes constitute what is essentially a delay line. Security meshes commonly
+use a pair of two traces to capture short circuit condition between adjacent traces, which we treat as a differential
+pair for improved resiliency against electromagnetic interference. We constructed our frontend such that it excites the
+two traces differentially, but allows for both single-ended and for differential measurements.
 
 In an intact mesh, we expect our frontend to record no significant reflections until the stimulus pulse has traversed
 the mesh's traces both ways, at which point we expect a large response whose polarity and amplitude depends on the
@@ -396,6 +397,8 @@ mesh trace will also result in a change in delay along this trace. Furthermore, 
 oscilloscope probe will add the probe's input capacitance, which is usually in the order of several Picofarad, to one
 point along the trace, result in an impedance step that can be detected by TDR. The TDR approach is thus able to not
 only detect, but distinguish and even localize several types of faults or attacks in a mesh.
+
+% FIXME subsection on routing and daisychaining
 
 \section{Circuit Design and Driving Approach}
 
@@ -918,7 +921,7 @@ optimized through the electronic CAD/electromagnetic simulation co-design approa
     \end{center}
     \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four mesh test
         specimens. The shown time range covers the primary reflection of the stimulus pulse's falling edge. The vertical
-        scale of all four graphs is in Volts at the ADC.}
+        scale of all four graphs is in Volts at the ADC. For clarity, only one channel of the response is shown.}
     \label{fig_mesh_length}
 \end{figure}
 
@@ -1006,7 +1009,7 @@ with sub-nanosecond precision, corresponding to several centimeters in distance 
     \end{center}
     \caption{The circuit's TDR response under a probing attack using an oscilloscope probe. Black traces are a series of
     un-probed baseline measurements taken between attacks. All traces are plotted relative to a separate baseline trace
-    taken at the begginning of the experiment. }
+    taken at the begginning of the experiment. The top and bottom plots show the two halves of the differential pair.}
     \label{fig_probe_shape}
 \end{figure}
 
@@ -1051,9 +1054,9 @@ measurement.
     \caption{The circuit's TDR response under a manipulation attack bridging part of a trace to allow a
         \qty{300}{\micro\meter} drill to penetrate. The mesh pitch is \qty{240}{\micro\meter}. Red traces show
         measurements with a looped wire patch comparable to \textcite{immlerSecurePhysicalEnclosures2018}, black traces
-        show the same gap bridged with a minimally short straight piece of wire. The photo shows the looped wire patch
-        with a \qty{1}{\milli\meter} pitch ruler for reference. Traces are normalized as in Figure\
-        \ref{fig_probe_shape}.}
+        show the same gap bridged with a minimally short straight piece of wire. The left and right plots show the two
+        halves of the differential pair. The photo shows the looped wire patch with a \qty{1}{\milli\meter} pitch ruler
+        for reference. Traces are normalized as in Figure\ \ref{fig_probe_shape}.}
     \label{fig_drill_mod_shape}
 \end{figure}
 
@@ -1089,7 +1092,7 @@ specialized equipment.
 The PCI PTS HSM DTR standard\cite{pcisecuritystandardscouncilPaymentCardIndustry2021a} contains a useful framework for
 thinking about attacker capabilities. Applying their taxonomy, our monitoring system raises the skill level required for
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
-\emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits, ceramic soldering tips etc.
+\emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
 
 \section{Future Work}
 
@@ -1125,12 +1128,16 @@ be interesting to measure parts of the secure subsystem other than its security 
 In this paper, we presented a design for a low-cost frontend for the integrity monitoring security meshes in
 applications such as HSMs based on the principles of sub-nanosecond Time Domain Reflectometry. Our design
 repurposes an inexpensive HDMI redriver IC to produce sharp edges for the TDR stimulus, and applies a microwave clip
-line to form fast pulses for TDR sampling. Our design not only enables the monitoring of continuity and length of the
-mesh's traces, but also allows monitoring the impedance at every point along the mesh. Beyond simply detecting faults or
-manipulations that disturb the mesh without causing breaks, we have demonstrated our prototype circuit's capability to
-distinguish and physically localize faults inside the mesh in several practical attack scenarios. Compared to previous
-work, our approach provides an additional time dimension in its characterization of a security mesh while simultaneously
-being less expensive, enabling more sophisticated tamper detection algorithms.
+line to form fast pulses for TDR sampling. Our design creates a detailed fingerprint of the intact mesh's condition that
+not only captures the length of the mesh's traces, but also encompasses the impedance at every point along the mesh.
+
+Beyond simply detecting faults or manipulations that disturb the mesh without causing breaks, we have demonstrated our
+prototype circuit's capability to distinguish and physically localize faults inside the mesh in several practical attack
+scenarios.
+
+Compared to the state of the art, our approach enables the monitoring of larger meshes, at higher sensitivity and lower
+cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
+applicatinos for security meshes made using low-cost, standard PCB manufacturing processes.
 
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today. The git repository with the
@@ -1160,9 +1167,11 @@ LaTeX source for this paper, all hardware design files, and firmware and analysi
         \label{fig_pic_specimens_open}
         \caption{Cut trace test specimen}
     \end{subfigure}
-    \caption{Photos of the short circuit and cut trace test specimens. To measure short circuit response, one of the
-    three marked locations on the test specimen was shorted using a soldering iron. To measure baseline values, the
-    short circuit specimen was used without placing a short.}
+    \caption{Photos of the short circuit and cut trace test specimens. In the specimen shown on the left, in each of
+    the three marked locations both traces of the mesh were exposed. To measure short circuit response, the traces were
+    shorted in one of the locations using a soldering iron. In the specimen shown on the right, one trace was exposed
+    cut in the marked location. To measure baseline values, the test specimen shown on the right was used with the trace
+    temporarily repaired.}
     \label{fig_pic_specimens}
 \end{figure}
 
