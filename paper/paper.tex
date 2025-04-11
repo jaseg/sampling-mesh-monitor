@@ -108,13 +108,13 @@ standards\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicabl
 two or more conductive traces that are laid out in a meandering pattern to cover a surface, and which are monitored
 electrically to detect attempts at penetrating this surface. Commercial designs often only monitor for short circuits or
 breaks in the mesh traces and are incapable of detecting attacks that circumvent part of the mesh, thus requring the
-mesh to be made from a special material that is difficult to manipulate without breaking it. Cretaing such meshes
+mesh to be made from a special material that is difficult to manipulate without breaking it. Creating such meshes
 is expensive and requires specialized technology.
 
 To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs), mesh integrity must be
 monitored with higher fidelity. In this paper, we present a low-cost monitoring circuit for security meshes based on a
-Time Domain Reflectometry (TDR) approach that provides such improved measurement fidelity and enables the use of meshes
-made from less expensive materials.
+Time Domain Reflectometry (TDR) approach that provides high measurement fidelity and enables the use of meshes made from
+less expensive materials.
 
 Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
 mesh. While the pulse traverses the mesh, parts of it are reflected on imperfections inside the mesh. Our circuit
@@ -170,26 +170,22 @@ In this paper, we introduce an approach for the design of improved, higher fidel
 and present a practical prototype demonstrating our design's capabilities. The contributions of our work are as follows:
 
 \begin{itemize}
-    \item Our approach provides higher fidelity compared to state-of-the-art security mesh conductivity monitoring and
-        improves the sensitivity of meshes including when manufactured using less advanced technologies such as standard
-        FPC or PCB processes. Our TDR frontend produces 70 data points for each meter of mesh length, resulting in a
-        measurement density per mesh area of \qty{200}{\bit\per\centi\meter^2} when using a $\qty{200}{\micro\meter}$
-        pitch mesh manufactured in a standard low-cost commercial PCB process.
-    \item Our approach consists of an optimized, low-cost differential Time Domain Reflectometry (TDR) frontend built
-        around a commodity microcontroller and an amplifier IC originally intended for digital video applications. Our
-        design achieves pulse risetimes below \qty{200}{\pico\second}, corresponding to only \qty{3}{\centi\meter} of
-        wave propagation inside the mesh at the speed of light in PCB material, a $25\times$ improvement over the
-        closest previous work\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
-    \item We explain the design rationale behind our design. Our design is based entirely around commercially available,
-        inexpensive mass-market components, which means our design can be replicated and extended by anyone, without
-        necessitating access to bespoke production equipment or semiconductor manufacturing capabilities. To facilitate
-        easy replication, further research and practical applications, we publish our prototype under an Open Source
-        license and chose not to patent our approach.
-    \item We present a working prototype along extensive experimental results, including laboratory measurements of the
-        technical performance of our design. Furthermore, we practically demonstrate that our design is able to not only
-        detect, but distinguish and even localize faults in several realistic attack scenarios. We demonstrate that our
-        design shows sufficient sensitivity to detect and localize an attack using a commercial, high-impedance
-        oscilloscope probe.
+    \item To our knowledge, our design is first to apply a low-cost embedded differential Time Domain Reflectometry
+        (TDR) frontend to security mesh monitoring. Our design achieves pulse risetimes below \qty{200}{\pico\second}, a
+        $25\times$ improvement over the closest previous
+        work\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
+    \item Our approach provides higher fidelity compared to state-of-the-art security mesh conductivity monitoring or
+        previous low cost approaches. It enables the use of meshes manufactured using less advanced technologies such as
+        standard FPC or PCB processes. Our TDR frontend produces 70 data points for each meter of mesh length, resulting
+        in a measurement density per mesh area of \qty{200}{\bit\per\centi\meter^2} when using a
+        $\qty{200}{\micro\meter}$ pitch mesh manufactured in a standard low-cost PCB process.
+    \item We present a working prototype along extensive experimental results, including laboratory performance
+        measurements. We practically demonstrate that our design is able to not only detect, but distinguish and even
+        localize attacks in several realistic attack scenarios.
+    \item Our design is based entirely around commercially available, inexpensive mass-market components. It can be
+        replicated and improved without access to bespoke production equipment or semiconductor manufacturing
+        capabilities. To facilitate further research and practical applications, we publish our prototype under an Open
+        Source license and chose not to patent our approach.
 \end{itemize}        
 
 \section{Related Work}
@@ -240,6 +236,8 @@ PUF.
 Advantages of their system include high sensitivity to modifications, as well as that as a PUF, the system does not
 require a continuous power supply. However, there are several significant differences between their proposed system and
 our design.
+
+% Cannot delete keys during tamper response!
 
 \begin{itemize}
     \item Their system is limited by sensing circuit dynamic range, which they compensate by using a large number (32)
