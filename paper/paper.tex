@@ -61,13 +61,16 @@
 
 \begin{abstract}
     Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs)
-    and other systems to detect attempts at physical intrusion into the device's protective shell. In this paper, we
-    present an embeddable security mesh monitoring circuit constructed from low-cost, standard components that applies
-    the principle of Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach is able to
-    detect not only DC faults, but also attempts at bridging and removing parts of the mesh. We demonstrate a working
-    prototype of our TDR circuit with a total Bill of Materials (BoM) cost of less than \price{10}{\euro} that achieves
-    both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our prototype's capability to
-    detect and localize faults in several practical attack scenarios.
+    and other systems to detect attempts to physically intrude into the device's protective shell. State-of-the-art
+    solutions manufacture meshes in bespoke processes from carefully chosen materials, which is expensive and makes
+    replication challenging. Additionally, State-of-the-art monitoring circuits sacrifice either monitoring precision or
+    low cost. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
+    standard components utilizing Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach
+    is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as security
+    mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} that
+    achieves both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our prototype's
+    capability to detect and localize faults in several practical attack scenarios including probing using a
+    high-impedance oscilloscope probe and a patching attempt using micro soldering.
 \end{abstract}
 
 \section{Introduction}
@@ -110,23 +113,23 @@ is expensive and requires specialized technology.
 
 To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs), mesh integrity must be
 monitored with higher fidelity. In this paper, we present a low-cost monitoring circuit for security meshes based on a
-Time Domain Reflectometry (TDR) approach that provides such improved measurement fidelity compared to previous
-approaches, and enables the use of less sophisticated meshes made from less expensive materials.
+Time Domain Reflectometry (TDR) approach that provides such improved measurement fidelity and enables the use of meshes
+made from less expensive materials.
 
-Our circuit generates a very fast pulse with a rise time better than \qty{200}{\pico\second} that is broadcast into the
+Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
 mesh. While the pulse traverses the mesh, parts of it are reflected on imperfections inside the mesh. Our circuit
-receives, amplifies and records these reflections with better than \qty{200}{\pico\second} time resolution.
+receives, amplifies and records these reflections with lower than \qty{200}{\pico\second} time resolution.
 
 We demonstrate a working prototype of our design, and present practical measurements of its electrical parameters as
 well as its performance under several practical attack scenarios. A photo of our prototype setup including a security
 mesh specimen is shown in Figure\ \ref{fig_pic_board}.
 
-Compared to previous academic designs, our approach can be implemented at lower cost since it exclusively uses
-inexpensive, commercially available mass-market components. Utilizing a TDR frontend, we improve over previous,
-delay-based approaches in monitoring fidelity, achieving sufficient sensitivity for the detection of high-impedance
-oscilloscope probes despite such probes being specifically designed to conduct measurements without disturbing the
-circuit under test. Unlike previous, capacitance-based approaches, our design is compatible with inexpensive signal
-switch ICs, enabling the protection of arbitrarily large meshes at minimal cost without compromising sensitivity.
+Compared to previous academic designs, our approach can be implemented at lower cost using exclusively inexpensive,
+commercially available mass-market components. Utilizing a TDR frontend, we improve over previous, delay-based
+approaches in monitoring fidelity. Our design achieves sufficient sensitivity to detect high-impedance oscilloscope
+probes despite such probes being specifically designed to conduct measurements without disturbing the circuit under
+test. Unlike previous, capacitance-based approaches, our design is compatible with inexpensive signal switch ICs,
+enabling the protection of arbitrarily large meshes at minimal cost without compromising sensitivity.
 
 \begin{figure}
     \centering
@@ -247,7 +250,7 @@ our design.
     \item Their system requires a mesh manufactured in a specialized manufacturing process. Additionally, precise
         control of this process is critical to maintain the PUF property of the device. In particular, if the
         manufacturing process is \emph{too consistent}, it could result in multiple PUFs exhibiting the same or similar
-        responses.
+        responses, breaking the PUF property of the system and enabling key recovery through statistical attacks.
     \item Their system requires a complex frontend circuit. Initial prototypes used a large number (one per channel) of
         specialty operational amplifiers along with a specific Junction Field Effect Transistor (JFET) that has since
         become unavailable due to obsolescence. Later, they developed a custom IC containing the frontend circuit for an
@@ -257,15 +260,15 @@ our design.
         alternative substitutes from other manufacturers are available.
 \end{itemize}
 
-\paragraph{Bridge measurement of capacitive interdigital meshes.}
-\textcite{dupontMiniaturizedUltraLowPowerTamper2022} introduce a simple analog circuit approach for monitoring meshes
-laid out as a set of capacitive interdigital structures not unlike the combs found in Micro-Electromechanical System
-(MEMS) accelerometers and gyroscopes. They subdivide the mesh into four equal-sized quadrants, each containing two
-equal-size interdigital electrodes. They connect the resulting eight electrodes in a capacitive bridge configuration,
-and measure the bridge's balance using a simple analog monitoring circuit. Although their approach only measures a
-single, scalar value, advantages of their system include the simple, low power monitoring circuit made from basic, cheap
-components and the capability to work with single-layer meshes such as those produced using Laser Direct Structuring
-(LDS).
+\paragraph{Bridge measurement of capacitive interdigital meshes.} \textcite{dupontMiniaturizedUltraLowPowerTamper2022}
+introduce a simple analog circuit approach for monitoring meshes laid out as a set of capacitive interdigital structures
+not unlike the combs found in Micro-Electromechanical System (MEMS) accelerometers and gyroscopes. They subdivide the
+mesh into four equal-sized quadrants, each containing two equal-size interdigital electrodes. They connect the resulting
+eight electrodes in a capacitive bridge configuration, and measure the bridge's balance using a simple analog monitoring
+circuit based on homodyne detection. Advantages of their system include the simple, low power monitoring circuit made
+from basic, cheap components and the capability to work with single-layer meshes such as those produced using Laser
+Direct Structuring (LDS). From a security point of view, a drawback of their approach is that to achieve its low power
+usage, measurement resolution is sacrificed and the mesh state is collapsed into a single, scalar measurement.
 
 \paragraph{Frequency-domain mesh characterization.}
 \textcite{vasileProtectingSecretsAdvanced2019} introduce a monitoring method where they feed a variable-frequency signal
@@ -278,7 +281,7 @@ to attack by emulation given that the log power sensor they are using at the mes
 to any signal characteristics apart from total signal power.
 
 \paragraph{Time domain mesh monitoring.}
-The prior work in the academic corpus that is probably closes to our proposal is the work of
+The prior work in the academic corpus that is probably closest to our proposal is the work of
 \textcite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}, where they propose monitoring the
 time domain response of a mesh using a circuit made from a pulse generator and a fast Analog-to-Digital Converter (ADC).
 To avoid the need for a full high-speed data processing pipeline, their design is centered around a specialized
