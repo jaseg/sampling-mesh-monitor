@@ -72,7 +72,7 @@
     mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
     components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
     improvement over previous work. We demonstrate our prototype's capability to detect and localize faults in several
-    practical attack scenarios including probing using a high-impedance oscilloscope probe and a patching attempt using
+    practical attack scenarios including probing using a high impedance oscilloscope probe and a patching attempt using
     micro soldering.
 \end{abstract}
 
@@ -1124,19 +1124,19 @@ be interesting to measure parts of the secure subsystem other than its security 
 
 \section{Conclusion}
 
-In this paper, we presented a design for a low-cost frontend for the integrity monitoring security meshes in
-applications such as HSMs based on the principles of sub-nanosecond Time Domain Reflectometry. Our design
-repurposes an inexpensive HDMI redriver IC to produce sharp edges for the TDR stimulus, and applies a microwave clip
-line to form fast pulses for TDR sampling. Our design creates a detailed fingerprint of the intact mesh's condition that
-not only captures the length of the mesh's traces, but also encompasses the impedance at every point along the mesh.
+In this paper, we presented a design for a low-cost frontend for integrity monitoring of security meshes in applications
+such as HSMs based on the principles of sub-nanosecond Time Domain Reflectometry. Our design repurposes an inexpensive
+HDMI redriver IC to produce sharp edges for the TDR stimulus, and applies a microwave clip line to form fast pulses for
+TDR sampling. Our design creates a detailed fingerprint of the intact mesh's condition that not only captures the length
+of the mesh's traces, but also reflects the impedance at every point along the mesh.
 
 Beyond simply detecting faults or manipulations that disturb the mesh without causing breaks, we have demonstrated our
 prototype circuit's capability to distinguish and physically localize faults inside the mesh in several practical attack
-scenarios.
+scenarios with even careful attacks causing strong disturbances in the generated fingerprint.
 
 Compared to the state of the art, our approach enables the monitoring of larger meshes, at higher sensitivity and lower
-cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
-applicatinos for security meshes made using low-cost, standard PCB manufacturing processes.
+cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high security
+applications for security meshes made using low-cost, standard PCB manufacturing processes.
 
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today. The git repository with the
