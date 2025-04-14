@@ -55,6 +55,8 @@
 \institute{Technical University of Darmstadt, Darmstadt, Germany, \email{jan.goette@tu-darmstadt.de}\and
     Technical University of Darmstadt, Darmstadt, Germany, \email{bjoern.scheuermann@kom.tu-darmstadt.de}}
 \title{High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
+\keywords{Tamper Sensing\and Tamper Response\and Physical Security\and Security Mesh\and Hardware Security Module
+            (HSM)\and FIPS 140-2/3\and ISO/IEC 24759\and PCI PTS HSM MSR}
 \maketitle
 
 % FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
@@ -64,13 +66,14 @@
     and other systems to detect attempts to physically intrude into the device's protective shell. State-of-the-art
     solutions manufacture meshes in bespoke processes from carefully chosen materials, which is expensive and makes
     replication challenging. Additionally, State-of-the-art monitoring circuits sacrifice either monitoring precision or
-    low cost. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
+    cost efficiency. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
     standard components utilizing Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach
     is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as security
     mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
-    components that achieves both time resolution and rise time better than \qty{200}{\pico\second}. We demonstrate our
-    prototype's capability to detect and localize faults in several practical attack scenarios including probing using a
-    high-impedance oscilloscope probe and a patching attempt using micro soldering.
+    components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
+    improvement over previous work. We demonstrate our prototype's capability to detect and localize faults in several
+    practical attack scenarios including probing using a high-impedance oscilloscope probe and a patching attempt using
+    micro soldering.
 \end{abstract}
 
 \section{Introduction}
@@ -91,12 +94,12 @@
 Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
 applications for such meshes include Hardware Security Modules (HSMs) used to store and process cryptographic keys while
-applying certain security standards such as
+applying security standards such as
 FIPS-140-2\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002} or ISO/IEC
-24759\cite{ISOIEC24759}. Other applications include as card payment terminals where PCI PTS HSM
+24759\cite{ISOIEC24759}. Other applications include card payment terminals where PCI PTS HSM
 standards\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicable. Security meshes usually consist of
-two or more conductive traces that are laid out in a meandering pattern to cover a surface, and which are monitored
-electrically to detect attempts at penetrating this surface.
+two or more conductive traces that are laid out in a meandering pattern to cover a surface. A sensing circuit
+electrically monitors these traces to detect attempts at penetrating this surface.
 
 As is often the case with security technologies, in practice a tension exists between the level of security offered by a
 particular security mesh implementation, and its implementation cost. Commercial designs often only coarsely monitor the
@@ -104,9 +107,9 @@ conductivity of the mesh traces and are incapable of detecting attacks that mani
 secure meshes are made in custom manufacturing processes. Materials such as polymer substrates are specifically chosen
 such that the mesh is difficult to manipulate without breaking it. A drawback of this approach is that the specialized
 manufacturing processes are difficult to replicate, and that the resulting cost of the mesh is high. In some
-lower-security applications such as card payment terminalsin the industry, simpler approaches are still commonly used
-for their ease of implementation. Often, standard copper/polyimide Flexible Printed Circuits (FPCs) or even standard
-Printed Circuit Boards (PCBs) are used because of the wide availability of manufacturing services.
+lower-security applications such as card payment terminals, simpler approaches are still commonly used for their ease of
+implementation. Often, standard copper/polyimide Flexible Printed Circuits (FPCs) or even standard Printed Circuit
+Boards (PCBs) are used because of the wide availability of manufacturing services.
 
 Several academic approaches exist that target low cost\cite{
     vasileActiveTamperDetection2017,
@@ -117,8 +120,7 @@ Several academic approaches exist that target low cost\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     immlerSecurePhysicalEnclosures2018,
     garbTamperSensitiveDesignPUFBased,
-}. Some academic works even try to replace the security mesh with entirely different
-primitives\cite{
+}. Some academic works even try to replace the security mesh with entirely different tamper sensing primitives\cite{
     staatAntiTamperRadioSystemLevel2022,
     vaiSecureArchitectureEmbedded2015,}.
 High performance mesh monitoring approaches try to characterize the mesh's physical properties with high accuracy, but
@@ -150,7 +152,7 @@ applications.
 Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
 mesh. While the pulse traverses the mesh, parts of its energy are reflected on imperfections inside the mesh, including
 those caused by tampering attempts. Our circuit uses a fast, low-cost equivalent time sampling frontend to receive,
-amplify and records these reflections to create a \emph{fingerprint} of the mesh that is highly sensitive to changes
+amplify and record these reflections to create a \emph{fingerprint} of the mesh that is highly sensitive to changes
 caused by tampering.
 
 We demonstrate a working prototype of our design, and present practical measurements of its electrical parameters as
@@ -237,10 +239,8 @@ circuit\cite{garbFORTRESSFORtifiedTamperResistant2021}.
 Advantages of their system include high sensitivity to modifications, as well as that as a PUF, the system does not
 require a continuous power supply. Disadvantages include the limited mesh size a single circuit can support due to
 dynamic range constraints, the specialized manufacturing process needed for the mesh as well as the high cost of the
-monitoring circuit.
-
-Common physical security standards require systems to actively destroy all key material when tampering is
-detected\cite{
+monitoring circuit. Common physical security standards require systems to actively destroy all key material when
+tampering is detected\cite{
     usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002,
     ISOIEC24759,
     pcisecuritystandardscouncilPaymentCardIndustry2021}.
@@ -253,8 +253,8 @@ Key differences of our system include:
 
     \item Our system supports meshes manufactured using standard, low-cost PCB processes.
 
-    \item Our design requires only widely available, low-cost commodity components, for each of which alternative
-        substitutes from other manufacturers are available.
+    \item Our design requires only widely available, low-cost commodity components, for each of which alternatives
+        from other manufacturers are available.
 
     \item Our approach has improved resiliency to electromagnetic interference and works with unshielded meshes.
 \end{itemize}
@@ -262,12 +262,12 @@ Key differences of our system include:
 \paragraph{Bridge measurement of capacitive interdigital meshes.} \textcite{dupontMiniaturizedUltraLowPowerTamper2022}
 introduce a simple analog circuit approach for monitoring meshes laid out as a set of capacitive interdigital structures
 not unlike the combs found in Micro-Electromechanical System (MEMS) accelerometers and gyroscopes. They subdivide the
-mesh into four equal-sized quadrants, each containing two equal-size interdigital electrodes. They connect the resulting
+mesh into four equal-size quadrants, each containing two equal-size interdigital electrodes. They connect the resulting
 eight electrodes in a capacitive bridge configuration, and measure the bridge's balance using a simple analog monitoring
 circuit based on homodyne detection. Advantages of their system include the simple, low power monitoring circuit made
 from basic, cheap components and the capability to work with single-layer meshes such as those produced using Laser
 Direct Structuring (LDS). From a security point of view, a drawback of their approach is that to achieve its low power
-usage, measurement resolution is sacrificed and the mesh state is collapsed into a single, scalar measurement.
+usage, measurement resolution is sacrificed and all information on the mesh's state is collapsed into a single, scalar measurement.
 
 \paragraph{Frequency-domain mesh characterization.}
 \textcite{vasileProtectingSecretsAdvanced2019} introduce a monitoring method where they feed a variable-frequency signal
@@ -299,7 +299,7 @@ ADC that cannot easily be replaced with any other commercially available compone
 Key differences between their design and our proposal include:
 \begin{itemize}
     \item Their design is sensitive to total length, but not to the location of faults. Their design measures the mesh's
-        \emph{transmission} characteristic, which collapsing detail about faults along the mesh into a small number of
+        \emph{transmission} characteristic, which collapses detail about faults along the mesh into a small number of
         ADC samples at the pulse edge. Using such a measurement, it is not possible to localize faults. In contrast, our
         approach measures the signal's \emph{reflected} component, which spreads information over time and enables us to
         localize faults.
@@ -307,25 +307,24 @@ Key differences between their design and our proposal include:
     \item Our design uses only inexpensive, widely available parts. All parts in our design can easily be substituted
         for other, similar parts from different manufacturers.
 
-    \item Our design provides $25\times$ higher time resolution. This is a fundamental limitation, as the cost of ADCs
-        and their associated circuitry increases steeply with speed\footnote{ For reference, the least expensive ADC
-        available at distributor digikey that would match the \qty{200}{\pico\second} time resolution of our approach
-        would cost \price{320}{\euro} at quantity 100 and require national security clearance for export from its
-        manufacturer in the USA.}.
+    \item Our approach provides $25\times$ higher time resolution through Equivalent-Time Sampling. This is a
+        fundamental limitation of their design, as the cost of ADCs and their associated circuitry increases steeply
+        with speed\footnote{ For reference, the least expensive ADC available at distributor digikey that would match
+        the \qty{200}{\pico\second} time resolution of our approach would cost \price{320}{\euro} at quantity 100 and
+        require national security clearance for export from its manufacturer in the USA.}.
 \end{itemize}
 
 \subsection{Equivalent-Time Sampling}
 
 Today, systems that digitize high-speed signals usually use a fast ADC, sometimes preceded by one or several
 downconverting mixers. This development was enabled by both the increasing availability of ADCs capable of digitizing
-hundreds of megasamples per second at a reasonable resolution, and by the increase in speed and capability of CPUs,
-FPGAs and other digital components enabling the processing of the large amounts of data generated by such converters in
-real time. However, this is largely a development of this millennium--meanwhile, signals far into the gigahertz range
-have been studied since the advent of radar technology in the second world war\cite{kahrs50YearsRF2003}. Enabled by the
-progress from vacuum tubes to semiconductor devices, equivalent-time sampling became the technology of choice for the
-latter half of the twentieth century until around the turn of the millenium the introduction of high-speed digital
-processing and fast ADCs enabled real-time conversion up into higher microwave frequencies, today reaching beyond the
-\qty{100}{\giga\hertz} boundary.
+hundreds of megasamples per second at a reasonable resolution, and by the increase in speed of CPUs,
+FPGAs and other components of the digital processing chain. However, this is largely a development of this
+millennium--meanwhile, signals far into the gigahertz range have been studied since the advent of radar technology in
+the second world war\cite{kahrs50YearsRF2003}. Enabled by the progress from vacuum tubes to semiconductor devices,
+equivalent-time sampling became the technology of choice for the latter half of the twentieth century until around the
+turn of the millenium the introduction of high-speed digital processing and fast ADCs enabled real-time conversion up
+into higher microwave frequencies, today reaching beyond the \qty{100}{\giga\hertz} boundary.
 
 \textcite{kahrs50YearsRF2003} trace back the style of four-diode balanced bridge sampling gate that we use to a vacuum
 tube implementation presented in \textcite{chanceWaveforms1949}. This style of sampling gate found application in a
