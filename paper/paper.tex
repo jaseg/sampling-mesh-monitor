@@ -78,18 +78,12 @@
 
 \section{Introduction}
 
-% Tobi: Intro Reihenfolge der Topics
-% Hin- und Her-Switchen
-
 % Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
 % 2.2 / 2.3 Wie related? Warum interessant? In Intro erwähnen?
 % In Intro herausstellen, dass TDR-Setup neu ist.
 
-% Unterschied zu time domain mesh monitoring besser rausstellen?
 % Storyline für Intro: Wir sind die ersten die die Auflösung hinbekommen, und deshalb geht bei uns TDR.
-% Vielleicht Standardkomponenten besser herausstellen? USA?
-% Intro besser in einen klaren Storyfaden bauen: Generelle Intro, was machen andere, was machen wir.
-% Conclusion time domain besser rausstellen. Fingerprint erwähnen!
+% Time for 256 times oversampling: 710 ms. 384 times: 1056 ms.
 
 Security meshes continue to be the state of the art for tamper sensing in applications where sophisticated physical
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
@@ -598,7 +592,6 @@ of Xilinx 7 Series FPGAs provides the same $\frac{1}{32}$ clock cycle resolution
 
 \subsection{Measurement Principle and Scan Scheduling}
 \label{sec_scan_schedule}
-\todo{Mention measurement speed!}
 
 The goal of a time domain reflectometer is to send a pulse into the Device Under Test (DUT)--i.e.\ in our application,
 the mesh--and to record all reflections returning from the DUT afterwards. In something like a security mesh whose
@@ -624,19 +617,30 @@ amplify small signals that could result from weak reflections in small impedance
 
 The second major factor limiting repetition rate is the microcontroller's ADC speed, as well as the speed of the
 software processing the ADC's output. At full \qty{12}{b} resolution, this corresponds to a sampling rate of
-approximately \qty{4}{MSps}.
+approximately \qty{4}{MSps}. The microcontroller contains five ADCs, which can be interleaved to achieve higher rates.
 
-Combining these factors, we settled for a sampling rate of \qty{1}{MSps} across both channels of the differential pair.
-At this sampling rate, it is feasible to control the sample timing on a sample-by-sample basis. For all measurements in
-this paper, we use a sequential sampling approach where the microcontroller takes a series of measurements for
-oversampling at a particular delay, and then increases the delay by one \partno{HRTIM} output clock interval.
+Combining these factors, we conservatively decided on a sampling rate of \qty{1}{MSps} across both channels of the
+differential pair. At this sampling rate, it is feasible to control the sample timing on a sample-by-sample basis. For
+all measurements in this paper, we use a sequential sampling approach where the microcontroller takes a series of
+measurements for oversampling at a particular delay, and then increases the delay by one \partno{HRTIM} output clock
+interval.
 
-While for our development, this sequential scanning method is adequate, in a future practical application, two simple
-optimizations would decrease the time to detection for an attack. First, in a practical application, the range of
-scanned delays should be adjusted to the length of the particular security mesh in use. For this paper, we always
-scanned a time range starting before one stimulus pulse and ending shortly before the next stimulus pulse so that any
-waveform artifacts will be visible. In a practical application, there would be little information gained by sampling
-much beyond the edges of the expected mesh response, so the scan window should be kept small to increase scan rate.
+In our prototype, one sweep of a \qty{188}{\nano\second} time span consisting of $1024$ data points took
+\qty{710}{\milli\second} at $256\times$ oversampling and \qty{1.1}{\second} at $384\times$ oversampling. The time span
+corresponds to \qty{28}{\meter} of mesh length, which at a \qty{200}{\micro\meter} pitch corresponds to a mesh area of
+\qty{113}{\centi\meter\squared} and at a \qty{1}{\milli\meter} pitch corresponds to
+\qty{565}{\centi\meter\squared}. Using the same microcontroller, by optimizing timing, moving oversampling processing
+out of the interrupt handler, and by interleaving four of the microcontroller's five ADC peripherals, the lower limit of
+acquisition time of a $1024$-point scan is \qty{33}{\milli\second} for $256\times$ oversampling and
+\qty{49}{\milli\second} for $384\times$ oversampling.
+
+While for our development, sequential scanning is adequate, in a future practical application, two simple optimizations
+would decrease the time to detection for an attack. First, in a practical application, the range of scanned delays
+should be adjusted to the length of the particular security mesh in use. For this paper, we always
+scanned a time range of $1024$ points at \qty{184}{\pico\second} spacing starting before one stimulus pulse and ending
+shortly before the next stimulus pulse so that any waveform artifacts will be visible. In a practical application, there
+would be little information gained by sampling much beyond the edges of the expected mesh response, so the scan window
+should be kept small to increase scan rate.
 
 Secondly, in a practical application, the feature that is most relevant to detect tamper attempts is the trailing edge
 of the mesh's response. This trailing edge corresponds to the return of the stimulus pulse's reflection at the far end
@@ -648,17 +652,17 @@ that lie somewhere else, such as in the middle of the mesh's return window.
 
 \section{Experimental Evaluation}
 
-To validate our design, we will perform a two-fold evaluation. First, we want to measure the performance of our sampling
-circuit as a time-domain reflectometer. The most relevant figure to our mesh monitoring application is the pulse
-generators' rise time, which determines the frontend's bandwidth and consequently the level of detail that we are able
-to extract from a connected mesh during one scan. Since we aim at fingerprinting a connected mesh, not at performing
-absolute measurements, we do not need to characterize or de-embed the transfer function of our TDR frontend.
+To validate our design, we performed a two-fold evaluation. First, we measured the performance of our sampling circuit
+as a time-domain reflectometer. The most relevant figure to our mesh monitoring application is the pulse generators'
+rise time, which determines the frontend's bandwidth and consequently the level of detail that we are able to extract
+from a connected mesh during one scan. Since we aim at fingerprinting a connected mesh, not at performing absolute
+measurements, we do not need to characterize or de-embed the transfer function of our TDR frontend.
 
-Second, we will characterize the end-to-end performance of our design on a mesh test specimen, and we will evaluate its
+Second, we characterized the end-to-end performance of our design on a mesh test specimen, and we evaluated its
 performance on several realistic tamper attempts. As a baseline characterization, in Section\ \ref{sec_attack_short} we
 will show measurements of both short and open mesh traces, allowing us to evaluate our designs' capacity to spatially
 localize faults. Building upon this baseline, in Section\ \ref{sec_attack_probe} we will then demonstrate a probing
-attack, in which we will measure our design's response to a standard \qty{100}{\mega\hertz} bandwidth
+attack, in which we measured our design's response to a standard \qty{100}{\mega\hertz} bandwidth
 $\qty{10}{\mega\ohm}||\qty{10}{\pico\farad}$ oscilloscope probe. Compared to the baseline open/short test, this provides
 a greater challenge due to the probe's intentionally high impedance and minimal capacitive loading. Concluding our
 attack tests, in Section\ \ref{sec_attack_bridge} we demonstrate a bridging attack that attempts to repair a break
@@ -666,14 +670,14 @@ created in the mesh through drilling.
 
 \subsection{Rise Time Measurement}
 
-We measure two figures of merit to characterize frontend speed. First, as shown in Section\ \ref{sec_spec_risetime}
-below, we measure pulse rise time at the mesh interface using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal
+We measured two figures of merit to characterize frontend speed. First, as shown in Section\ \ref{sec_spec_risetime}
+below, we measured pulse rise time at the mesh interface using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal
 analyzer to evaluate the rise time of our pulse generator. This figure indicates the raw performance of our pulse
-generator. Second, we use our circuit to perform a TDR measurement of a mesh test specimen and measure the rise time of
-the sampling pulse as seen by the circuit itself. This figure indicates the actual measurement performance of our
-circuit. In general, this rise time will be faster than the pulse rise time because of the non-linear characteristic of
-the sampling Schottky pairs. Depending on the IC, our pules generator produces output waveforms with
-\qtyrange{1200}{2400}{\milli\volt} differential voltage swing. Since the sampling diode pairs start to conduct at a
+generator. Second, we used our circuit to perform a TDR measurement of a mesh test specimen and measured the rise time
+of the sampling pulse as seen by the circuit itself. This figure indicates the actual measurement performance of our
+circuit. In general, this rise time is different from the raw pulse rise time because of the non-linear characteristic
+of the sampling Schottky pairs. Depending on the IC, our pules generator produces output waveforms with
+\qtyrange{470}{3200}{\milli\volt} differential voltage swing. Since the sampling diode pairs start to conduct at a
 combined forward voltage of approximately \qty{300}{\milli\volt}, they will transition from high impedance to low
 impedance during a corresponding \qty{300}{\milli\volt} window at the middle of the strobe pulse's edge. Thus, even if
 the strobe pulse shows a low-pass response with rounding at both ends, as long as its slew rate
@@ -730,12 +734,12 @@ Figure\ \ref{fig_spec_risetime} and Table\ \ref{tab_edge_risetime} show the resu
 interpretation, we projected the measurements from the frequency domain (upper traces) back into the time domain (lower
 traces), and extracted rise time measurements from those traces. Our measurements show that, as expected, the bare
 \partno{74LVC}-series logic gate has the slowest rise time at approximately \qty{500}{\pico\second}. All three amplifier
-variants we implemented showed significantly improved rise time, with the \partno{PI4HDX12211} clocking in at below
+variants we implemented showed significantly improved rise time, with the \partno{PI4HDX12211} achieving below
 \qty{200}{\pico\second}, and the other two showing around \qty{120}{\pico\second}. A noteworthy detail is that
 \partno{MAX3748} and \partno{TDP0604} only achieved a low output signal amplitude, which stems from a combination of
 them having low output amplitude by design and of our circuit loading their outputs heavily. Since their amplitude is
 only marginally within the knee region of the RF Schottky diodes used in the sampling bridges, in these variants,
-sampling gates are slower than the raw pulse rise time value alone would suggest.
+the sampling gates end up slower than the raw pulse rise time value alone would suggest.
 
 \subsubsection{Self-Characterization}
 
@@ -743,9 +747,8 @@ sampling gates are slower than the raw pulse rise time value alone would suggest
     \begin{center}
         \includegraphics[width=\textwidth]{fig_edge_risetime.pdf}
     \end{center}
-    \caption{The trailing edge of the stimulus pulse with no mesh connected measured by the board itself, using
-    different amplifier ICs. Both positive and negative channels of the differential pair are shown individually.
-    The vertical scale is in Volts at the sampling amplifier output.}
+    \caption{One edge of the stimulus pulse with no mesh connected measured by the board itself, using different
+    amplifier ICs. For each IC, ten traces are shown. The vertical scale is in Volts at the sampling amplifier output.}
     \label{fig_edge_risetime}
 \end{figure}
 
@@ -759,10 +762,10 @@ sampling gates are slower than the raw pulse rise time value alone would suggest
             &\partno{PI3HDX12211}\\\hline
 
             \textbf{$t_r$ (Self-Characterization)}&
-            \qty{497}{\pico\second}&
-            \qty{998}{\pico\second}&
-            \qty{951}{\pico\second}&
-            \qty{145}{\pico\second}\\
+            \qty{916}{\pico\second}&
+            \qty{743}{\pico\second}&
+            \qty{333}{\pico\second}&
+            \qty{264}{\pico\second}\\
 
             \textbf{$t_r$ (Stimulus at Mesh)}&
             \qty{573}{\pico\second}&
@@ -790,37 +793,33 @@ sampling gates are slower than the raw pulse rise time value alone would suggest
     \label{tab_edge_risetime}
 \end{table}
 
-Figure\ \ref{fig_edge_risetime} shows the result of our self-characterization experiments, where we measure the frontend
-to measure its own pulse shape. These results correspond to the actual rise time we can expect in practical measurements.
+Figure\ \ref{fig_edge_risetime} shows the result of our self-characterization experiments, where we used the frontend to
+measure its own pulse shape. These results correspond to the actual rise time we can expect in practical measurements.
 In these experiments, we ran a measurement using $256\times$ oversampling at \qty{12}{b} ADC resolution. The plots show
 voltage at the amplifier output voltage against time in \unit{\nano\second}. The absolute value of the amplifier output
 voltage is not relevant here - only the rise time is. Since we use some of these amplifiers--particularly the redriver
-ICs--well outside of their intended application, the actual voltage they develop across the nonlinear load our sampling
-gate's diode bridge presents depends on implementation details of the amplifier's CML output stage. To maximize ADC
-resolution and minimize ringing, we tuned gain and bandwidth of each post-sampling amplifier for each IC. Ringing in the
-amplifier output leads to jitter in the ADC's sampling period to directly feeding through to the ADC output value. Since
-in \partno{STM32} MCUs, the ADC is clocked independently of the rest of the system, its sampling timing is poorly
+ICs--well outside of their intended application, the actual voltage they develop across the nonlinear load that our
+sampling gate's diode bridge presents depends on implementation details of the amplifier's CML output stage. To maximize
+ADC resolution and minimize ringing, we tuned gain and bandwidth of each post-sampling amplifier for each IC. Ringing in
+the amplifier output leads to jitter in the ADC's sampling period to directly feeding through to the ADC output value.
+Since in \partno{STM32} MCUs, the ADC is clocked independently of the rest of the system, its sampling timing is poorly
 controlled and this jitter causes a significant error unless the amplifier is well-compensated. The key figure for us is
 how fast our sampling gate turns on, not how hard, so we can largely ignore the units on the graph's vertical scale.
 
 Table\ \ref{tab_edge_risetime} shows rise times calculated from each trace, averaged across both traces of the
-differential pair. From these results and from the graphs in Figure\ \ref{fig_edge_risetime} we can see that both the
-optical networking limiting amplifier as well as the \partno{TDP0604} ``hybrid'' redriver produce comparatively slow
-edges with almost \qty{1}{\nano\second} rise time. We suspect that in both cases, this is caused by a combination of the
-slow input signal transition as well as that these IC's CML output structures are poorly matched to the nonlinear
-impedance presented by our sampling gate's diode bridges. \partno{MAX3748} also has the lowest output voltage swing of
-all parts tested with only \qty{780}{\milli\volt} typical listed in its datasheet. Surprisingly, the straight
-\partno{74LVC2G157} baseline unit has a rise time of only about \qty{500}{\pico\second}, improving over both previous
-parts by almost a factor of two. We suspect this is largely caused by the large output voltage swing of this part, going
-from ground to its $V_{CC}$ at \qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in
-the short period between its input differential voltage crossing zero and it rising above the combined forward voltage
-of both series Schottky diodes. Thus, while the \partno{74LVC} might have rather slow edges when looking at it as a whole
-including the transitions at both ends of the edge, its slew rate in the critical region in the middle of its output
-transition might rival the two previously mentioned, ostensibly faster parts simply due to its large output voltage
-swing.
+differential pair. From these results and from the graphs in Figure\ \ref{fig_edge_risetime} we can see that in the
+optical networking limiting amplifier produces slower edges than the measurements from Figure\ \ref{fig_spec_risetime}
+would suggest. We suspect that this is caused by its low output amplitude resulting in part from its specifications and
+in part from a poor match between its CML output structure and the nonlinear impedance presented by the sampling diode
+bridges. Surprisingly, even the \partno{74LVC2G157} baseline unit has a rise time of less than \qty{1}{\nano\second}. We
+estimate that this is caused by the large output voltage swing of this part, going from ground to its $V_{CC}$ at
+\qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in the short period between its
+input differential voltage crossing zero and it rising above the combined forward voltage of the Schottky diodes. Thus,
+while the \partno{74LVC} might produce slow edges overall, its large output swing results in a high slew rate in the
+critical region around the zero crossing that mostly determines the speed of the sampling gates.
 
-Finally, we observed the best result overall with the \partno{PI3HDX12211} redriver, resulting in a rise time of
-\qty{145}{\pico\second}. In this test specimen, we fed the pulse through the amplifier twice since we had two unused
+We observed the best result overall with the \partno{PI3HDX12211} redriver, resulting in a rise time of
+\qty{264}{\pico\second}. In this test specimen, we fed the pulse through the amplifier twice since we had two unused
 channels, and we used \qty{200}{\pico\second} clip lines on the amplifier's output for pulse shaping. We could only use
 the clip lines in this specimen as in all other specimens, the amplifiers' output did not contain sufficient harmonic
 content such that it was still able to turn on the sampling gate's diode bridge when used with the clip line.
