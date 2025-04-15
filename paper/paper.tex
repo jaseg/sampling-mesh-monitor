@@ -383,16 +383,22 @@ the mesh's traces both ways, at which point we expect a large response whose pol
 termination on the far end of the mesh. In our prototype circuit, we made this termination configurable to expand the
 range of possible measurement configurations and to enable self-calibration of the circuit.
 
-When an attacker attempts to tamper with the mesh, they will cause an impedance discontinuity. Cuts of one or both
-traces or a short circuit between both traces will result in a total reflection of the incident pulse at the location
-of the fault, which our circuit will easily detect as the delay of the response changes. However, beyond these simple
-cases, our approach can also detect more subtle changes. For instance, a short circuit between two points along the same
-mesh trace will also result in a change in delay along this trace. Furthermore, even just probing a mesh trace with an
-oscilloscope probe will add the probe's input capacitance, which is usually in the order of several Picofarad, to one
-point along the trace, resulting in an impedance step that can be detected by TDR. The TDR approach is thus able to not
-only detect but distinguish and even localize several types of faults or attacks in a mesh.
+Tampering with the mesh is likely to cause an impedance discontinuity. Cuts of one or both traces or a short circuit
+between both traces will result in a total reflection of the incident pulse at the location of the fault, which our
+circuit will easily detect as the delay of the response changes. However, beyond these simple cases, our approach can
+also detect more subtle changes. For instance, a short circuit between two points along the same mesh trace will result
+in a change in delay along this trace. Furthermore, even just probing a mesh trace with an oscilloscope probe will add
+the probe's input capacitance, resulting in an impedance step. The TDR approach is thus able to not only detect but
+distinguish and even localize several types of faults or attacks in a mesh.
 
-% FIXME subsection on routing and daisychaining
+\subsection{Signal Routing}
+
+The stimulus pulse in a TDR-based design is a high-speed signal not unlike any other high-speed data or radio signal.
+This enables the use of signal switch and multiplexer ICs marketed for RF or high-speed data bus applications. Due to
+their mass-market applications, such devices are inexpensive. Using a tree-shaped topology of multiplexers, several mesh
+segments can be monitored by a single frontend, enabling the monitoring of arbitrarily large volumes. As a proof of
+concept, in our prototype we implemented software-controllable flipping of the mesh using \partno{TMUXHS4212} bus
+multiplexers.
 
 \section{Circuit Design and Driving Approach}
 
@@ -671,50 +677,53 @@ created in the mesh through drilling.
 \subsection{Rise Time Measurement}
 
 We measured two figures of merit to characterize frontend speed. First, as shown in Section\ \ref{sec_spec_risetime}
-below, we measured pulse rise time at the mesh interface using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal
-analyzer to evaluate the rise time of our pulse generator. This figure indicates the raw performance of our pulse
-generator. Second, we used our circuit to perform a TDR measurement of a mesh test specimen and measured the rise time
-of the sampling pulse as seen by the circuit itself. This figure indicates the actual measurement performance of our
-circuit. In general, this rise time is different from the raw pulse rise time because of the non-linear characteristic
-of the sampling Schottky pairs. Depending on the IC, our pules generator produces output waveforms with
-\qtyrange{470}{3200}{\milli\volt} differential voltage swing. Since the sampling diode pairs start to conduct at a
-combined forward voltage of approximately \qty{300}{\milli\volt}, they will transition from high impedance to low
-impedance during a corresponding \qty{300}{\milli\volt} window at the middle of the strobe pulse's edge. Thus, even if
-the strobe pulse shows a low-pass response with rounding at both ends, as long as its slew rate
-$\frac{\mathrm{d}V}{\mathrm{d}t}$ during the zero crossing is fast enough, the pulse will still result in a sharp
-turn-on knee of the sampling diodes.
+below, we measured pulse rise time at the mesh interface to evaluate the raw rise time of our pulse generator. Second,
+we used our circuit to perform a TDR measurement of a mesh test specimen and measured the rise time of the sampling
+pulse as seen by the circuit itself. This figure indicates the actual measurement performance of our circuit. Both rise
+times differ because of the non-linear characteristic of the sampling Schottky pairs. Depending on the IC, our pulse
+generator produces output waveforms with \qtyrange{470}{3200}{\milli\volt} differential voltage swing. Since the
+sampling diode pairs start to conduct at a combined forward voltage of approximately \qty{300}{\milli\volt}, they will
+transition from high impedance to low impedance during a corresponding \qty{300}{\milli\volt} window at the middle of
+the strobe pulse's edge. Thus, even if the strobe pulse shows a low-pass response with rounding at both ends, as long as
+its slew rate $\frac{\mathrm{d}V}{\mathrm{d}t}$ during the zero crossing is fast enough, the pulse will still result in
+a sharp turn-on knee of the sampling diodes.
 
 \subsubsection{Stimulus Pulse Rise Time at the Mesh}
 \label{sec_spec_risetime}
 
 \begin{figure}
     \begin{center}
-        \begin{subfigure}{0.48\textwidth}
+        \begin{subfigure}{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{fig_spec_risetime_74lvc.pdf}
+            \vspace*{-5mm}
             \caption{74LVC2G157}
             \label{fig_spec_risetime_74lvc}
         \end{subfigure}
-        \unskip\begin{subfigure}{0.48\textwidth}
+        \unskip\begin{subfigure}{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{fig_spec_risetime_max3748.pdf}
+            \vspace*{-5mm}
             \caption{MAX3748}
             \label{fig_spec_risetime_max3748}
         \end{subfigure}
 
-        \begin{subfigure}{0.48\textwidth}
+        \begin{subfigure}{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{fig_spec_risetime_tdp0604.pdf}
+            \vspace*{-5mm}
             \caption{TDP0604}
             \label{fig_spec_risetime_tdp0604}
         \end{subfigure}
-        \unskip\begin{subfigure}{0.48\textwidth}
+        \unskip\begin{subfigure}{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{fig_spec_risetime_pi3hdx.pdf}
+            \vspace*{-5mm}
             \caption{PI3HDX12211}
             \label{fig_spec_risetime_pi3hdx}
         \end{subfigure}
     \end{center}
+    \vspace*{-5mm}
     \caption{Spectrum measurements and re-constructed time domain pulse edge shape of the stimulus pulse measured at the
     mesh interface for each of the four driver ICs. Amplitudes were normalized for rise time plots. The $\frac{1}{f}$
     curve in the spectrum plots shows the peak amplitude of the frequency components of an ideal infinite-bandwidth
@@ -722,13 +731,13 @@ turn-on knee of the sampling diodes.
     \label{fig_spec_risetime}
 \end{figure}
 
-To measure the rise time of our frontend's pulse generator, we measured the stimulus output at the mesh interface using
-a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal analyzer\footnote{The spectrum analyzer used significantly exceeded
-the capabilities of the fastest oscilloscopes we had access to, so it was the more appropriate choice of measurement
-instrument.}. All measurements were taken with the prototype's mesh interface connected to the spectrum analyzer through
-a bias tee configured for DC blocking followed by a \qty{20}{\deci\bel} attenuator for protection. Since both stimulus
-and sampling pulses are generated using identical circuits, we can transfer those results to the sampling pulse modulo
-amplifier output loading effects.
+To determine the rise time of our frontend's pulse generator, we measured the stimulus output at the mesh interface
+using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal analyzer\footnote{The spectrum analyzer used significantly
+exceeded the capabilities of the fastest oscilloscopes we had access to, so it was the more appropriate choice of
+measurement instrument.}. All measurements were taken with the prototype's mesh interface connected to the spectrum
+analyzer through a bias tee configured for DC blocking followed by a \qty{20}{\deci\bel} attenuator for protection.
+Since both stimulus and sampling pulses are generated using identical circuits, we can transfer those results to the
+sampling pulse modulo amplifier output loading effects.
 
 Figure\ \ref{fig_spec_risetime} and Table\ \ref{tab_edge_risetime} show the resulting measurements. For ease of
 interpretation, we projected the measurements from the frequency domain (upper traces) back into the time domain (lower
@@ -745,7 +754,7 @@ the sampling gates end up slower than the raw pulse rise time value alone would 
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=\textwidth]{fig_edge_risetime.pdf}
+        \includegraphics[width=\textwidth]{fig_edge_risetime.pdf}\vspace*{-7mm}
     \end{center}
     \caption{One edge of the stimulus pulse with no mesh connected measured by the board itself, using different
     amplifier ICs. For each IC, ten traces are shown. The vertical scale is in Volts at the sampling amplifier output.}
@@ -916,6 +925,7 @@ optimized through the electronic CAD/electromagnetic simulation co-design approa
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
+        \vspace*{-10mm}
     \end{center}
     \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four mesh test
         specimens. The shown time range covers the primary reflection of the stimulus pulse's falling edge. The vertical
@@ -993,10 +1003,10 @@ our TDR prototype, capturing responses both before and after tampering. We perfo
 
 In our first experiment, we tested both short and open-circuit conditions. We tested a short circuit between the two
 mesh traces in three locations as well as a cut trace halfway through the mesh. Figure\ \ref{fig_pic_specimens} in
-Appendix\ \ref{appendix_photos} shows photos of our test specimen. Figure\ \ref{fig_manip_shape} shows the result of our
-experiment. The graphs show a clear response of our monitoring circuit to all four tampering scenarios. Short and open
-circuit conditions can clearly be distinguished from each other, and in all cases, the fault location can be determined
-with sub-nanosecond precision, corresponding to several centimeters in distance along the mesh.
+Appendix\ \ref{appendix_photos} shows photos of our test specimens. Figure\ \ref{fig_manip_shape} shows the result of
+our experiment. The graphs show a clear response of our monitoring circuit to all four tampering scenarios. Short and
+open circuit conditions can clearly be distinguished from each other, and in all cases, the fault location can be
+determined with sub-nanosecond precision, corresponding to several centimeters in distance along the mesh.
 
 \subsubsection{Probing by Oscilloscope Probe}
 \label{sec_attack_probe}
@@ -1004,6 +1014,7 @@ with sub-nanosecond precision, corresponding to several centimeters in distance 
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{fig_probe_shape.pdf}
+        \vspace*{-7mm}
     \end{center}
     \caption{The circuit's TDR response under a probing attack using an oscilloscope probe. Black traces are a series of
     un-probed baseline measurements taken between attacks. All traces are plotted relative to a separate baseline trace
@@ -1059,11 +1070,11 @@ measurement.
 \end{figure}
 
 While our proposed measurement setup significantly increases the level of effort required from an attacker, as long as
-standard PCBs are used, PCB rework techniques that are widely used in the industry for PCB repair can be applied. If we
-assume a standard PCB process with \qty{100}{\micro\meter} trace/space design rules, a drilling attack targeting a
-\qty{300}{\micro\meter} hole size as proposed by \textcite{immlerSecurePhysicalEnclosures2018} will break at least one
-trace. Patching the resulting break using a wire is possible, but with increasing wire length, the TDR response of the
-mesh is increasingly distorted. We experimentally performed an attack comparable to the one shown by
+standard PCBs are used as meshes, the attacker can apply PCB rework techniques like they are widely used in the industry
+for PCB repair. If we assume a standard PCB process with \qty{100}{\micro\meter} trace/space design rules, a drilling
+attack targeting a \qty{300}{\micro\meter} hole size as proposed by \textcite{immlerSecurePhysicalEnclosures2018} will
+break at least one trace. Patching the resulting break using a wire is possible, but with increasing wire length, the
+TDR response of the mesh is increasingly distorted. We experimentally performed an attack comparable to the one shown by
 \textcite{immlerSecurePhysicalEnclosures2018} on a \qty{240}{\micro\meter} pitch mesh specimen. Figure\
 \ref{fig_drill_mod_shape} shows our modification and the resulting change in TDR response. As we can see, adding even
 just a few millimeters of wire will measurably and consistently distort the TDR response.
@@ -1094,30 +1105,28 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
 
 \section{Future Work}
 
-\paragraph{Design variants.} While the \partno{STM32G4}'s \partno{HRTIM} peripheral offers edge position control at a
-precision of $\frac{1}{32}$ system clock cycle using an automatically adjusted delay-locked loop at each output driver,
-due to the comparatively slow maximum system clock speed of \qty{168}{\mega\hertz}, this still only results in a timing
-resolution of \qty{184}{\pico\second}. While we have demonstrated this is sufficient to detect and localize several
-attack variants, it would be interesting to increase time resolution since in our measurements, we observed that the
-end-to-end jitter of our sampler is low enough that our circuit would benefit from finer delay control. In our
-prototype, we implemented a--so far unused--adjustable power supply for the \partno{74LVC} series buffer in between the
-\partno{HRTIM} outputs and the pulse amplifier. By adjusting this buffer's power supply through one of the
-microcontroller's digital-to-analog converter (DAC) channels, we expect that it should be possible to exploit the supply
-voltage dependency of the propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay
-with picosecond resolution. The internal DLL of the \partno{HRTIM} peripheral is likely implemented similarly.
+\paragraph{Design variants.} The \partno{STM32G4}'s \partno{HRTIM} peripheral is limited by to the comparatively slow
+maximum system clock speed of \qty{168}{\mega\hertz} to a timing resolution of \qty{184}{\pico\second}. While we have
+demonstrated that this is sufficient to detect and localize several attack variants, it would be interesting to increase
+time resolution since in our measurements, we observed that the end-to-end jitter of our frontend is low enough that our
+circuit would benefit from finer delay control. In our prototype, we implemented a--so far unused--adjustable power
+supply for the \partno{74LVC} series buffer in between the \partno{HRTIM} outputs and the pulse amplifier. By adjusting
+this buffer's power supply through one of the microcontroller's digital-to-analog converter (DAC) channels, we expect
+that it should be possible to exploit the supply voltage dependency of the propagation delay of \partno{74LVC} series
+CMOS logic to create a digitally controllable delay with picosecond resolution. The internal DLL of the \partno{HRTIM}
+peripheral is likely implemented similarly.
 
 % FIXME reword for publication
 \paragraph{System design.} The work we presented in this paper is complementary to the work previously presented by
 \textcite{gotteCantTouchThis2022}, where the authors improved security of a simple security mesh made from standard PCBs
 through mechanical motion. We are currently working on a prototype combining both approaches and incorporating heuristic
-scan scheduling as mentioned in Section\ \ref{sec_scan_schedule} for a cost-efficient yet powerful physical security
-primitive.
+scan scheduling as mentioned in Section\ \ref{sec_scan_schedule}.
 
 \paragraph{Auxiliary applications.} In this work, we have presented a design for a low-cost, embedded TDR frontend.
 Besides security mesh monitoring, through multiplexing this TDR frontend could be used for other system monitoring
 tasks from tamper sensing to system health monitoring. For instance, \textcite{vaiSecureArchitectureEmbedded2015}
 propose an approach for checking the integrity of a PCBA using an external Vector Network Analyzer (VNA) attached to
-test points on the PCBA's Power Distribution Network (PDN). TDR can produce fingerprints similar to a VNA, and it would
+test points on the PCBA's Power Distribution Network (PDN). TDR can produce fingerprints similar to a VNA and it would
 be interesting to measure parts of the secure subsystem other than its security mesh using our TDR frontend.
 
 \section{Conclusion}
