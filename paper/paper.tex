@@ -65,11 +65,11 @@
     Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs)
     and other systems to detect attempts to physically intrude into the device's protective shell. State-of-the-art
     solutions manufacture meshes in bespoke processes from carefully chosen materials, which is expensive and makes
-    replication challenging. Additionally, State-of-the-art monitoring circuits sacrifice either monitoring precision or
+    replication challenging. Additionally, state-of-the-art monitoring circuits sacrifice either monitoring precision or
     cost efficiency. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
-    standard components utilizing Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our approach
-    is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as security
-    mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
+    standard components that utilizes Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our
+    approach is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as
+    security mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
     components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
     improvement over previous work. We demonstrate our prototype's capability to detect and localize faults in several
     practical attack scenarios including probing using a high impedance oscilloscope probe and a patching attempt using
@@ -91,9 +91,9 @@
 % Intro besser in einen klaren Storyfaden bauen: Generelle Intro, was machen andere, was machen wir.
 % Conclusion time domain besser rausstellen. Fingerprint erwähnen!
 
-Security meshes continue to be the state of the art for tamper sensing in in applications where sophisticated physical
+Security meshes continue to be the state of the art for tamper sensing in applications where sophisticated physical
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
-applications for such meshes include Hardware Security Modules (HSMs) used to store and process cryptographic keys while
+applications for such meshes include Hardware Security Modules (HSMs) used to store and process cryptographic keys
 applying security standards such as
 FIPS-140-2\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002} or ISO/IEC
 24759\cite{ISOIEC24759}. Other applications include card payment terminals where PCI PTS HSM
@@ -102,32 +102,32 @@ two or more conductive traces that are laid out in a meandering pattern to cover
 electrically monitors these traces to detect attempts at penetrating this surface.
 
 As is often the case with security technologies, in practice a tension exists between the level of security offered by a
-particular security mesh implementation, and its implementation cost. Commercial designs often only coarsely monitor the
+particular security mesh implementation and its implementation cost. Commercial designs often only coarsely monitor the
 conductivity of the mesh traces and are incapable of detecting attacks that manipulate small parts of the mesh. The most
 secure meshes are made in custom manufacturing processes. Materials such as polymer substrates are specifically chosen
 such that the mesh is difficult to manipulate without breaking it. A drawback of this approach is that the specialized
-manufacturing processes are difficult to replicate, and that the resulting cost of the mesh is high. In some
+manufacturing processes are difficult to replicate and that the resulting cost of the mesh is high. In some
 lower-security applications such as card payment terminals, simpler approaches are still commonly used for their ease of
 implementation. Often, standard copper/polyimide Flexible Printed Circuits (FPCs) or even standard Printed Circuit
 Boards (PCBs) are used because of the wide availability of manufacturing services.
 
-Several academic approaches exist that target low cost\cite{
+Several academic approaches exist that target low-cost\cite{
     vasileActiveTamperDetection2017,
     vasileTemperatureSensitiveActive2017,
     dupontMiniaturizedUltraLowPowerTamper2022,
     vasileProtectingSecretsAdvanced2019,
-} or high performance mesh monitoring\cite{
+} or high-performance mesh monitoring\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     immlerSecurePhysicalEnclosures2018,
     garbTamperSensitiveDesignPUFBased,
 }. Some academic works even try to replace the security mesh with entirely different tamper sensing primitives\cite{
     staatAntiTamperRadioSystemLevel2022,
     vaiSecureArchitectureEmbedded2015,}.
-High performance mesh monitoring approaches try to characterize the mesh's physical properties with high accuracy, but
-often come at the cost of specialized, expensive circuitry. Low cost approaches utilize advanced analog techniques in
+High-performance mesh monitoring approaches try to characterize the mesh's physical properties with high accuracy, but
+often come at the cost of specialized, expensive circuitry. Low-cost approaches utilize advanced analog techniques in
 their circuitry to extract precise measurements using few components. They trade off measurement precision for lower
 component cost. Besides simple monitoring, detecting tamper attempts by replacing the mesh with a macro-scale Physically
-Uncloneable Function (PUF) has also been researched\cite{
+Unclonable Function (PUF) has also been researched\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     staatAntiTamperRadioSystemLevel2022,
     vaiSecureArchitectureEmbedded2015,}, albeit this comes with complex monitoring circuits that utilize expensive,
@@ -138,7 +138,7 @@ specialty components.
     \includegraphics[width=0.6\textwidth]{pic_board_setup_2_small_censored.jpg}
     \caption{Measurement setup. Shown are the test specimen board on the left, and the frontend board with one of the
     four pulse amplifiers in the center. The frontend board is powered through a USB-C connection, and data is sent to a
-    computer through an Single-Wire Debug (SWD) interface. The grid in the background has \qty{10}{\milli\meter} pitch.
+    computer through a Single-Wire Debug (SWD) interface. The grid in the background has \qty{10}{\milli\meter} pitch.
     Note: Author names and institutional affiliation were removed from this picture for peer review.}
     \label{fig_pic_board}
 \end{figure}
@@ -146,7 +146,7 @@ specialty components.
 To enable the use of less expensive, commodity materials such as Printed Circuit Boards (PCBs) without compromising
 security, mesh integrity must be monitored with high fidelity. In this paper, we present a low-cost monitoring circuit
 for security meshes that combines Time Domain Reflectometry (TDR) with equivalent time sampling. Our approach provides
-high measurement fidelity and enables the use of meshes made from less expensive materials in high security
+high measurement fidelity and enables the use of meshes made from less expensive materials in high-security
 applications.
 
 Our circuit generates a very fast pulse with a rise time lower than \qty{200}{\pico\second} that is broadcast into the
@@ -155,11 +155,11 @@ those caused by tampering attempts. Our circuit uses a fast, low-cost equivalent
 amplify and record these reflections to create a \emph{fingerprint} of the mesh that is highly sensitive to changes
 caused by tampering.
 
-We demonstrate a working prototype of our design, and present practical measurements of its electrical parameters as
-well as its performance under several practical attack scenarios. A photo of our prototype setup including a security
-mesh specimen is shown in Figure\ \ref{fig_pic_board}.
+We demonstrate a working prototype of our design and present practical measurements of its electrical parameters as well
+as its performance under several practical attack scenarios. A photo of our prototype setup including a security mesh
+specimen is shown in Figure\ \ref{fig_pic_board}.
 
-Compared to previous academic designs, our approach can be implemented at lower cost using exclusively inexpensive,
+Compared to previous academic designs, our approach can be implemented at a lower cost using exclusively inexpensive,
 commercially available mass-market components. Our TDR frontend improves upon previous, delay-based approaches in
 monitoring fidelity\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}. Our design achieves
 sufficient sensitivity to detect high-impedance oscilloscope probes despite such probes being specifically designed to
@@ -170,19 +170,19 @@ cost without compromising sensitivity.
 The contributions of our work are as follows:
 
 \begin{itemize}
-    \item To our knowledge, our design is first to apply a low-cost embedded differential Time Domain Reflectometry
-        (TDR) frontend to security mesh monitoring. Our design achieves pulse risetimes below \qty{200}{\pico\second}, a
-        $25\times$ improvement over the closest previous
+    \item To our knowledge, our design is the first to apply a low-cost embedded differential Time Domain Reflectometry
+        (TDR) frontend to security mesh monitoring. Our design achieves pulse rise times below \qty{200}{\pico\second},
+        a $25\times$ improvement over the closest previous
         work\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
     \item Our approach provides higher fidelity compared to state-of-the-art security mesh conductivity monitoring or
-        previous low cost approaches. It enables the use of meshes manufactured using less advanced technologies such as
+        previous low-cost approaches. It enables the use of meshes manufactured using less advanced technologies such as
         standard FPC or PCB processes. Our TDR frontend produces 70 data points for each meter of mesh length, resulting
         in a measurement density per mesh area of \qty{200}{\bit\per\centi\meter^2} when using a
         $\qty{200}{\micro\meter}$ pitch mesh manufactured in a standard low-cost PCB process.
-    \item We present a working prototype along extensive experimental results, including laboratory performance
-        measurements. We practically demonstrate that our design is able to not only detect, but distinguish and even
+    \item We present a working prototype along with extensive experimental results, including laboratory performance
+        measurements. We practically demonstrate that our design is able to not only detect but distinguish and even
         localize attacks in several realistic attack scenarios.
-    \item Our design is based entirely around commercially available, inexpensive mass-market components. It can be
+    \item Our design is based entirely on commercially available, inexpensive mass-market components. It can be
         replicated and improved without access to bespoke production equipment or semiconductor manufacturing
         capabilities. To facilitate further research and practical applications, we publish our prototype under an Open
         Source license and chose not to patent our approach.
@@ -190,13 +190,13 @@ The contributions of our work are as follows:
 
 \section{Related Work}
 
-Tamper sensing meshes are used in numerous applications from Hardware Security Modules (HSMs) to card payment terminals
-\cite{andersonCryptographicProcessorsASurvey2006,tehranipoorHardwareSecurityPrimitives2023}. Despite their widespread
-use, security mesh design and monitoring is covered by a sparse research corpus. Commercially, security-by-obscurity is
-often considered a good idea and little detail is published on physical security
+Tamper sensing meshes are used in numerous applications from Hardware Security Modules (HSMs) to card payment
+terminals\cite{andersonCryptographicProcessorsASurvey2006,tehranipoorHardwareSecurityPrimitives2023}. Despite their
+widespread use, security mesh design and monitoring is covered by a sparse research corpus. Commercially,
+security-by-obscurity is often considered a good idea and little detail is published on physical security
 implementations\cite{andersonSecurityEngineeringGuide2020}.
 
-Patent literature gives a partial view on commercial developments in this area. Even in recent patents such as\cite{
+Patent literature gives a partial view of commercial developments in this area. Even in recent patents such as\cite{
     brodskyTamperRespondentAssemblyFlexible2019, % IBM. ok, mentions conductivity monitoring but mostly on mesh
     nortonTamperDetectingCases2019, % HP. ok, mentions continuity monitoring only but mostly on mesh
     razaghiTamperDetectionSystem2020, % Square. ok. mentions what is effectively conductivity monitoring
@@ -209,7 +209,7 @@ manufacturers Texas Instruments and Zilog, cited monitoring methods are basic an
 of resistance or capacitance.
 
 Academic research in the area is more advanced and spans both improvements to security meshes and their monitoring
-circuits \cite{
+circuits\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     dupontMiniaturizedUltraLowPowerTamper2022,
     vasileProtectingSecretsAdvanced2019},
@@ -227,8 +227,8 @@ blind spots.
     obermaierMeasurementSystemCapacitive2018,
     garbTamperSensitiveDesignPUFBased}
 propose one of the most advanced security mesh designs in the current academic state of the art. They use a specialized
-security mesh as a Physically Uncloneable Function (PUF), combining tamper sensing with cryptographic key storage. In
-their design, the mesh consists of a cross-hatch pattern made from several dozen individually adressable capacitive
+security mesh as a Physically Unclonable Function (PUF), combining tamper sensing with cryptographic key storage. In
+their design, the mesh consists of a cross-hatch pattern made from several dozen individually addressable capacitive
 electrodes. They manufacture their meshes in a specialized process that results in unpredictable, random variations in
 capacitance between electrodes. They propose an analog frontend that measures the precise mutual capacitance of each
 pair of electrodes\cite{obermaierMeasurementSystemCapacitive2018} using an approach similar to
@@ -263,18 +263,19 @@ Key differences of our system include:
 introduce a simple analog circuit approach for monitoring meshes laid out as a set of capacitive interdigital structures
 not unlike the combs found in Micro-Electromechanical System (MEMS) accelerometers and gyroscopes. They subdivide the
 mesh into four equal-size quadrants, each containing two equal-size interdigital electrodes. They connect the resulting
-eight electrodes in a capacitive bridge configuration, and measure the bridge's balance using a simple analog monitoring
-circuit based on homodyne detection. Advantages of their system include the simple, low power monitoring circuit made
+eight electrodes in a capacitive bridge configuration and measure the bridge's balance using a simple analog monitoring
+circuit based on homodyne detection. Advantages of their system include the simple, low-power monitoring circuit made
 from basic, cheap components and the capability to work with single-layer meshes such as those produced using Laser
-Direct Structuring (LDS). From a security point of view, a drawback of their approach is that to achieve its low power
-usage, measurement resolution is sacrificed and all information on the mesh's state is collapsed into a single, scalar measurement.
+Direct Structuring (LDS). From a security point of view, a drawback of their approach is that to achieve its low-power
+usage, measurement resolution is sacrificed and all information on the mesh's state is collapsed into a single, scalar
+measurement.
 
 \paragraph{Frequency-domain mesh characterization.}
 \textcite{vasileProtectingSecretsAdvanced2019} introduce a monitoring method where they feed a variable-frequency signal
 into one end of a continuous mesh trace, and measure the power of the signal coming out of the other end. In essence,
 their setup measures $S_{12}$ magnitude in a similar way to a network analyzer.
 
-Advantages of their design include the simple implementation, and the potentially robust nature of frequency-domain
+Advantages of their design include the simple implementation and the potentially robust nature of frequency-domain
 measurements. Disadvantages include a nonstandard three-layer mesh stackup, as well as the susceptibility of the system
 to attack by emulation given that the log power sensor they are using at the mesh output is designed to be insensitive
 to any signal characteristics apart from total signal power.
@@ -290,11 +291,11 @@ Closest to our proposal in the academic corpus is the work of
 domain response of a mesh using a circuit made from a pulse generator and a fast Analog-to-Digital Converter (ADC). To
 avoid an expensive, high-speed digital processing pipeline, their design is centered around a specialized high-speed ADC
 that has a built-in sample memory. Using this part, they capture a pulse at high speed after it traverses the mesh.
-Subsequently, they slowly processing the captured data from memory.
+Subsequently, they slowly process the captured data from memory.
 
 Advantages of their design include better sensitivity to changes in total mesh trace length compared to simple
 continuity monitoring and the low complexity of their analog frontend. Disadvantages include the reliance on a specialty
-ADC that cannot easily be replaced with any other commercially available component, and the coarse time resolution.
+ADC that cannot easily be replaced with any other commercially available component and the coarse time resolution.
 
 Key differences between their design and our proposal include:
 \begin{itemize}
@@ -309,7 +310,7 @@ Key differences between their design and our proposal include:
 
     \item Our approach provides $25\times$ higher time resolution through Equivalent-Time Sampling. This is a
         fundamental limitation of their design, as the cost of ADCs and their associated circuitry increases steeply
-        with speed\footnote{ For reference, the least expensive ADC available at distributor digikey that would match
+        with speed\footnote{ For reference, the least expensive ADC available at distributor DigiKey that would match
         the \qty{200}{\pico\second} time resolution of our approach would cost \price{320}{\euro} at quantity 100 and
         require national security clearance for export from its manufacturer in the USA.}.
 \end{itemize}
@@ -319,11 +320,11 @@ Key differences between their design and our proposal include:
 Today, systems that digitize high-speed signals usually use a fast ADC, sometimes preceded by one or several
 downconverting mixers. This development was enabled by both the increasing availability of ADCs capable of digitizing
 hundreds of megasamples per second at a reasonable resolution, and by the increase in speed of CPUs,
-FPGAs and other components of the digital processing chain. However, this is largely a development of this
+FPGAs, and other components of the digital processing chain. However, this is largely a development of this
 millennium--meanwhile, signals far into the gigahertz range have been studied since the advent of radar technology in
-the second world war\cite{kahrs50YearsRF2003}. Enabled by the progress from vacuum tubes to semiconductor devices,
+the Second World War\cite{kahrs50YearsRF2003}. Enabled by the progress from vacuum tubes to semiconductor devices,
 equivalent-time sampling became the technology of choice for the latter half of the twentieth century until around the
-turn of the millenium the introduction of high-speed digital processing and fast ADCs enabled real-time conversion up
+turn of the millennium the introduction of high-speed digital processing and fast ADCs enabled real-time conversion up
 into higher microwave frequencies, today reaching beyond the \qty{100}{\giga\hertz} boundary.
 
 \textcite{kahrs50YearsRF2003} trace back the style of four-diode balanced bridge sampling gate that we use to a vacuum
@@ -343,7 +344,7 @@ signal in the analog domain before digitization.
 \textcite{bencivenniTimeDomainReflectometer2013} present an FPGA-based embedded reflectometer design. Since their design
 is based on an early FPGA family dating back to 2003 that lacked the speed and the adjustable I/O delay features of more
 modern FPGA families, their design uses the FPGA's logic resources to achieve adjustable delays.
-\textcite{negreaSequentialSamplingTime2009} show an equvalent-time sampling TDR that uses specialized adjustable delay
+\textcite{negreaSequentialSamplingTime2009} show an equivalent-time sampling TDR that uses specialized adjustable delay
 line ICs for pulse generation. \textcite{lee16psresolutionRandomEquivalent2003} achieve very high time resolution in an
 equivalent-time sampling TDR system by using a vernier approach to pulse generation, such that their system is limited
 by analog bandwidth, not time resolution. \textcite{trebbelsMiniaturizedFPGABasedHighResolution2013} show another
@@ -355,8 +356,8 @@ for a discrete ADC by implementing a $\Delta\Sigma$ loop around a fast comparato
 for lower hardware complexity. They use a \qty{5.5}{\volt\per\nano\second} slew rate wideband amplifier IC to generate
 their stimulus pulse, achieving a rise time of \qty{2}{\nano\second}. As a result, similar to
 \textcite{lee16psresolutionRandomEquivalent2003}, their design is limited by analog bandwidth--here resulting from the
-nanosecond-scale stimulus risetime--not by frontend time resolution. Compared with this and other previous approaches,
-our proposed system is not only faster, but presents a more balanced tradeoff between time resolution and analog
+nanosecond-scale stimulus rise time--not by frontend time resolution. Compared with this and other previous approaches,
+our proposed system is not only faster, but presents a more balanced trade-off between time resolution and analog
 bandwidth.
 
 \section{Monitoring a Security Mesh using Time Domain Reflectometry}
@@ -374,28 +375,28 @@ length.
 In this paper, we apply TDR to monitor a security mesh for changes caused by an attack. Our prototype setup consists of
 a custom circuit board containing a low-cost embedded TDR frontend that can be connected to a security mesh specimen to
 measure its response, creating a fingerprint of the mesh. In a standard PCB manufacturing process, we construct a
-security mesh with a ground plane underneath that works similar to previous work\cite{
+security mesh with a ground plane underneath that works similarly to previous work\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     obermaierMeasurementSystemCapacitive2018,
     garbTamperSensitiveDesignPUFBased}.
 When viewed in the microwave domain, such meshes constitute what is essentially a delay line. Security meshes commonly
-use a pair of two traces to capture short circuit condition between adjacent traces, which we treat as a differential
+use a pair of two traces to capture short circuit conditions between adjacent traces, which we treat as a differential
 pair for improved resiliency against electromagnetic interference. We constructed our frontend such that it excites the
-two traces differentially, but allows for both single-ended and for differential measurements.
+two traces differentially, but allows for both single-ended and differential measurements.
 
 In an intact mesh, we expect our frontend to record no significant reflections until the stimulus pulse has traversed
-the mesh's traces both ways, at which point we expect a large response whose polarity and amplitude depends on the
+the mesh's traces both ways, at which point we expect a large response whose polarity and amplitude depend on the
 termination on the far end of the mesh. In our prototype circuit, we made this termination configurable to expand the
 range of possible measurement configurations and to enable self-calibration of the circuit.
 
 When an attacker attempts to tamper with the mesh, they will cause an impedance discontinuity. Cuts of one or both
-traces, or a short circuit between both traces will result in a total reflection of the incident pulse at the location
+traces or a short circuit between both traces will result in a total reflection of the incident pulse at the location
 of the fault, which our circuit will easily detect as the delay of the response changes. However, beyond these simple
 cases, our approach can also detect more subtle changes. For instance, a short circuit between two points along the same
 mesh trace will also result in a change in delay along this trace. Furthermore, even just probing a mesh trace with an
 oscilloscope probe will add the probe's input capacitance, which is usually in the order of several Picofarad, to one
-point along the trace, result in an impedance step that can be detected by TDR. The TDR approach is thus able to not
-only detect, but distinguish and even localize several types of faults or attacks in a mesh.
+point along the trace, resulting in an impedance step that can be detected by TDR. The TDR approach is thus able to not
+only detect but distinguish and even localize several types of faults or attacks in a mesh.
 
 % FIXME subsection on routing and daisychaining
 
@@ -419,22 +420,22 @@ diode bridge sampling gates alternately sample the two traces of the mesh.
 Since physical attacks happen on a time scale of minutes or hours, we do not need a fast acquisition rate. Equivalent
 time sampling uses fast sampling gates to sample a high-frequency signal at a low frequency that is suitable for direct
 conversion through an ADC. This reduces the requirements of our data acquisition and signal processing fronted from
-gigasamples per second to mere megasamples, well within the range what a commodity microcontroller can handle.
+gigasamples per second to mere megasamples, well within the range that a commodity microcontroller can handle.
 
 A challenge in equivalent-time sampling is precisely phase-synchronizing the sampling pulse to the fundamental frequency
 of the input signal, which is usually implemented by using a high-speed comparator. In a TDR-style frontend like ours,
 this expensive component can be avoided because the stimulus signal is generated in the frontend, simplifying the
-challenge to generating a synchronized sampling pulse at an adjustable phase to the stimulus pulse.
+challenge of generating a synchronized sampling pulse at an adjustable phase to the stimulus pulse.
 
 Since an intact mesh has low insertion loss, the amplitude of the response of an intact mesh is large. Thus, we do not
-need a high dynamic range in either the frontend amplifiers nor in the ADC, enabling the use of commodity operational
+need a high dynamic range in either the frontend amplifiers or in the ADC, enabling the use of commodity operational
 amplifiers (opamps) and the built-in ADC of a commodity microcontroller. Further, the strong signal allows us to use a
-comparativeky lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
+comparatively lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
 directionality, but in our case the incident pulse can never interfere with reflections at the sampling output of the
 divider because of causality.
 
 To implement our sub-nanosecond sampler, we chose a simple four-diode bridge sampling gate made from commodity
-\partno{BAT17-04W} RF schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
+\partno{BAT17-04W} RF Schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
 \price{0.13}{\euro} per device at quantity 1000. The four-diode configuration requires only two dual diode packages. In
 contrast to \textcite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, in our system, double
 sampling is not necessary - instead, we follow the sampling gate directly with an amplifier feeding into the internal
@@ -611,7 +612,7 @@ sampling gate with amplifiers, and a coupler that couples the pulse into the mes
 into the sampling gate. A microcontroller controls this frontend with two primary signals: A stimulus pulse, and a
 sampling pulse. By adjusting the timing between these two pulses every time a stimulus pulse is sent, the
 microcontroller can select a particular point in time after the stimulus pulse to record using the sampling gate. By
-slowly sweeping across the whole timespan, the microcontroller can reconstruct the waveform of the reflected signal at
+slowly sweeping across the whole time span, the microcontroller can reconstruct the waveform of the reflected signal at
 the sampling gate across one period of the stimulus pulse. The recording rate of this waveform is limited by the
 repetition rate of the stimulus pulse as well as the time step size.
 
@@ -649,7 +650,7 @@ somewhere else, such as in the middle of the mesh's return window.
 \section{Experimental Evaluation}
 
 To validate our design, we will perform a two-fold evaluation. First, we want to measure the performance of our sampling
-circuit as a time-doimain reflectometer. The most relevant figure to our mesh monitoring application is the pulse
+circuit as a time-domain reflectometer. The most relevant figure to our mesh monitoring application is the pulse
 generators' rise time, which determines the frontend's bandwidth and consequently the level of detail that we are able
 to extract from a connected mesh during one scan. Since we aim at fingerprinting a connected mesh, not at performing
 absolute measurements, we do not need to characterize or de-embed the transfer function of our TDR frontend.
@@ -672,7 +673,7 @@ analyzer to evaluate the rise time of our pulse generator. This figure gives an 
 pulse generator. Second, we use our circuit to perform a TDR measurement of a mesh test specimen, and measure the rise
 time of the sampling pulse as seen by the circuit itself. This figure gives an indication of the actual measurement
 performance of our circuit. In general, this rise time will be faster than the pulse rise time because of the non-linear
-characteristic of the sampling schottky pairs. Depending on the IC, our pules generator produces output waveforms with
+characteristic of the sampling Schottky pairs. Depending on the IC, our pules generator produces output waveforms with
 \qtyrange{1200}{2400}{\milli\volt} differential voltage swing. Since the sampling diode pairs start to conduct at a
 combined forward voltage of approximately \qty{300}{\milli\volt}, they will transition from high impedance to low
 impedance during a corresponding \qty{300}{\milli\volt} window at the middle of the strobe pulse's edge. Thus, even if
@@ -712,10 +713,10 @@ turn-on knee of the sampling diodes.
         \end{subfigure}
     \end{center}
     \caption{Spectrum measurements and re-constructed time domain pulse edge shape of the stimulus pulse measured at the
-    mesh interface for each of the four driver ICs. Amplitudes were normalized for risetime plots. The $\frac{1}{f}$
+    mesh interface for each of the four driver ICs. Amplitudes were normalized for rise time plots. The $\frac{1}{f}$
     curve in the spectrum plots shows the peak amplitude of the frequency components of an ideal infinite-bandwidth
-    square wave. The horizontal gray lines in the time domain plots show thresholds used for risetime calculation.}
-    \label{fig_edge_risetime}
+    square wave. The horizontal gray lines in the time domain plots show thresholds used for rise time calculation.}
+    \label{fig_spec_risetime}
 \end{figure}
 
 To measure the rise time of our frontend's pulse generator, we measured the stimulus output at the mesh interface using
@@ -726,16 +727,16 @@ a bias tee configured for DC blocking followed by a \qty{20}{\deci\bel} attenuat
 and sampling pulses are generated using identical circuits, we can transfer those results to the sampling pulse modulo
 amplifier output loading effects.
 
-Figure\ \ref{fig_edge_risetime} and Table\ \ref{tab_edge_risetime} show the resulting measurements. For ease of
+Figure\ \ref{fig_spec_risetime} and Table\ \ref{tab_edge_risetime} show the resulting measurements. For ease of
 interpretation, we projected the measurements from the frequency domain (upper traces) back into the time domain (lower
 traces), and extracted rise time measurements from those traces. Our measurements show that, as expected, the bare
 \partno{74LVC}-series logic gate has the slowest rise time at approximately \qty{500}{\pico\second}. All three amplifier
-variants we implemented showed significantly improved risetime, with the \partno{PI4HDX12211} clocking in at below
+variants we implemented showed significantly improved rise time, with the \partno{PI4HDX12211} clocking in at below
 \qty{200}{\pico\second}, and the other two showing around \qty{120}{\pico\second}. A noteworthy detail is that
 \partno{MAX3748} and \partno{TDP0604} only achieved a low output signal amplitude, which stems from a combination of
 them having low output amplitude by design and of our circuit loading their outputs heavily. Since their amplitude is
-only marginally within the knee region of the RF schottky diodes used in the sampling bridges, in these variants,
-sampling gates are slower than the raw pulse risetime value alone would suggest.
+only marginally within the knee region of the RF Schottky diodes used in the sampling bridges, in these variants,
+sampling gates are slower than the raw pulse rise time value alone would suggest.
 
 \subsubsection{Self-Characterization}
 
@@ -785,18 +786,18 @@ sampling gates are slower than the raw pulse risetime value alone would suggest.
     \end{center}
     \caption{Single-ended stimulus edge rise times for different amplifier ICs. The single-ended rise times of both
     positive and negative half of the differential pair have been averaged. External measurements are from Figure\
-    \ref{fig_edge_risetime}, measuring the stimulus pulse at the mesh interface. $V_{pp}$ measurements are taken at the
+    \ref{fig_spec_risetime}, measuring the stimulus pulse at the mesh interface. $V_{pp}$ measurements are taken at the
     mesh interface. Effective slew rates are calculated from the external measurements and pulse $V{pp}$.}
     \label{tab_edge_risetime}
 \end{table}
 
 Figure\ \ref{fig_edge_risetime} shows the result of our self-characterization experiments, where we measure the frontend
-to measure its own pulse shape. These results correspond to the actual risetime we can expect in practical measurements.
+to measure its own pulse shape. These results correspond to the actual rise time we can expect in practical measurements.
 In these experiments, we ran a measurement using $256\times$ oversampling at \qty{12}{b} ADC resolution. The plots show
 voltage at the amplifier output voltage against time in \unit{\nano\second}. The absolute value of the amplifier output
 voltage is not relevant here - only the rise time is. Since we use some of these amplifiers--particularly the redriver
 ICs--well outside of their intended application, the actual voltage they develop across the nonlinear load our sampling
-gate's diode bridge presents depends on implementation details of the amplifiers's CML output stage. To maximize ADC
+gate's diode bridge presents depends on implementation details of the amplifier's CML output stage. To maximize ADC
 resolution and minimize ringing, we tuned gain and bandwidth of each post-sampling amplifier for each IC. Ringing in the
 amplifier output leads to jitter in the ADC's sampling period to directly feeding through to the ADC output value. Since
 in \partno{STM32} MCUs, the ADC is clocked independently of the rest of the system, its sampling timing is poorly
@@ -814,9 +815,9 @@ all parts tested with only \qty{780}{\milli\volt} typical listed in its datashee
 parts by almost a factor of two. We suspect this is largely caused by the large output voltage swing of this part, going
 from ground to its $V_{CC}$ at \qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in
 the short period between its input differential voltage crossing zero and it rising above the combined forward voltage
-of both series schottky diodes. Thus, while the \partno{74LVC} might have rather slow edges when looking at it as a whole
+of both series Schottky diodes. Thus, while the \partno{74LVC} might have rather slow edges when looking at it as a whole
 including the transitions at both ends of the edge, its slew rate in the critical region in the middle of its output
-transition might rival the two preivously mentioned, ostensibly faster parts simply due to its large output voltage
+transition might rival the two previously mentioned, ostensibly faster parts simply due to its large output voltage
 swing.
 
 Finally, we observed the best result overall with the \partno{PI3HDX12211} redriver, resulting in a rise time of
@@ -904,7 +905,7 @@ the expected signal propagation velocity in \partno{FR-4} PCB material of
 An interesting aspect of the graphs in Figure\ \ref{fig_mesh_length} is that all except the \partno{74LVC} graph show a
 dispersion effect increasingly rounding out the trailing edge of the response with longer mesh lengths. We suspect this
 effect stems from higher-frequency components coupling into adjacent trace segments further up or down the mesh more
-easily, spreading high-frequency components of the response signal out throughtout time and effectively creating a
+easily, spreading high-frequency components of the response signal out throughout time and effectively creating a
 low-pass response. We suspect the poor visibility of this effect in the \partno{74LVC} measurements is a result of this
 variant's pulse amplifier output amplitude being very large, allowing reflected response components to forward-bias the
 sampling gate's diode bridges, resulting in amplitude clipping. 
@@ -1135,7 +1136,7 @@ prototype circuit's capability to distinguish and physically localize faults ins
 scenarios with even careful attacks causing strong disturbances in the generated fingerprint.
 
 Compared to the state of the art, our approach enables the monitoring of larger meshes, at higher sensitivity and lower
-cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high security
+cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
 applications for security meshes made using low-cost, standard PCB manufacturing processes.
 
 \section*{Availability}
