@@ -1,0 +1,1 @@
+{"edge_clearance": 1.5, "anchor": "J8", "chamfer": 0.5, "mask_layer_id": 23, "random_seed": null, "randomness": 0.0, "use_keepouts": false, "use_outline": true, "use_tracks": false, "track_clearance": 0.2, "save_visualization": true, "visualization_path": "/tmp/", "kimesh_settings_version": "2.1.0"}

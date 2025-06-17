@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "footprints")(type "KiCad")(uri "/home/jaseg/Sync/docs/pcbs/sampling-mesh-monitor/sampling-mesh-monitor/footprints.pretty")(options "")(descr ""))
+  (lib (name "logo_tu_darmstadt")(type "KiCad")(uri "/home/jaseg/Sync/docs/pcbs/sampling-mesh-monitor/sampling-mesh-monitor/emergencity_logos_kicad/logo_tu_darmstadt.pretty")(options "")(descr ""))
+)
