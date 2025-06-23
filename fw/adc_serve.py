@@ -46,7 +46,7 @@ def watch_adc_graphs(sock, stat_path='/tmp/adc_stats.bin'):
 
             chip_type = {
                     '203632423631500f003f0034': 'pi3hdx12211',
-                    'b': 'tdp0604',
+                    '203632423631500f003e002f': 'tdp0604',
                     }.get(mcu_serial, 'unknown')
 
             data = data[3:].astype(float).reshape((7, 4, -1))

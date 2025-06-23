@@ -68,7 +68,7 @@ void meas_pb_config() {
              term_short;
     };
     struct flags config[_MEAS_PB_COUNT] = {
-            [MEAS_PB_CAL]           = {.flip=0, .flip_n=0, .term=0, .term_short=0},
+            [MEAS_PB_CAL]           = {.flip=1, .flip_n=1, .term=0, .term_short=0},
             [MEAS_PB_OPEN_FWD]      = {.flip=0, .flip_n=1, .term=0, .term_short=0},
             [MEAS_PB_OPEN_FLIP]     = {.flip=1, .flip_n=0, .term=0, .term_short=0},
             [MEAS_PB_LOAD_FWD]      = {.flip=0, .flip_n=1, .term=1, .term_short=0},
@@ -115,6 +115,16 @@ void debug_plot_hook(void){
     }
     const int full = HRTIM1->sMasterRegs.MPER;
     const int half = full/2;
+
+    /* The sampling pulse waveform is generated as follows:
+     *
+     * Through the master timer overflow and compare 1 events, a square wave is generated that sets on master overflow
+     * and resets at half period. Within this square wave, two pulses are inserted: A negative going pulse referenced to
+     * an offset before half period by the channel compares 1 and 2, and a positive going pulse referenced to an offset
+     * before the period end by the channel compares 3 and 4.
+     *
+     * The pulse width is the sampling width.
+     */
     /* Sampling pulse */
     HRTIM1->sTimerxRegs[3].CMP1xR = half - adc_backoff*0x20 - sampling_phase_var*0x20 - sampling_width*0x20;
     HRTIM1->sTimerxRegs[3].CMP2xR = half - adc_backoff*0x20 - sampling_phase_var*0x20;
@@ -545,9 +555,9 @@ void DMA1_Channel1_IRQHandler(void) {
     sampling_phase ++;
     if (sampling_phase == ADC_DELAY_WINDOW_SIZE) {
         sampling_phase = 0;
- 
+        meas_pb_now ++;
+
         if (meas_pb_now < _MEAS_PB_COUNT) {
-            meas_pb_now ++;
             meas_pb_config();
 
         } else {
@@ -561,6 +571,20 @@ void DMA1_Channel1_IRQHandler(void) {
         }
     }
 
+    /* The stimulus pulse is a simple square waveform that has a 50 % duty cycle with a period of one master clock
+     * period. The output is set on CMP2, and reset on CMP1. We adjust both at once such that the phase of the pulse
+     * is controlled by sampling_phase, plus the offset from stim_offset.
+     * 
+     * We control the offset of the stimulus pulse instead of controlling the offset of the sampling pulse to keep the
+     * phase offset between diode sampling and ADC sampling constant. If we controlled the sampling pulse offset, we
+     * would be able to control the sampling pulse at the diode gate with the HRTIM's 1/32th clock cycle
+     * super-resolution, but the ADC would always sample at a full clock cycle offset. This would introduce a variable
+     * +/- 1/16th clock cycle offset between diode sampling and ADC sampling.
+     *
+     * Between the diode sampling gate and the ADC input there is an opamp which while well-compensated will still
+     * take some time to settle. A variable ADC sampling offset into the settling time of the opamp will introduce an
+     * error. We can avoid this by just moving the stimulus pulse instead.
+     */
     HRTIM1->sTimerxRegs[2].CMP1xR = stim_offset*0x20 + sampling_phase; 
     HRTIM1->sTimerxRegs[2].CMP2xR = stim_offset*0x20 + HRTIM1->sMasterRegs.MPER/2 + sampling_phase;
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
