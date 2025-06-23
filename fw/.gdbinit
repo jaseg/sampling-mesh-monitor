@@ -21,16 +21,12 @@ svd_load upstream/stm32square/svd/STM32G474.svd
 
 break debug_plot_hook
 commands
-    dump binary memory /tmp/adc1_readings.bin adc1_readings adc1_readings+(sizeof(adc1_readings)/sizeof(*adc1_readings))
-    dump binary memory /tmp/adc1_variance.bin adc1_variance adc1_variance+(sizeof(adc1_readings)/sizeof(*adc1_readings))
-    dump binary memory /tmp/adc2_readings.bin adc2_readings adc2_readings+(sizeof(adc1_readings)/sizeof(*adc1_readings))
-    dump binary memory /tmp/adc2_variance.bin adc2_variance adc2_variance+(sizeof(adc1_readings)/sizeof(*adc1_readings))
+    dump binary memory /tmp/adc_stats.bin &host_data &host_data+1
     restore /tmp/dbg_settings.bin binary dbg_settings
     p/x dbg_settings
     cont
 end
 
-dump binary memory /tmp/dbg_settings.bin &dbg_settings &dbg_settings+1
-
 load
+dump binary memory /tmp/dbg_settings.bin &dbg_settings &dbg_settings+1
 cont

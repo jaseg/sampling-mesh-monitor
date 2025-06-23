@@ -11,10 +11,30 @@ int sampling_phase = 0;
 int adc_backoff = 60;
 uint16_t adc1_raw[512];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
-uint32_t adc1_readings[1024];
-uint32_t adc2_readings[COUNT_OF(adc1_readings)];
-uint32_t adc1_variance[COUNT_OF(adc1_readings)];
-uint32_t adc2_variance[COUNT_OF(adc1_readings)];
+
+#define ADC_DELAY_WINDOW_SIZE 768
+struct adc_stat_buffer {
+    uint32_t adc1_mean[ADC_DELAY_WINDOW_SIZE];
+    uint32_t adc1_var[ADC_DELAY_WINDOW_SIZE];
+    uint32_t adc2_mean[ADC_DELAY_WINDOW_SIZE];
+    uint32_t adc2_var[ADC_DELAY_WINDOW_SIZE];
+};
+
+enum {
+    MEAS_PB_CAL = 0,
+    MEAS_PB_OPEN_FWD  = 1,
+    MEAS_PB_OPEN_FLIP = 2,
+    MEAS_PB_LOAD_FWD  = 3,
+    MEAS_PB_LOAD_FLIP = 4,
+    MEAS_PB_SHORT_FWD  = 5,
+    MEAS_PB_SHORT_FLIP = 6,
+    _MEAS_PB_COUNT = 7
+} meas_pb_now = 0;
+
+struct {
+    uint32_t mcu_serial[3];
+    struct adc_stat_buffer adc_stats[_MEAS_PB_COUNT];
+} host_data;
 
 /* Bootup values. Will be overwritten with defaults from web interface HTML on launch. */
 const int default_sampling_phase_var = 2;
@@ -36,32 +56,56 @@ enum dbg_settings_mask {
 volatile uint32_t dbg_settings[2] = {
     (default_sampling_phase_var<<4) |
     (default_sampling_width<<12) |
-    (default_stim_offset<<20) |
-    DBG_MESH_FLIP_N,
+    (default_stim_offset<<20),
     (default_oversampling<<0)};
 
-void debug_plot_hook(void);
-void debug_plot_hook(void){
-    if (dbg_settings[0] & DBG_MESH_FLIP) {
+void meas_pb_config();
+void meas_pb_config() {
+    struct flags {
+        bool flip,
+             flip_n,
+             term,
+             term_short;
+    };
+    struct flags config[_MEAS_PB_COUNT] = {
+            [MEAS_PB_CAL]           = {.flip=0, .flip_n=0, .term=0, .term_short=0},
+            [MEAS_PB_OPEN_FWD]      = {.flip=0, .flip_n=1, .term=0, .term_short=0},
+            [MEAS_PB_OPEN_FLIP]     = {.flip=1, .flip_n=0, .term=0, .term_short=0},
+            [MEAS_PB_LOAD_FWD]      = {.flip=0, .flip_n=1, .term=1, .term_short=0},
+            [MEAS_PB_LOAD_FLIP]     = {.flip=1, .flip_n=0, .term=1, .term_short=0},
+            [MEAS_PB_SHORT_FWD]     = {.flip=0, .flip_n=1, .term=1, .term_short=1},
+            [MEAS_PB_SHORT_FLIP]    = {.flip=1, .flip_n=0, .term=1, .term_short=1},
+        };
+
+    struct flags now = config[meas_pb_now];
+
+    if (now.flip) {
         GPIOC->BSRR = 1<<4;
     } else {
         GPIOC->BRR = 1<<4;
     }
-    if (dbg_settings[0] & DBG_MESH_FLIP_N) {
+
+    if (now.flip_n) {
         GPIOB->BSRR = 1<<1;
     } else {
         GPIOB->BRR = 1<<1;
     }
-    if (dbg_settings[0] & DBG_RF_TERM) {
+
+    if (now.term) {
         GPIOC->BSRR = 1<<14;
     } else {
         GPIOC->BRR = 1<<14;
     }
-    if (dbg_settings[0] & DBG_RF_TERM_SHORT) {
+
+    if (now.term_short) {
         GPIOC->BSRR = 1<<15;
     } else {
         GPIOC->BRR = 1<<15;
     }
+}
+
+void debug_plot_hook(void);
+void debug_plot_hook(void){
     sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
     sampling_width = (dbg_settings[0]>>12) & 0xff;
     stim_offset = (dbg_settings[0]>>20) & 0xff;
@@ -232,6 +276,11 @@ int main(void) {
     GPIOC->BRR = (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
     GPIOC->BSRR = 0xf;
 
+    const uint32_t *mcu_uid_reg = (const uint32_t *)UID_BASE;
+    host_data.mcu_serial[0] = mcu_uid_reg[0];
+    host_data.mcu_serial[1] = mcu_uid_reg[1];
+    host_data.mcu_serial[2] = mcu_uid_reg[2];
+
     /* GPIOD:
      *  2 -  SFP5
      *  
@@ -335,7 +384,7 @@ int main(void) {
     HRTIM1->sTimerxRegs[1].TIMxCR = HRTIM_TIMCR_MSTU;
     HRTIM1->sTimerxRegs[1].PERxR = HRTIM1->sMasterRegs.MPER;
     HRTIM1->sTimerxRegs[1].RSTxR = HRTIM_RSTR_MSTPER;
-    int sampling_phase_var = (dbg_settings[0]>>4) & 0x3f;
+    //int sampling_phase_var = (dbg_settings[0]>>4) & 0x3f;
     //HRTIM1->sTimerxRegs[1].CMP3xR = (global_sampling_offset + sampling_phase_var) * 0x20;
     //HRTIM1->sTimerxRegs[1].CMP4xR = (global_sampling_offset + sampling_phase_var) * 0x20; 
 
@@ -479,7 +528,7 @@ void DMA1_Channel1_IRQHandler(void) {
      * width anyway. */
     int mean1 = 0, sqmean1 = 0;
     int mean2 = 0, sqmean2 = 0;
-    for (size_t i=2; i<oversampling+2; i++) {
+    for (ssize_t i=2; i<oversampling+2; i++) {
         int entry = adc1_raw[i];
         mean1 += entry;
         sqmean1 += entry*entry;
@@ -488,22 +537,27 @@ void DMA1_Channel1_IRQHandler(void) {
         mean2 += entry;
         sqmean2 += entry*entry;
     }
-    adc1_readings[sampling_phase] = mean1;
-    adc1_variance[sampling_phase] = sqmean1*oversampling - mean1*mean1;
-    adc2_readings[sampling_phase] = mean2;
-    adc2_variance[sampling_phase] = sqmean2*oversampling - mean2*mean2;
+    host_data.adc_stats[meas_pb_now].adc1_mean[sampling_phase] = mean1;
+    host_data.adc_stats[meas_pb_now].adc1_var[sampling_phase] = sqmean1*oversampling - mean1*mean1;
+    host_data.adc_stats[meas_pb_now].adc2_mean[sampling_phase] = mean2;
+    host_data.adc_stats[meas_pb_now].adc2_var[sampling_phase] = sqmean2*oversampling - mean2*mean2;
 
     sampling_phase ++;
-    if (sampling_phase == COUNT_OF(adc1_readings)) {
+    if (sampling_phase == ADC_DELAY_WINDOW_SIZE) {
         sampling_phase = 0;
-        GPIOC->BRR = 1<<2;
-        debug_plot_hook();
-        GPIOC->BSRR = 1<<2;
-        for (size_t i=0; i<COUNT_OF(adc1_readings); i++) {
-            adc1_readings[i] = 0;
-        }
-        for (size_t i=0; i<COUNT_OF(adc2_readings); i++) {
-            adc2_readings[i] = 0;
+ 
+        if (meas_pb_now < _MEAS_PB_COUNT) {
+            meas_pb_now ++;
+            meas_pb_config();
+
+        } else {
+            GPIOC->BRR = 1<<2;
+            debug_plot_hook();
+            GPIOC->BSRR = 1<<2;
+
+            meas_pb_now = 0;
+
+            memset(&host_data.adc_stats, 0, sizeof(host_data.adc_stats));
         }
     }
 

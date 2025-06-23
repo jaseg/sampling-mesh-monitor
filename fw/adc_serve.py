@@ -22,15 +22,14 @@ dbg_settings = None
 def index():
     return render_template('index.html')
 
-def watch_adc_graphs(sock):
+def watch_adc_graphs(sock, stat_path='/tmp/adc_stats.bin'):
+    stat_path = Path(stat_path)
+
     def handler():
-        Path('/tmp/adc1_readings.bin').touch()
-        Path('/tmp/adc2_readings.bin').touch()
-        Path('/tmp/adc1_variance.bin').touch()
-        Path('/tmp/adc2_variance.bin').touch()
+        stat_path.touch()
 
         in_handle = inotify.adapters.Inotify()
-        in_handle.add_watch('/tmp/adc2_variance.bin', mask=inotify.constants.IN_CLOSE_WRITE)
+        in_handle.add_watch(str(stat_path), mask=inotify.constants.IN_CLOSE_WRITE)
         for event in in_handle.event_gen(yield_nones=False):
             if dbg_settings is None: # not yet initialized from UI
                 print('ignoring update')
@@ -40,16 +39,43 @@ def watch_adc_graphs(sock):
             oversampling = int(dbg_settings['oversampling']);
             scale = 3.3 / (2**12) / oversampling;
 
-            def read_data(fn, scale):
-                data = np.frombuffer(Path(fn).read_bytes(), dtype=np.uint32)
-                data = data[::-1] # restore causality ;)
-                data = data * scale
-                return data.tolist()
-            
-            sock.emit('graph_update', {'adc1': read_data('/tmp/adc1_readings.bin', scale),
-                                       'var1': read_data('/tmp/adc1_variance.bin', scale**2/oversampling),
-                                       'adc2': read_data('/tmp/adc2_readings.bin', scale),
-                                       'var2': read_data('/tmp/adc2_variance.bin', scale**2/oversampling)})
+            data = np.frombuffer(stat_path.read_bytes(), dtype=np.uint32)
+            # cast to python ints for arbitrary precision arithmetic
+            mcu_serial = int(data[0]) | (int(data[1])<<32) | (int(data[2])<<64);
+            mcu_serial = f'{mcu_serial:024x}'
+
+            chip_type = {
+                    '203632423631500f003f0034': 'pi3hdx12211',
+                    'b': 'tdp0604',
+                    }.get(mcu_serial, 'unknown')
+
+            data = data[3:].astype(float).reshape((7, 4, -1))
+            data[:,:,:] = data[:,:,::-1] # restore causality ;)
+
+            # Scale mean data
+            data[:,0,:] *= scale
+            data[:,2,:] *= scale
+
+            # Scale variance data
+            data[:,1,:] *= scale**2/oversampling
+            data[:,3,:] *= scale**2/oversampling
+
+            sock.emit('graph_update', {
+                'mcu_serial': mcu_serial,
+                'chip_type': chip_type,
+                'data': {key: {
+                            'adc1': data[idx][0].tolist(),
+                            'var1': data[idx][1].tolist(),
+                            'adc2': data[idx][2].tolist(),
+                            'var2': data[idx][3].tolist(),
+                        } for idx, key in enumerate([
+                            'cal',
+                            'open_fwd',
+                            'open_flip',
+                            'load_fwd',
+                            'load_flip',
+                            'short_fwd',
+                            'short_flip'])}})
 
     adc_thr = threading.Thread(target=handler, daemon=True)
     adc_thr.start()
@@ -62,11 +88,7 @@ def handle(data):
     else:
         dbg_settings.update(data)
 
-    out = 0
-    for i, key in enumerate(['mesh_flip_n', 'mesh_flip', 'rf_term', 'rf_term_short']):
-        if dbg_settings[key]:
-            out |= 1<<i
-    out |= (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
+    out  = (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
     out |= (int(dbg_settings['sampling_width']) & 0xff) << 12
     out |= (int(dbg_settings['stimulus_offset']) & 0xff) << 20
     out1 = (int(dbg_settings['oversampling']) & 0x1ff)
