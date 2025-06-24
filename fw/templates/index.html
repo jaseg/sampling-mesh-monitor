@@ -302,7 +302,7 @@
                 const timestamp = (new Date).toISOString();
                 spec_inp.value = "";
 
-                a.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify({
+                const blob = new Blob([JSON.stringify({
                     meta: `${meta}_${mcu}_${chip}_${specimen}`,
                     info: {
                         meta: meta,
@@ -313,13 +313,16 @@
                     },
                     settings: dbg_settings(),
                     data: last_data,
-                }));
+                })], {'type': 'application/json;charset=utf-8'});
 
-                a.setAttribute('download', 'multisample-' + timestamp + '.json');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'multisample-' + timestamp + '.json';
                 a.style.display = 'none';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+
+                spec_inp.focus();
             });
 
             let last_data = null;
