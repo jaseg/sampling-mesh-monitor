@@ -12,7 +12,7 @@
 #plot-grid {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     /* grid-template-rows: repeat(6, 600px); */
 }
 </style>
@@ -48,34 +48,18 @@
         </div>
 
         <div id="plot-grid">
-            <adc-plot adc-index="1" playbook-item="open_fwd"></adc-plot>
-            <adc-plot adc-index="1" playbook-item="load_fwd"></adc-plot>
-            <adc-plot adc-index="1" playbook-item="short_fwd"></adc-plot>
+            <adc-plot adc-index="1" playbook-item="open_fwd,load_fwd,short_fwd,cal"></adc-plot>
+            <adc-plot adc-index="1" playbook-item="open_flip,load_flip,short_flip,cal"></adc-plot>
 
-            <adc-plot adc-index="2" playbook-item="open_fwd"></adc-plot>
-            <adc-plot adc-index="2" playbook-item="load_fwd"></adc-plot>
-            <adc-plot adc-index="2" playbook-item="short_fwd"></adc-plot>
-
-            <adc-plot adc-index="1" playbook-item="open_flip"></adc-plot>
-            <adc-plot adc-index="1" playbook-item="load_flip"></adc-plot>
-            <adc-plot adc-index="1" playbook-item="short_flip"></adc-plot>
-
-            <adc-plot adc-index="2" playbook-item="open_flip"></adc-plot>
-            <adc-plot adc-index="2" playbook-item="load_flip"></adc-plot>
-            <adc-plot adc-index="2" playbook-item="short_flip"></adc-plot>
-
-            <div></div>
-            <adc-plot adc-index="1" playbook-item="cal"></adc-plot>
-            <div></div>
-
-            <div></div>
-            <adc-plot adc-index="2" playbook-item="cal"></adc-plot>
-            <div></div>
+            <adc-plot adc-index="2" playbook-item="open_fwd,load_fwd,short_fwd,cal"></adc-plot>
+            <adc-plot adc-index="2" playbook-item="open_flip,load_flip,short_flip,cal"></adc-plot>
         </div>
 
         <template id="adc_plot_template">
             <h4 id="heading"></h4>
             <div id="plot"></div>
+        </template>
+        <template id="measurement_template">
             <div class="measurement" id="measurement">
                 <h5>Threshold</h5>
 
@@ -189,80 +173,93 @@
             }
 
             class DataPlot {
-                constructor(plot_div, table_div, meas_div, heading_div) {
+                constructor(plot_div, table_div, heading_div, num_data) {
                     this.lock = false;
                     this.heading = heading_div;
                     this.div = plot_div;
                     this.layout_settings = {
                         margin: {t: 20, l: 60, r: 20, b: 40},
                         hovermode: 'closest',
-                        yaxis: {title: {text: 'V [V]'}},
-                        xaxis: {title: {text: 't [ns]'}},
+                        //yaxis: {title: {text: 'V [V]'}},
+                        //xaxis: {title: {text: 't [ns]'}},
                         showlegend: false};
-                    this.plot = Plotly.newPlot(this.div,
-                        [
-                            {'x': [], 'y': [], 'type': 'scatter'},
-                            {'x': [], 'y': [], 'type': 'scatter'}
-                        ], this.layout_settings);
+
+                    let plot_arr = [];
+                    for (let i=0; i<num_data; i++) {
+                        plot_arr.push({'x': [], 'y': [], 'type': 'scatter'});
+                    }
+                    this.plot = Plotly.newPlot(this.div, plot_arr, this.layout_settings);
+                    /*
                     this.stats = new ThresholdStats(table_div, meas_div);
 
                     this.div.on('plotly_click', (evt) => {
                         this.stats.set_thr(evt.points[0].y, evt.points[0].x);
                     });
-                    this.adc_data = null;
-                    this.var_data = null;
+                    */
                 }
 
-                update_plot (in_adc, in_var) {
+                update_plot (data_arr) {
                     /* 168 MHz system clock, 32 delay-mapped subdivisions per system clock cycle in HRTIM */
                     if (this.lock) {
                         return;
                     }
 
-                    this.adc_data = in_adc;
-                    this.var_data = in_var;
+                    const color_palette = [
+                        ['rgba(181,0,0,0.2)',   'rgba(181,0,0,0.0)',    'rgba(181,0,0,1.0)'],
+                        ['rgba(255,102,0,0.2)', 'rgba(255,102,0,0.0)',  'rgba(255,102,0,1.0)'],
+                        ['rgba(0,92,148,0.2)',  'rgba(0,92,148,0.0)',   'rgba(0,92,148,1.0)'],
+                        ['rgba(0,0,0,0.1)',     'rgba(0,0,0,0.0)',      'rgba(0,0,0,0.4)'],
+                        ];
 
-                    const sampling_period_ns = 1000 / 168 / 32;
-                    let adc_t = Array(in_adc.length);
-                    let var_t = Array(2*in_adc.length);
-                    let var_data = Array(2*in_adc.length);
-                    for (var i=0; i<in_adc.length; i++) {
-                        adc_t[i] = i * sampling_period_ns;
+                    let plot_data = []; 
+                    data_arr.reverse(); /* ensure we draw the cal trace first, so everything else is on top */
+                    for (const [in_adc, in_var] of data_arr) {
+                        const sampling_period_ns = 1000 / 168 / 32;
+                        const data_len = in_adc.length;
 
-                        const i2 = var_t.length - 1 - i;
-                        var_t[i] = i * sampling_period_ns;
-                        var_t[i2] = i * sampling_period_ns;
+                        let adc_t = Array(data_len);
+                        let var_t = Array(2*data_len);
+                        let var_data = Array(2*data_len);
+                        for (var i=0; i<data_len; i++) {
+                            adc_t[i] = i * sampling_period_ns;
 
-                        var_data[i2] = in_adc[i] + Math.sqrt(in_var[i]);
-                        var_data[i] = in_adc[i] - Math.sqrt(in_var[i]);
+                            const i2 = 2*data_len - 1 - i;
+                            var_t[i] = i * sampling_period_ns;
+                            var_t[i2] = i * sampling_period_ns;
+
+                            var_data[i2] = in_adc[i] + Math.sqrt(in_var[i]);
+                            var_data[i] = in_adc[i] - Math.sqrt(in_var[i]);
+                        }
+
+                        const [var_fill, var_stroke, stroke] = color_palette.pop();
+                        /* This cursed way of doing variance shading is from plotly's own docs lol.
+                           https://plotly.com/python/continuous-error-bars/ */
+                        plot_data.push({
+                                'x': var_t,
+                                'y': var_data,
+                                'type': 'scatter',
+                                'fill': 'toself',
+                                'fillcolor': var_fill,
+                                'line': {'color': var_stroke},
+                                'hoverinfo': 'skip',
+                                'showlegend': false,
+                            });
+                        plot_data.push({
+                                'x': adc_t,
+                                'y': in_adc,
+                                'type': 'scatter',
+                                'line': {'color': stroke}
+                            });
                     }
 
-                    /* This cursed way of doing variance shading is from plotly's own docs lol.
-                       https://plotly.com/python/continuous-error-bars/ */
-                    this.plot = Plotly.react(this.div, [
-                        {
-                            'x': var_t,
-                            'y': var_data,
-                            'type': 'scatter',
-                            'fill': 'toself',
-                            'fillcolor': 'rgba(255,0,0,0.2)',
-                            'line': {'color': 'rgba(255,0,0,0.0)'},
-                            'hoverinfo': 'skip',
-                            'showlegend': false,
-                        }, {
-                            'x': adc_t,
-                            'y': in_adc,
-                            'type': 'scatter',
-                            'line': {'color': 'rgba(255,0,0,1.0)'}
-                        }], this.layout_settings);
-
-                    this.stats.update(adc_t, in_adc);
+                    this.plot = Plotly.react(this.div, plot_data, this.layout_settings);
+                    //this.stats.update(adc_t, in_adc);
                     this.heading.style.backgroundColor = 'red';
                     window.setTimeout(() => {this.heading.style.backgroundColor = null;}, 100);
                 }
             };
 
-            adc_update_listeners = {};
+            adc_update_listeners = [];
 
             customElements.define("adc-plot",
                 class extends HTMLElement {
@@ -277,16 +274,26 @@
                         let playbook_item = this.getAttribute("playbook-item");
                         heading.innerText = `ADC ${adc_index} ${playbook_item}`;
 
+                        let playbook_item_list = playbook_item.split(',');
                         const plot = new DataPlot(
                             shadowRoot.getElementById("plot"),
                             shadowRoot.getElementById("table"),
-                            shadowRoot.getElementById("measurement"),
-                            heading);
+                            //shadowRoot.getElementById("measurement"),
+                            heading,
+                            playbook_item_list.length
+                            );
                         this.plot = plot;
 
-                        adc_update_listeners[`${playbook_item}_${adc_index}`] = (mean, variance) => {
-                            plot.update_plot(mean, variance);
-                        };
+                        adc_update_listeners.push((evt) => {
+                            let data_arr = [];
+                            for (const entry of playbook_item_list) {
+                                data_arr.push([
+                                    evt['data'][entry][`adc${adc_index}`],
+                                    evt['data'][entry][`var${adc_index}`]
+                                    ]);
+                            }
+                            plot.update_plot(data_arr);
+                        });
                     }
                 });
 
@@ -331,10 +338,8 @@
                 last_data = structuredClone(arg['data']);
                 document.getElementById('dl_meta_mcu').value = arg['mcu_serial'];
                 document.getElementById('dl_meta_chip').value = arg['chip_type'];
-                for (const [playbook_item, value] of Object.entries(arg['data'])) {
-                    nop = (a, b) => null;
-                    (adc_update_listeners[`${playbook_item}_1`] || nop)(value['adc1'], value['var1']);
-                    (adc_update_listeners[`${playbook_item}_2`] || nop)(value['adc2'], value['var2']);
+                for (const listener of adc_update_listeners) {
+                    listener(arg);
                 }
             });
 
