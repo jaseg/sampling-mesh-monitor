@@ -568,6 +568,7 @@ void DMA1_Channel1_IRQHandler(void) {
             meas_pb_now = 0;
 
             memset(&host_data.adc_stats, 0, sizeof(host_data.adc_stats));
+            meas_pb_config();
         }
     }
 
