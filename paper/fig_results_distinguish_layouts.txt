@@ -1,0 +1,12 @@
+Results calculated from plots fig_covar_distinguish_layouts.pdf / fig_cdf_distinguish_layouts.pdf on 2025-07-09T17:58:16.095114
+
+setting threshold for quantile 0.001
+Baseline threshold set at 0.106885
+
+Distribution parameters:
+Within class: 0.318±0.0684 min: 0.221 max: 0.438
+Cross class: -0.247±0.369 min: -1.01 max: 0.122
+
+Type 1 error (false alarm rate): 0.001000000000
+Type 2 error (missed alarm rate): 0.168686174058
+EER: 0.0 th: 0.2132482612886455
