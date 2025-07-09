@@ -9,10 +9,13 @@ void update_leds(void);
 
 int sampling_phase = 0;
 int adc_backoff = 60;
+/* The raw ADC measurements that become a single data point are written to these buffers through DMA. */
 uint16_t adc1_raw[512];
 uint16_t adc2_raw[COUNT_OF(adc1_raw)];
 
 #define ADC_DELAY_WINDOW_SIZE 768
+/* A single measurement trace is captured in this buffer. For each ADC, mean and variance of adc{1,2}_raw are recorded.
+ */
 struct adc_stat_buffer {
     uint32_t adc1_mean[ADC_DELAY_WINDOW_SIZE];
     uint32_t adc1_var[ADC_DELAY_WINDOW_SIZE];
@@ -20,6 +23,13 @@ struct adc_stat_buffer {
     uint32_t adc2_var[ADC_DELAY_WINDOW_SIZE];
 };
 
+/* A full measurement series consists of a set of adc_stat_buffer captured under various termination conditions.
+ * FWD/FLIP indicates which way the mesh is flipped through the two back-to-back mux'es. LOAD termination is matched to
+ * the system's differential impedance, not the mesh's impedance.
+ *
+ * The CAL trace is run with the flip mux'es set opposite each other such that the pulse passes through the inner mux,
+ * and gets reflected at the inactive port of the outer mux, which presents as high impedance.
+ */
 enum {
     MEAS_PB_CAL = 0,
     MEAS_PB_OPEN_FWD  = 1,
@@ -32,7 +42,7 @@ enum {
 } meas_pb_now = 0;
 
 struct {
-    uint32_t mcu_serial[3];
+    uint32_t mcu_serial[3]; /* Filled with STM32 die serial number for board identification */
     struct adc_stat_buffer adc_stats[_MEAS_PB_COUNT];
 } host_data;
 
@@ -46,6 +56,7 @@ int sampling_width = default_sampling_width;
 int stim_offset = default_stim_offset;
 int oversampling = default_oversampling;
 
+/* Debug flags and values to be written via JTAG from the GDB control script. */
 enum dbg_settings_mask {
     DBG_MESH_FLIP_N = 1,
     DBG_MESH_FLIP = 2,
@@ -59,6 +70,7 @@ volatile uint32_t dbg_settings[2] = {
     (default_stim_offset<<20),
     (default_oversampling<<0)};
 
+/* Trace pulse routing and termination configuration */
 void meas_pb_config();
 void meas_pb_config() {
     struct flags {
@@ -79,6 +91,9 @@ void meas_pb_config() {
 
     struct flags now = config[meas_pb_now];
 
+    /* When flip != flip_n, the two flip mux'es connect the input port to the output connector in either orientation.
+     * When flip == flip_n, the input port is disconnected.
+     */
     if (now.flip) {
         GPIOC->BSRR = 1<<4;
     } else {
@@ -91,6 +106,7 @@ void meas_pb_config() {
         GPIOB->BRR = 1<<1;
     }
 
+    /* Signals to the termination RF switches */
     if (now.term) {
         GPIOC->BSRR = 1<<14;
     } else {
@@ -104,6 +120,10 @@ void meas_pb_config() {
     }
 }
 
+/* This function is called after a full measurement series was acquired. The control GDB script hooks this function
+ * through a breakpoint. When hit, it reads out the measurement results and sets the dbg_settings global variable. The
+ * body of this functions is run *after* the GDB control script's breakpoint handler.
+ */
 void debug_plot_hook(void);
 void debug_plot_hook(void){
     sampling_phase_var = (dbg_settings[0]>>4) & 0xff;
@@ -113,6 +133,7 @@ void debug_plot_hook(void){
     if (oversampling == 0) {
         oversampling = 1;
     }
+    
     const int full = HRTIM1->sMasterRegs.MPER;
     const int half = full/2;
 
@@ -218,6 +239,7 @@ int main(void) {
      * 14 -  SWCLK
      * 15 -  VBUS_SENSE
      */
+
     GPIOA->MODER &= (~(CLEAR(15) | CLEAR(1))); /* Clear JTAG TDI pin mode */
     GPIOA->MODER |= OUT(0) | OUT(1) | IN(2) | IN(3) | ANALOG(4) | ANALOG(5) | ANALOG(6) | ANALOG(7) | ANALOG(8) |
         ANALOG(9) | AF(10) | IN(11) | IN(12) | AF(13) | AF(14) | IN(15);
@@ -514,6 +536,7 @@ int main(void) {
         | DMA_CCR_CIRC
         | DMA_CCR_EN;
 
+    /* We only need the interrupt on one channel since both ADCs run in lock-step. */
 	NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
 	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
@@ -521,7 +544,7 @@ int main(void) {
         /* Wait for DLL calibration to complete. */
     }
 
-    /* Start the high-resolution timer */
+    /* Initialize timing parameters and start the high-resolution timer */
     debug_plot_hook();
     HRTIM1->sMasterRegs.MCR |= HRTIM_MCR_MCEN;
     while (23) {
@@ -552,8 +575,10 @@ void DMA1_Channel1_IRQHandler(void) {
     host_data.adc_stats[meas_pb_now].adc2_mean[sampling_phase] = mean2;
     host_data.adc_stats[meas_pb_now].adc2_var[sampling_phase] = sqmean2*oversampling - mean2*mean2;
 
+    /* Advance phase */
     sampling_phase ++;
     if (sampling_phase == ADC_DELAY_WINDOW_SIZE) {
+        /* At the end of the trace, step to the playbook entry for the next trace in the measurement series */
         sampling_phase = 0;
         meas_pb_now ++;
 
@@ -561,12 +586,13 @@ void DMA1_Channel1_IRQHandler(void) {
             meas_pb_config();
 
         } else {
+            /* At the end of the measurement series, call the host hook */
             GPIOC->BRR = 1<<2;
             debug_plot_hook();
             GPIOC->BSRR = 1<<2;
 
+            /* Restart the measurement series from the beginning */
             meas_pb_now = 0;
-
             memset(&host_data.adc_stats, 0, sizeof(host_data.adc_stats));
             meas_pb_config();
         }
