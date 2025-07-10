@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_patch_repeat_p0.3_minmax.pdf / fig_cdf_patch_repeat_p0.3_minmax.pdf on 2025-07-09T20:49:54.227922
+Results calculated from plots fig_covar_patch_repeat_p0.3_minmax.pdf / fig_cdf_patch_repeat_p0.3_minmax.pdf on 2025-07-10T11:36:50.914331
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.470057

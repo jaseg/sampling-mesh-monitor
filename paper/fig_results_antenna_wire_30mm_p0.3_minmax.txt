@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_antenna_wire_30mm_p0.3_minmax.pdf / fig_cdf_antenna_wire_30mm_p0.3_minmax.pdf on 2025-07-09T17:58:23.705371
+Results calculated from plots fig_covar_antenna_wire_30mm_p0.3_minmax.pdf / fig_cdf_antenna_wire_30mm_p0.3_minmax.pdf on 2025-07-10T11:36:30.043276
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.414871
