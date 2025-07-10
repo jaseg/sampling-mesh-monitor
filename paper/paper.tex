@@ -15,7 +15,8 @@
 \usepackage{wasysym}
 \usepackage[binary-units]{siunitx}
 \usepackage{commath}
-\usepackage{graphicx,color}
+\usepackage{graphicx}
+\usepackage{color}
 \usepackage{colortbl}
 \usepackage{subcaption}
 \usepackage{placeins}
@@ -23,7 +24,12 @@
 \usepackage{censor}
 \usepackage{hyperref}
 \usepackage{makecell}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\tcbuselibrary{breakable}
+\usepackage{float}
 
+\definecolor{highlightgreen}{rgb}{0.18 0.4 0.13}
 \DeclareSIUnit{\baud}{Bd}
 \DeclareSIUnit{\year}{a}
 \DeclareSIUnit{\rpm}{rpm}
@@ -1103,13 +1109,100 @@ thinking about attacker capabilities. Applying their taxonomy, our monitoring sy
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
 
+% https://tex.stackexchange.com/questions/336201/vertical-highlight-of-a-paragraph
+\begin{tcolorbox}[breakable,
+    enhanced,
+    colback=yellow!10!white,
+    boxrule=0pt,frame hidden,
+    borderline west={1mm}{-2mm}{highlightgreen}]
+
+\begin{figure}[H]
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
+        \label{fig_covar_patch_repeat_tridalta_all_the_data_covar}
+        \caption{Covariance Metric, Missed alarm rate 35.5\% at 0.1\% false alarm rate, CER=14.6\%.}
+    \end{subfigure}
+    \hspace*{2mm}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridalta_all_the_data_p0.3_minmax.pdf}
+        \label{fig_covar_patch_repeat_tridalta_all_the_data_minmax}
+        \caption{Min/Max Metric, Missed alarm rate 91\% at 0.1\% false alarm rate, CER=22.6\%.}
+    \end{subfigure}
+    \caption{Covariance matrices comparing all environmental runs as well as experiment baselines and seven runs of
+        meshes that have a broken trace patched by a soldered wire.}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
+        \label{}
+        \caption{Oscilloscope probe}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
+        \label{}
+        \caption{Soldering iron}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
+        \label{}
+        \caption{30mm wire soldered}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_probe_points_p0.3.pdf}
+        \label{}
+        \caption{Baseline vs. for previous plots specimens with soldermask removed}
+    \end{subfigure}
+    \caption{}
+    %too much: fig_covar_soldering_p0.3_minmax.pdf
+    %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
+\end{figure}
+
+\begin{figure}[H]
+    \begin{subfigure}[t]{0.25\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_time_drift.pdf}
+        \label{}
+        \caption{Time drift (2.5h)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
+        \label{}
+        \caption{Touch sensitivity}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.25\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_hot_mesh.pdf}
+        \label{}
+        \caption{Mesh heated (\qty{70}{\degree C})}
+    \end{subfigure}
+    \caption{}
+\end{figure}
+
+% fig_covar_short_within_0.3.pdf % FIXME repeat these runs, we have conflicting data. Do runs in both .3 and .4, .4
+% seems to work better.
+
+%fig_covar_open_p0.3.pdf
+%fig_covar_open_p0.4.pdf
+%fig_covar_short_across_traces_p0.3.pdf
+%fig_covar_short_across_traces_p0.4.pdf
+
+%fig_covar_distinguish_layouts.pdf
+%fig_covar_distinguish_copies.pdf % FIXME repeat these runs, the results look a bit too good!
+
+
 % FIXME
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
     \caption{}
     \label{fig_pic_board}
 \end{figure}
+\end{tcolorbox}
+
 \section{Future Work}
 
 \paragraph{Design variants.} The \partno{STM32G4}'s \partno{HRTIM} peripheral is limited by to the comparatively slow
