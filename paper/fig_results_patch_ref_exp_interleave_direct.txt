@@ -1,0 +1,11 @@
+Results calculated from plots fig_covar_patch_ref_exp_interleave_direct.pdf / <none> on 2025-07-11T16:56:52.209622
+
+setting threshold for quantile 0.001
+Baseline threshold set at 0.979357
+
+Distribution parameters:
+Within class: 0.989±0.00314 min: 0.983 max: 0.993
+Cross class: 0.985±0.00315 min: 0.98 max: 0.991
+
+Type 1 error (false alarm rate): 0.001000000000
+Type 2 error (missed alarm rate): 0.972331318110
