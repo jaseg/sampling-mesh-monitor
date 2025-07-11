@@ -47,14 +47,15 @@ struct {
 } host_data;
 
 /* Bootup values. Will be overwritten with defaults from web interface HTML on launch. */
-const int default_sampling_phase_var = 2;
-const int default_sampling_width = 2;
+const int default_sampling_phase_var = 6;
+const int default_sampling_width = 12;
 const int default_stim_offset = 104;
-const int default_oversampling = 64;
+const int default_oversampling = 384;
 int sampling_phase_var = default_sampling_phase_var;
 int sampling_width = default_sampling_width;
 int stim_offset = default_stim_offset;
 int oversampling = default_oversampling;
+bool wait_for_trigger = 0;
 
 /* Debug flags and values to be written via JTAG from the GDB control script. */
 enum dbg_settings_mask {
@@ -62,6 +63,7 @@ enum dbg_settings_mask {
     DBG_MESH_FLIP = 2,
     DBG_RF_TERM = 4,
     DBG_RF_TERM_SHORT = 8,
+    DBG_WAIT_FOR_TRIGGER = (1<<30),
 };
 
 volatile uint32_t dbg_settings[2] = {
@@ -130,8 +132,17 @@ void debug_plot_hook(void){
     sampling_width = (dbg_settings[0]>>12) & 0xff;
     stim_offset = (dbg_settings[0]>>20) & 0xff;
     oversampling = dbg_settings[1] & 0x1ff;
+    wait_for_trigger = !!(dbg_settings[0] & DBG_WAIT_FOR_TRIGGER);
     if (oversampling == 0) {
         oversampling = 1;
+    }
+
+    if (wait_for_trigger) {
+        GPIOC->BRR = 1<<3;
+        while (GPIOC->IDR & (1<<10)) {
+            /* Wait for trigger input */
+        }
+        GPIOC->BSRR = 1<<3;
     }
     
     const int full = HRTIM1->sMasterRegs.MPER;
@@ -290,7 +301,7 @@ int main(void) {
      *  7 -  VRES_EN
      *  8 -  I2C1_SCL
      *  9 -  I2C1_SDA
-     * 10 -  (testpoint)
+     * 10 -  (testpoint) / trigger in (active low)
      * 11 -  (testpoint)
      * 12 -  (testpoint)
      * 13 -  (testpoint)
@@ -298,7 +309,7 @@ int main(void) {
      * 15 -  RF_TERM/~SHORT
      */
 
-    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | AF(6) | OUT(7) | AF(8) | AF(9) | OUT(10) | IN(11)
+    GPIOC->MODER = OUT(0) | OUT(1) | OUT(2) | OUT(3) | OUT(4) | IN(5) | AF(6) | OUT(7) | AF(8) | AF(9) | IN(10) | IN(11)
         | AF(12) | IN(13) | OUT(14) | OUT(15);
     GPIOC->AFR[0] = AFRL(6, 13); /* HRTIM1 CHF1 */
     GPIOC->AFR[1] = AFRH(8, 8) | /* I2C1 SCL */
@@ -307,6 +318,7 @@ int main(void) {
 
     GPIOC->BRR = (1<<4) | (1<<7) | (1<<14) | (1<<15); /* Clear all outputs on this bank */
     GPIOC->BSRR = 0xf;
+    GPIOC->PUPDR |= PULLUP(10);
 
     const uint32_t *mcu_uid_reg = (const uint32_t *)UID_BASE;
     host_data.mcu_serial[0] = mcu_uid_reg[0];
@@ -635,7 +647,6 @@ void SysTick_Handler() {
 
 void ADC1_2_IRQHandler() {
     ADC1->ISR = ADC_ISR_EOC;
-    GPIOC->BSRR = (1<<10);
 }
 
 uint64_t get_sync_time() {

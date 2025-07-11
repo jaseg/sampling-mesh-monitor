@@ -91,6 +91,7 @@ def handle(data):
     out  = (int(dbg_settings['sampling_phase_var']) & 0xff) << 4
     out |= (int(dbg_settings['sampling_width']) & 0xff) << 12
     out |= (int(dbg_settings['stimulus_offset']) & 0xff) << 20
+    out |= (int(bool(dbg_settings['wait_for_trigger'])) & 0x1) << 30
     out1 = (int(dbg_settings['oversampling']) & 0x1ff)
     print(f'Set debug settings to {out:08x} | {out1:08x}')
     Path('/tmp/dbg_settings.bin').write_bytes(struct.pack('<II', out, out1))

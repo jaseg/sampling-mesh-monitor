@@ -32,6 +32,10 @@
             <label for="oversampling_inp">
                 Oversampling <input type="number" id="oversampling_inp" min="1" max="511" step="1" value="256" data-dev-setting="oversampling"/>
             </label>
+            <label for="wait_for_trigger_inp">
+                <input type="checkbox" id="wait_for_trigger_inp" data-dev-setting="wait_for_trigger"/>
+                Trigger mode 
+            </label>
         </div>
 
         <h4>Download data</h4>
@@ -298,9 +302,7 @@
                     }
                 });
 
-            document.querySelector('#download_form').addEventListener('submit', (evt) => {
-                evt.preventDefault();
-
+            function download_data() {
                 let a = document.createElement('a');
                 let spec_inp = document.querySelector('#dl_meta_specimen');
                 const meta = document.querySelector('#dl_meta_info').value;
@@ -308,7 +310,6 @@
                 const mcu = document.querySelector('#dl_meta_mcu').value;
                 const chip = document.querySelector('#dl_meta_chip').value;
                 const timestamp = (new Date).toISOString();
-                spec_inp.value = "";
 
                 const blob = new Blob([JSON.stringify({
                     meta: `${meta}_${mcu}_${chip}_${specimen}`,
@@ -329,7 +330,15 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+            }
 
+            document.querySelector('#download_form').addEventListener('submit', (evt) => {
+                evt.preventDefault();
+
+                download_data();
+
+                let spec_inp = document.querySelector('#dl_meta_specimen');
+                spec_inp.value = "";
                 spec_inp.focus();
             });
 
@@ -341,6 +350,9 @@
                 document.getElementById('dl_meta_chip').value = arg['chip_type'];
                 for (const listener of adc_update_listeners) {
                     listener(arg);
+                }
+                if (document.getElementById('wait_for_trigger_inp').checked) {
+                    download_data();
                 }
             });
 
