@@ -1154,7 +1154,7 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_probe_points_p0.3.pdf}
         \label{}
-        \caption{Baseline vs. for previous plots specimens with soldermask removed}
+        \caption{Baseline vs. specimens with soldermask removed for previous plots}
     \end{subfigure}
     \caption{}
     %too much: fig_covar_soldering_p0.3_minmax.pdf
@@ -1181,6 +1181,14 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
     \end{subfigure}
     \caption{}
     \label{}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
+    \caption{The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
+    difference between hot and cool cases.}
+    \label{fig_pic_board}
 \end{figure}
 
 \begin{figure}[H]
@@ -1212,51 +1220,47 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.3.pdf}
         \label{}
-        \caption{}
+        \caption{Open, p=\qty{0.3}{\milli\meter}}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.3.pdf}
         \label{}
-        \caption{}
+        \caption{Short, p=\qty{0.3}{\milli\meter}}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.4.pdf}
         \label{}
-        \caption{}
+        \caption{Open, p=\qty{0.4}{\milli\meter}}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
         \label{}
-        \caption{}
+        \caption{Short, p=\qty{0.4}{\milli\meter}}
     \end{subfigure}
-    \caption{}
-    \label{}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
-        \label{}
-        \caption{Different mesh layouts, Missed alarm rate 18\% at 0.1\% false alarm rate, CER=0\%}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
-        \label{}
-        \caption{Three identical copies, Missed alarm rate 1.7\% at 0.1\% false alarm rate, CER=0\%}
-    \end{subfigure}
-    \caption{}
+    \caption{Covariance matrix of intact (top left) and modified meshes (bottom right). Shown are two pitches. Ten
+    specimens each with either one trace interrupted, or both traces shorted in a random location.}
     \label{}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
+        \label{}
+        \caption{Different mesh layouts, False negative rate 18\% at 0.1\% false positive rate, CER=0\%}
+    \end{subfigure}
+    \hspace*{5mm}
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
+        \label{}
+        \caption{Three identical copies, False negative rate 1.7\% at 0.1\% false positive rate, CER=0\%}
+    \end{subfigure}
+    \hfill
     \caption{}
-    \label{fig_pic_board}
+    \label{}
 \end{figure}
 \end{tcolorbox}
 
