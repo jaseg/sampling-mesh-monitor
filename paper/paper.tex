@@ -29,7 +29,8 @@
 \tcbuselibrary{breakable}
 \usepackage{float}
 
-\definecolor{highlightgreen}{rgb}{0.18 0.4 0.13}
+\definecolor{highlightred}{rgb}{0.6 0.1 0.1}
+\definecolor{highlightgreen}{rgb}{0.12 0.5 0.07}
 \DeclareSIUnit{\baud}{Bd}
 \DeclareSIUnit{\year}{a}
 \DeclareSIUnit{\rpm}{rpm}
@@ -408,6 +409,8 @@ multiplexers.
 
 \section{Circuit Design and Driving Approach}
 
+% FIXME peer review only, for major revision @ TCHES
+\color{highlightred}
 \begin{figure}
     \centering
     \hspace*{-7mm}
@@ -416,72 +419,60 @@ multiplexers.
     \label{fig_block_diagram}
 \end{figure}
 
-A TDR can be broken down into three basic components. First, we need a source of fast pulses (or fast edges!) to
-stimulate the mesh. Second, we need a coupler that allows us to couple the stimulus pulses into the mesh, and their
-reflections out of it. Finally, we need a fast ADC to capture the reflections.
+A TDR can be broken down into three basic components: A source of fast stimulus pulses (or edges!), a coupler that
+separates stimulus pulses and their reflection at the output, and a fast ADC to capture the reflections.
 
 Figure\ \ref{fig_block_diagram} shows a block diagram of our design\footnote{Full schematics are available in this
 paper's supplementary material.}. At the core of our design lies an equivalent time sampling setup, where two
 diode bridge sampling gates alternately sample the two traces of the mesh. 
 Since physical attacks happen on a time scale of minutes or hours, we do not need a fast acquisition rate. Equivalent
 time sampling uses fast sampling gates to sample a high-frequency signal at a low frequency that is suitable for direct
-conversion through an ADC. This reduces the requirements of our data acquisition and signal processing fronted from
-gigasamples per second to mere megasamples, well within the range that a commodity microcontroller can handle.
+conversion through an ADC. Using equivalent-time sampling, we can sample \unit{\giga\hertz}-Scale signals at the
+\unit{\mega\hertz}-scale sampling rate of the internal ADCs of the commodity microcontroller we use. We use two of the
+microcontroller's ADCs interleaved, each of which provides approximately \qty{1.7}{\mega Sp\per\second} at
+\qty{12}{\bit} resolution. Due to the high conversion speed of the modern ADC cores in this microcontroller, we are able
+to use up to $384\times$ oversampling for increased precision without unduly affecting measurement times.
 
-A challenge in equivalent time sampling is precisely phase-synchronizing the sampling pulse to the fundamental frequency
-of the input signal, which is usually implemented by using a high-speed comparator. In a TDR-style frontend like ours,
-this expensive component can be avoided because the stimulus signal is generated in the frontend, simplifying the
-challenge of generating a synchronized sampling pulse at an adjustable phase to the stimulus pulse.
+%A challenge in equivalent time sampling is precisely phase-synchronizing the sampling pulse to the fundamental
+%frequency of the input signal, which is usually implemented by using a high-speed comparator. In a TDR-style frontend
+%like ours, this expensive component can be avoided because the stimulus signal is generated in the frontend,
+%simplifying the challenge of generating a synchronized sampling pulse at an adjustable phase to the stimulus pulse.
 
-Since an intact mesh has low insertion loss, the amplitude of the response of an intact mesh is large. Thus, we do not
-need a high dynamic range in either the frontend amplifiers or in the ADC, enabling the use of commodity operational
-amplifiers (opamps) and the built-in ADC of a commodity microcontroller. Further, the strong signal allows us to use a
-comparatively lossy \qty{-6}{\deci\bel} resistive tee instead of a directional coupler. A resistive tee does not provide
-directionality, but in our case, the incident pulse can never interfere with reflections at the sampling output of the
-divider because of causality.
+The mesh has low insertion loss. Thanks to the resulting large amplitude of the reflection signal, the noise floor of
+our frontend based on commodity operational amplifiers (opamps) is below the resolution limit of the built-in ADCs of
+our chosen microcontroller. The main source of frontend noise stems from timing jitter between the sampling gate and the
+ADC due to the clock generation of the ADC, which could be reduced through firmware changes. The strong signal allows us
+to use a comparatively lossy but simple \qty{-6}{\deci\bel} resistive tee instead of a directional coupler.
 
-To implement our sub-nanosecond sampler, we chose a simple four-diode bridge sampling gate made from commodity
+We implemented the sub-nanosecond sampler using a simple four-diode bridge sampling gate made from commodity
 \partno{BAT17-04W} RF Schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
-\price{0.13}{\euro} per device at quantity 1000. The four-diode configuration requires only two dual diode packages. In
-contrast to \textcite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, in our system, double
-sampling is not necessary - instead, we follow the sampling gate directly with an amplifier feeding into the internal
-ADC of our microcontroller. We use an internal timer peripheral of the same microcontroller to generate both stimulus
-and sample pulses such that we can easily phase-lock the internal ADC to the same timer.
+\price{0.13}{\euro} per device at quantity 1000. In contrast to prior
+work\cite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, we precisely control the timing of
+our ADC and avoid the need for a second sampling stage.
 
-We base our circuit around an \partno{STM32G474RB} microcontroller, a \price{5}{\euro}-class commodity ARM
-microcontroller. Besides adequate processing speed for its price class, this microcontroller offers two features that
-are critical to our design. First, its internal ADCs are both higher resolution and faster than those of older parts.
-Second, it is one of a few parts in its series that include a \emph{high-resolution timer} (\partno{HRTIM}) peripheral
-that provides several outputs that can be controlled with better than \qty{200}{\pico\second} resolution through
-per-output, self-calibrating delay line circuitry. We use this peripheral to produce both the stimulus pulse and the
-phase-adjustable sampling pulse.
+We base our circuit around an \partno{STM32G474RB} microcontroller, \price{5}{\euro}-class commodity ARM
+microcontroller. This is a recent part, which has internal ADCs that are both higher resolution and faster than those of
+older parts. Furthermore, it includes a \emph{high-resolution timer} (\partno{HRTIM}) peripheral that provides better
+than \qty{200}{\pico\second} timing resolution through self-calibrating delay lines. We use this peripheral to produce
+adjustable, phase-locked stimulus and sampling pulses.
 
-While the HRTIM peripheral allows us to finely adjust the phase of its output waveform, the digital output structures of
-the \partno{STM32G4} series are still limited to nanosecond-scale rise and fall times with the datasheet quoting
-$t_r=t_f=\qty{1.7}{\nano\second}$ into a \qty{10}{\pico\farad} load when using the fastest GPIO output drive strength
-setting and a \qty{3.3}{\volt} supply\cite{stmicroelectronicsSTM32G474xBDatasheet2021}. We work around this issue by
-applying two circuit tricks. First, we send its output through a fast amplifier to square up the edges to a rise time
-better than \qty{500}{\pico\second}. The remaining challenge is that while we now have pulses with crisp edges, due to
-constraints of the HRTIM peripheral, at more than \qty{10}{\nano\second}, these pulses are still too wide to be useful.
-We solve this issue by applying a clip line\cite{tektronixinc.TektronixS6Sampling1982} pulse forming network at the
-output of the amplifier--i.e.\ we connect the amplifier's output to the load in parallel with a short, terminated
-transmission line stub. The length of this stub determines the pulse width.
+While the HRTIM peripheral provides sub-nanosecond phase adjustment, the digital outputs of the \partno{STM32G4} series
+are limited to a minimum transition time of $t_r=t_f=\qty{1.7}{\nano\second}$\footnote{Datasheet specification, when
+driving a \qty{10}{\pico\farad} load\cite{stmicroelectronicsSTM32G474xBDatasheet2021}.}. We work around this issue with
+two circuit tricks. First, we send the output through a fast amplifier to square up the edges to a rise time better than
+\qty{500}{\pico\second}. We then reduce the \qty{10}{\nano\second} minimum pulse width supported by the \partno{HRTIM}
+peripheral by applying a clip line\cite{tektronixinc.TektronixS6Sampling1982} pulse forming network--i.e.\ we connect
+the amplifier's output to the load in parallel with a short, terminated transmission line stub. The length of this stub
+determines the pulse width.
 
 \subsection{Driver Selection}
 
-Several types of amplifiers can be used in our pulse shaping application. Common to all options, we require differential
-outputs. In practice, for most parts, this means we are looking for a part with Current Mode Logic (CML) outputs. CML is
-a differential signaling standard that is widely used in high-speed logic. In CML, a current source feeds a pair of
-transistors that steer current between the two outputs of the differential pair. By steering current between the two
-outputs, common-mode currents are minimized which both reduces the effect of power supply impedance at the transmitter
-and reduces electromagnetic emissions from the differential pair's PCB traces. In our experiments, we considered several
-parts and settled on four parts for evaluation in this paper: A \partno{74LVC2G157} standard logic IC, two display
-protocol redrivers, \partno{PI3HDX12211} and \partno{TDP0604}, as well as \partno{MAX3748}, a limiting amplifier for
-optical networking applications. We implemented four variants of our prototype using a steady hand under a microscope as
-shown in Figure\ \ref{fig_pic_amps}.
-
-One notable omission from our tests was the series of CML-output comparators made by Analog Devices due to the cost of
-these devices.
+We evaluated multiple options for the pulse shaping amplifier in our design. For both sampling and stimulus, we work
+with fully differential signals, so Current Mode Logic (CML) devices, which are widely used in high-speed logic, are a
+natural fit. We settled on four parts for evaluation in this paper: A \partno{74LVC2G157} standard logic IC, two
+HDMI/DisplayPort redrivers, \partno{PI3HDX12211} and \partno{TDP0604}, as well as \partno{MAX3748}, a limiting amplifier
+for optical networking. Figure\ \ref{fig_pic_amps} shows the four hand-soldered prototypes. We avoided specialty parts
+such as the CML-output comparators made by Analog Devices due to cost.
 
 \begin{figure}
     \centering
@@ -505,74 +496,41 @@ these devices.
         \includegraphics[width=0.9\textwidth]{pic_pi3hdx_small.jpg}
         \caption{PI3HDX12211}
     \end{subfigure}
-    \caption{Circuit-board implementation of the four pulse amplifier variants of the design. Amplifiers were mounted
-    dead bug style on a piece of copper tape connected to one of the supply rails and hooked up with
-    \qty{120}{\micro\meter} diameter wire according to their respective datasheets. Supply rails were hooked up using
-    copper tape where possible to reduce series impedance. Additional \qty{10}{\micro\farad} MLCC power supply
-    decoupling capacitors were placed close to the ICs on the copper tape to reduce loop area.}
+    \caption{Implementation of the pulse amplifier variants of the design. Amplifiers were mounted dead bug style on
+    copper tape and connected with \qty{120}{\micro\meter} wire. Supply rails were connected with copper tape where
+    possible to reduce impedance. MLCC power supply decoupling capacitors were placed on the copper tape to reduce loop
+    area.}
     \label{fig_pic_amps}
 \end{figure}
 
 \paragraph{Standard logic ICs.}
-As a baseline, we evaluated the \partno{74LVC2G157} standard logic IC. This IC contains a single multiplexer, however,
-we are not interested in the multiplexer functionality. The interesting trivia about this chip is that it also is one of
-the only \partno{74} series standard logic parts that have complimentary outputs. According to manufacturer
-specifications, at a comparable \qty{20}{\pico\farad} load, \partno{74LVC} series parts have slightly faster rise and
-fall times compared to our \partno{STM32} microcontroller's digital IO
-pins\cite{renesaselectronicscorporationApplicationNoteAN2242019}.
+As a baseline, we evaluated the \partno{74LVC2G157} CMOS multiplexer configured to provide complementary outputs.
+According to manufacturer specifications, this part provides slightly faster rise and fall times than
+oumicrocontroller\cite{renesaselectronicscorporationApplicationNoteAN2242019}.
 
 \paragraph{Optical Networking Chipsets.}
-A category of CML-output drivers suitable for our application is a class of optical networking chipset ICs. While
-today, the construction of optical transmitters has moved to direct bonding of optical components and driver ICs to
-minimize parasitics, discrete driver ICs for some chipsets from the mid-2000s era are still available at reasonable
-cost. Both the laser driver used to drive the transmitter laser diode, and the limiting amplifier used to amplify the
-receiver photodiode's output can be used in our application, with the limiting amplifier part requiring less additional
-circuitry in our application due to its lack of output bias control. In our evaluation below, we include the
-\partno{MAX3748} limiting amplifier as a representative part from this category that is still commercially available. A
-drawback of relying on a part like this is that its future availability is uncertain given the evolution of the
-industry.
+Optical transceivers use CML-output limiting amplifiers and laser drivers, some of which are still available as discrete
+components despite the industry moving from PCB implementations to direct bonding. We evaluated the \partno{MAX3748}
+limiting amplifier as a representative part from this category.
 
 \paragraph{Bus Redrivers.}
-The final category of amplifiers suitable for our pulse shaping needs is redrivers intended for high-speed data
-interfaces such as USB 3, PCI Express, HDMI, or DisplayPort. All of these interfaces use CML drivers, with differential
-voltage levels usually in the order of \qtyrange{600}{1000}{\milli\volt}. \emph{Redriver} ICs are intended to be used to
-amplify the sensitive high-speed bus signal at the edge of a PCBA, either before it leaves the board through a connector
-to ensure adequate signal levels at the connector, or after it enters through a connector to compensate for loss in the
-PCB traces between the connector and the signal's destination. For our application, redrivers intended for HDMI and
-DisplayPort applications are most suitable, as they can usually be configured to act as simple amplifiers without
-processing any protocol logic on the signals that are amplified. In contrast, both USB 3 and PCIe redrivers often
-implement power saving features that try to parse parts of the actual signal transmitted through them, which are hard to
-bypass in our application.
+Most modern, high-speed buses like USB 3, PCI Express, HDMI, and Display Port use CML drivers. \emph{Redriver} ICs
+intended to amplify such signals to compensate for loss in connectors or cables contain amplifiers that are suitable for
+our application. HDMI/DisplayPort redrivers are most suitable since they can be configured as simple amplifiers,
+turning off any signal-dependent power saving features.
 
-Redrivers can be classified according to their way of operation. \emph{Retimers} include a full
-serialization/deserialization (SerDes) setup and parse the low-level protocol of the bus to reconstruct bit-level
-timing. We focus only on simpler redrivers that only contain amplifiers and (analog) equalizers here.
-
-Amplifying redrivers can be separated into two classes: Limiting and linear redrivers. A limiting redriver is configured
-to have a high gain such that a small input signal will be amplified to the full output voltage swing. Limiting
-redrivers are well-suited for our application, but they have come out of fashion since they interfere with link training
-and with power saving features of protocols like USB 3.
-
-Linear redrivers are constructed with a low gain instead. Sufficient to compensate for wiring losses, their gain is low
-enough to leave them transparent to bus protocol features such as link training or power saving features. To compensate
-for their reduced gain, linear redrivers usually contain configurable equalizers that can be used to apply targeted
-enhancements for particular signal defects, such as boosting high-frequency gain or providing a set amount of overshoot.
-Where available, in  our prototype variants we set these equalization features to provide maximum gain.
-
-In our evaluation below, we include \partno{PI3HDX12211} as a linear redriver intended for DisplayPort and HDMI
-applications, as well as \partno{TPD0604} as a ``hybrid'' linear or limiting redriver for HDMI applications, configured
-for limiting mode in our experiments. An attractive feature of both of these chips as well as comparable devices is that
-they usually include at least four independent channels, so only one chip is needed for both pulse paths. Additionally,
-they are consumer mass market parts, resulting in a low price. For instance, \partno{PI3HDX12211} is available at
-\price{2.11}{\euro} in single quantity and less than \price{1.30}{\euro} at a quantity of several hundred at distributor
-LCSC, and \partno{TPD0604} is available at \price{4.72}{\euro} and \price{3.44}{\euro}, respectively, at distributor
-Mouser.
+In our evaluation below, we include \partno{PI3HDX12211} and \partno{TPD0604}, two inexpensive, consumer mass market
+redrivers\footnote{
+    \partno{PI3HDX12211} is available at \price{2.11}{\euro} in single quantity and less than \price{1.30}{\euro} at a
+    quantity of several hundred at distributor LCSC, and \partno{TPD0604} is available at \price{4.72}{\euro} and
+    \price{3.44}{\euro}, respectively, at distributor Mouser}.
+Both parts have four independent channels, so only one chip is needed for the two pulse paths.
 
 \subsection{Cost Breakdown}
 
-Table\ \ref{tab_bom} shows a breakdown of the cost of the main components of our prototype, resulting in a total
-component cost of less than \price{10}{\euro}. We did not include power supply components in this breakdown as our
-circuit is meant to be embedded into a payload circuit that will already have sufficient power supplies.
+Table\ \ref{tab_bom} shows a breakdown of the cost of the main components of our prototype, totalling less than
+\price{10}{\euro}. We did not include power supply components in this breakdown since our circuit is meant to be
+embedded into a payload circuit that will already have sufficient power supplies.
 
 Due to its \partno{HRTIM} peripheral, the \partno{STM32G4} microcontroller is the component of our design that is
 hardest to replace. However, this part can still be replaced with a wide range of FPGAs, which commonly include
@@ -595,10 +553,8 @@ of Xilinx 7 Series FPGAs provides the same $\frac{1}{32}$ clock cycle resolution
         &25&0.01&Various resistors\\\hline
         \multicolumn{2}{r}{}&\textbf{9.67}&\textbf{Total}
     \end{tabular}
-    \caption{A cost breakdown of the major components of our design. Listed prices are for 1000 pieces order quantity to
-    make prices more comparable between distributors. The number of switches necessary for signal routing and
-    termination depends on the specific mesh signal routing of the application. Numbers shown here are for our
-    prototype, which can measure a mesh from both ends and supports short, open and matched termination.}
+    \caption{Cost breakdown of our prototype design. Prices are listed at order quantity 1000 to make prices more
+    comparable between distributors.}
     \label{tab_bom}
 \end{table}
 
@@ -606,61 +562,34 @@ of Xilinx 7 Series FPGAs provides the same $\frac{1}{32}$ clock cycle resolution
 \label{sec_scan_schedule}
 
 The goal of a time domain reflectometer is to send a pulse into the Device Under Test (DUT)--i.e.\ in our application,
-the mesh--and to record all reflections returning from the DUT afterwards. In something like a security mesh whose
-traces might only be a few meters long in total, the time span between the pulse being sent and the last reflections
-from the very end of the mesh arriving is in the order of several tens of nanoseconds. Directly recording a response at
-this timescale would be infeasible using a commodity microcontroller, so we utilize an equivalent time sampling
-approach.
+the mesh--and to record all reflections returning from the DUT afterwards. In a security mesh with a few meters of total
+trace length, the time span between the pulse being sent and the last reflections arriving from the end of the mesh is
+in the order of tens of nanoseconds. Directly recording a response at this timescale would be infeasible in a commodity
+microcontroller, so we use equivalent time sampling.
 
 As shown in Figure\ \ref{fig_block_diagram}, our analog frontend contains amplifiers that produce the stimulus pulse, a
 sampling gate with amplifiers, and a coupler that couples the pulse into the mesh and couples the reflections back into
-the sampling gate. A microcontroller controls this frontend with two primary signals: A stimulus pulse, and a sampling
+the sampling gate. A microcontroller controls this frontend with two main signals: A stimulus pulse, and a sampling
 pulse. By adjusting the timing between these two pulses every time a stimulus pulse is sent, the microcontroller can
-select a particular point in time after the stimulus pulse to record using the sampling gate. By slowly sweeping across
-the whole time span, the microcontroller can reconstruct the waveform of the reflected signal at the sampling gate
-across one period of the stimulus pulse. The recording rate of this waveform is limited by the repetition rate of the
-stimulus pulse as well as the time step size.
+sample the response at any chosen point in time. By sweeping across the whole time span, the microcontroller can
+reconstruct the waveform of the reflected signal at the sampling gate.
 
-The attainable repetition rate of our stimulus and sampling circuits is limited by two main components. First, the
-sampling post-amplifier's bandwidth limits the maximum sample rate. In our design, we chose an \partno{OPA1656}
-\qty{50}{\mega\hertz} Gain-Bandwidth Product (GBP) FET input low noise operational amplifier. We need a FET input part
-to avoid loading the sampling gate. The comparatively high GBP and the low noise input stage of this device allow us to
-amplify small signals that could result from weak reflections in small impedance discontinuities inside the mesh.
+In our prototype, we sample the response once after each stimulus pulse. We conservatively decided on a sampling rate of
+\qty{1}{MSps} across both channels of the mesh's differential pair. This sampling rate leaves some headroom to the
+\qty{50}{\mega\hertz} Gain-Bandwidth Product (GBP) of the \partno{OPA1656} frontend opamp, as well as the \qty{4}{MSps}
+that the ADCs can reach. The processing speed of the microcontroller allows individual control of the timing of each
+sampling pulse.
 
-The second major factor limiting repetition rate is the microcontroller's ADC speed, as well as the speed of the
-software processing the ADC's output. At full \qty{12}{b} resolution, this corresponds to a sampling rate of
-approximately \qty{4}{MSps}. The microcontroller contains five ADCs, which can be interleaved to achieve higher rates.
-
-Combining these factors, we conservatively decided on a sampling rate of \qty{1}{MSps} across both channels of the
-differential pair. At this sampling rate, it is feasible to control the sample timing on a sample-by-sample basis. For
-all measurements in this paper, we use a sequential sampling approach where the microcontroller takes a series of
-measurements for oversampling at a particular delay, and then increases the delay by one \partno{HRTIM} output clock
-interval.
-
-In our prototype, one sweep of a \qty{188}{\nano\second} time span consisting of $1024$ data points took
-\qty{710}{\milli\second} at $256\times$ oversampling and \qty{1.1}{\second} at $384\times$ oversampling. The time span
-corresponds to \qty{28}{\meter} of mesh length, which at a \qty{200}{\micro\meter} pitch corresponds to a mesh area of
-\qty{113}{\centi\meter\squared} and at a \qty{1}{\milli\meter} pitch corresponds to
-\qty{565}{\centi\meter\squared}. Using the same microcontroller, by optimizing timing, moving oversampling processing
-out of the interrupt handler, and by interleaving four of the microcontroller's five ADC peripherals, the lower limit of
-acquisition time of a $1024$-point scan is \qty{33}{\milli\second} for $256\times$ oversampling and
-\qty{49}{\milli\second} for $384\times$ oversampling.
-
-While for our development, sequential scanning is adequate, in a future practical application, two simple optimizations
-would decrease the time to detection for an attack. First, in a practical application, the range of scanned delays
-should be adjusted to the length of the particular security mesh in use. For this paper, we always
-scanned a time range of $1024$ points at \qty{184}{\pico\second} spacing starting before one stimulus pulse and ending
-shortly before the next stimulus pulse so that any waveform artifacts will be visible. In a practical application, there
-would be little information gained by sampling much beyond the edges of the expected mesh response, so the scan window
-should be kept small to increase scan rate.
-
-Secondly, in a practical application, the feature that is most relevant to detect tamper attempts is the trailing edge
-of the mesh's response. This trailing edge corresponds to the return of the stimulus pulse's reflection at the far end
-of the mesh. Any attack that affects the impedance even only of part of the mesh has a high chance of affecting its
-delay, and thus this trailing edge is likely to move. In a practical application, it would thus be efficient to use a
-heuristic scan schedule instead of the sequential scan we are using in our research prototype. Such a heuristic schedule
-would sample delays near the expected trailing edge of the particular mesh in use more frequently compared to delays
-that lie somewhere else, such as in the middle of the mesh's return window.
+% major revision: Since we did all measurements for the majR with only 768 samples, we re-scaled the numbers in this
+% paragraph accordingly.
+% FIXME mention in majR letter.
+In our prototype, one sweep of a \qty{141}{\nano\second} time span consisting of $768$ data points took
+\qty{825}{\milli\second} at $384\times$ oversampling. The time span corresponds to \qty{21}{\meter} of mesh length,
+which at a \qty{200}{\micro\meter} pitch corresponds to a mesh area of \qty{85}{\centi\meter\squared} and at a
+\qty{1}{\milli\meter} pitch corresponds to \qty{426}{\centi\meter\squared}. By optimizing timing, moving oversampling
+processing out of the interrupt handler, and by interleaving four instead of two of the microcontroller's five ADC
+peripherals, the lower limit of acquisition time of a $768$-point scan is \qty{37}{\milli\second} for $384\times$
+oversampling.
 
 \section{Experimental Evaluation}
 
@@ -1109,13 +1038,8 @@ thinking about attacker capabilities. Applying their taxonomy, our monitoring sy
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
 
-% https://tex.stackexchange.com/questions/336201/vertical-highlight-of-a-paragraph
-\begin{tcolorbox}[breakable,
-    enhanced,
-    colback=yellow!10!white,
-    boxrule=0pt,frame hidden,
-    borderline west={1mm}{-2mm}{highlightgreen}]
-
+% FIXME peer review only, for major revision @ TCHES
+\color{highlightgreen}
 \begin{figure}[H]
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
@@ -1262,33 +1186,32 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
     \caption{}
     \label{}
 \end{figure}
-\end{tcolorbox}
 
+% FIXME peer review only, for major revision @ TCHES
+\color{black}
 \section{Future Work}
 
-\paragraph{Design variants.} The \partno{STM32G4}'s \partno{HRTIM} peripheral is limited by to the comparatively slow
-maximum system clock speed of \qty{168}{\mega\hertz} to a timing resolution of \qty{184}{\pico\second}. While we have
-demonstrated that this is sufficient to detect and localize several attack variants, it would be interesting to increase
-time resolution since in our measurements, we observed that the end-to-end jitter of our frontend is low enough that our
-circuit would benefit from finer delay control. In our prototype, we implemented a--so far unused--adjustable power
-supply for the \partno{74LVC} series buffer in between the \partno{HRTIM} outputs and the pulse amplifier. By adjusting
-this buffer's power supply through one of the microcontroller's digital-to-analog converter (DAC) channels, we expect
-that it should be possible to exploit the supply voltage dependency of the propagation delay of \partno{74LVC} series
-CMOS logic to create a digitally controllable delay with picosecond resolution. The internal DLL of the \partno{HRTIM}
-peripheral is likely implemented similarly.
+\paragraph{Design variants.} We found that the timing jitter of our sampling frontend is low enough to reach the
+\qty{184}{\pico\second} resolution limit of the \partno{STM32G4} \partno{HRTIM} peripheral.  In our prototype, we
+implemented a -- so far unused -- adjustable power supply for the \partno{74LVC} series buffer in between the
+\partno{HRTIM} outputs and the pulse amplifier. By adjusting this buffer's power supply through one of the
+microcontroller's digital-to-analog converter (DAC) channels, we expect that it should be possible to exploit the supply
+voltage dependency of the propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay
+with picosecond resolution.
 
-% FIXME reword for publication
-\paragraph{System design.} The work we presented in this paper is complementary to the work previously presented by
-\textcite{gotteCantTouchThis2022}, where the authors improved security of a simple security mesh made from standard PCBs
-through mechanical motion. We are currently working on a prototype combining both approaches and incorporating heuristic
-scan scheduling as mentioned in Section\ \ref{sec_scan_schedule}.
+\paragraph{Non-sequential sampling.} Not all parts of the reflected signal are equally sensitive to tampering atttempts.
+For instance, the reflection's trailing edge corresponds contains information on both the length of the mesh and on its
+attenuation. Instead of recording the response waveform in a linear scan, in a practical application, more relevant
+parts of the response such as this trailing edge could be scanned at a higher rate than other, less relevant parts.
+Similarly, fast scans at a coarse time resolution could be interleaved with slow scans at a finer time resolution to
+detect large changes more quickly.
 
-\paragraph{Auxiliary applications.} In this work, we have presented a design for a low-cost, embedded TDR frontend.
-Besides security mesh monitoring, through multiplexing this TDR frontend could be used for other system monitoring
-tasks from tamper sensing to system health monitoring. For instance, \textcite{vaiSecureArchitectureEmbedded2015}
-propose an approach for checking the integrity of a PCBA using an external Vector Network Analyzer (VNA) attached to
-test points on the PCBA's Power Distribution Network (PDN). TDR can produce fingerprints similar to a VNA and it would
-be interesting to measure parts of the secure subsystem other than its security mesh using our TDR frontend.
+\paragraph{Auxiliary applications.} The low-cost, embedded TDR frontend presented in this paper could be used for other
+monitoring tasks from tamper sensing to system health monitoring. For instance,
+\textcite{vaiSecureArchitectureEmbedded2015} propose checking the integrity of a PCBA using an external Vector Network
+Analyzer (VNA) attached to test points on the PCBA's Power Distribution Network (PDN). TDR can produce fingerprints
+similar to a VNA and it would be interesting to measure parts of the secure subsystem other than its security mesh using
+our TDR frontend.
 
 \section{Conclusion}
 
