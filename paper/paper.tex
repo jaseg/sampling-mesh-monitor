@@ -30,7 +30,7 @@
 \usepackage{float}
 
 \definecolor{highlightred}{rgb}{0.6 0.1 0.1}
-\definecolor{highlightgreen}{rgb}{0.12 0.5 0.07}
+\definecolor{highlightgreen}{rgb}{0.12 0.4 0.07}
 \DeclareSIUnit{\baud}{Bd}
 \DeclareSIUnit{\year}{a}
 \DeclareSIUnit{\rpm}{rpm}
@@ -593,35 +593,28 @@ oversampling.
 
 \section{Experimental Evaluation}
 
-To validate our design, we performed a two-fold evaluation. First, we measured the performance of our sampling circuit
-as a time-domain reflectometer. The most relevant figure to our mesh monitoring application is the pulse generators'
-rise time, which determines the frontend's bandwidth and consequently the level of detail that we are able to extract
-from a connected mesh during one scan. Since we aim at fingerprinting a connected mesh, not at performing absolute
-measurements, we do not need to characterize or de-embed the transfer function of our TDR frontend.
+We evaluated our design in two phases. In the first phase, we measured the electrical performance of our sampling
+circuit. The key figure in our application is the pulse generators' rise time, which determines the level of detail that
+we are able to extract. Since we aim at fingerprinting a connected mesh, not at performing absolute measurements, we do
+not need to characterize or de-embed the transfer function of our TDR frontend.
 
-Second, we characterized the end-to-end performance of our design on a mesh test specimen, and we evaluated its
-performance on several realistic tamper attempts. As a baseline characterization, in Section\ \ref{sec_attack_short} we
-will show measurements of both short and open mesh traces, allowing us to evaluate our designs' capacity to spatially
-localize faults. Building upon this baseline, in Section\ \ref{sec_attack_probe} we will then demonstrate a probing
-attack, in which we measured our design's response to a standard \qty{100}{\mega\hertz} bandwidth
-$\qty{10}{\mega\ohm}||\qty{10}{\pico\farad}$ oscilloscope probe. Compared to the baseline open/short test, this provides
-a greater challenge due to the probe's intentionally high impedance and minimal capacitive loading. Concluding our
-attack tests, in Section\ \ref{sec_attack_bridge} we demonstrate a bridging attack that attempts to repair a break
-created in the mesh through drilling.
+In the second phase, we evaluated the actual performance of our design on a set of 500 mesh test specimens of different
+layouts and structure sizes. We include detailed performance figures for a simple baseline classifier for attack
+detection.
+% FIXME more intro here
 
 \subsection{Rise Time Measurement}
 
-We measured two figures of merit to characterize frontend speed. First, as shown in Section\ \ref{sec_spec_risetime}
-below, we measured pulse rise time at the mesh interface to evaluate the raw rise time of our pulse generator. Second,
-we used our circuit to perform a TDR measurement of a mesh test specimen and measured the rise time of the sampling
-pulse as seen by the circuit itself. This figure indicates the actual measurement performance of our circuit. Both rise
-times differ because of the non-linear characteristic of the sampling Schottky pairs. Depending on the IC, our pulse
-generator produces output waveforms with \qtyrange{470}{3200}{\milli\volt} differential voltage swing. Since the
-sampling diode pairs start to conduct at a combined forward voltage of approximately \qty{300}{\milli\volt}, they will
-transition from high impedance to low impedance during a corresponding \qty{300}{\milli\volt} window at the middle of
-the strobe pulse's edge. Thus, even if the strobe pulse shows a low-pass response with rounding at both ends, as long as
-its slew rate $\frac{\mathrm{d}V}{\mathrm{d}t}$ during the zero crossing is fast enough, the pulse will still result in
-a sharp turn-on knee of the sampling diodes.
+The level of detail our frontend can extract from a mesh is limited by the rise time of the pulses it generates. We
+characterized this rise time both externally, using a wideband spectrum analyzer (Section~\ref{sec_spec_risetime}), and
+through self-characterization of the circuit (Section~\ref{sec_spec_risetime_selfchar}). Both measurements differ
+because of the non-linear characteristic of the sampling Schottky pairs. Depending on the IC, our pulse generator
+produces output waveforms with \qtyrange{470}{3200}{\milli\volt} differential voltage swing. Since the sampling diode
+pairs start to conduct at a combined forward voltage of approximately \qty{300}{\milli\volt}, they will transition from
+high impedance to low impedance during a corresponding \qty{300}{\milli\volt} window at the middle of the strobe pulse's
+edge. Thus, even if the strobe pulse shows a low-pass response with rounding at both ends, as long as its slew rate
+$\frac{\mathrm{d}V}{\mathrm{d}t}$ during the zero crossing is fast enough, the pulse will still result in a sharp
+turn-on knee of the sampling diodes.
 
 \subsubsection{Stimulus Pulse Rise Time at the Mesh}
 \label{sec_spec_risetime}
@@ -659,10 +652,10 @@ a sharp turn-on knee of the sampling diodes.
         \end{subfigure}
     \end{center}
     \vspace*{-5mm}
-    \caption{Spectrum measurements and re-constructed time domain pulse edge shape of the stimulus pulse measured at the
-    mesh interface for each of the four driver ICs. Amplitudes were normalized for rise time plots. The $\frac{1}{f}$
-    curve in the spectrum plots shows the peak amplitude of the frequency components of an ideal infinite-bandwidth
-    square wave. The horizontal gray lines in the time domain plots show thresholds used for rise time calculation.}
+    \caption{Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse measured at the
+    mesh interface for each of the four driver ICs. Vertical scale shows arbitrary units. Spectrum plots include a
+    $\frac{1}{f}$ curve indicating the frequency components of an ideal infinite-bandwidth square wave. Horizontal gray
+    lines in the time domain plots indicate thresholds used for rise time calculation.}
     \label{fig_spec_risetime}
 \end{figure}
 
@@ -671,21 +664,19 @@ using a Keysight N9020A MXA \qty{26.5}{\giga\hertz} signal analyzer\footnote{The
 exceeded the capabilities of the fastest oscilloscopes we had access to, so it was the more appropriate choice of
 measurement instrument.}. All measurements were taken with the prototype's mesh interface connected to the spectrum
 analyzer through a bias tee configured for DC blocking followed by a \qty{20}{\deci\bel} attenuator for protection.
-Since both stimulus and sampling pulses are generated using identical circuits, we can transfer those results to the
-sampling pulse modulo amplifier output loading effects.
 
-Figure\ \ref{fig_spec_risetime} and Table\ \ref{tab_edge_risetime} show the resulting measurements. For ease of
-interpretation, we projected the measurements from the frequency domain (upper traces) back into the time domain (lower
-traces), and extracted rise time measurements from those traces. Our measurements show that, as expected, the bare
-\partno{74LVC}-series logic gate has the slowest rise time at approximately \qty{500}{\pico\second}. All three amplifier
-variants we implemented showed significantly improved rise time, with the \partno{PI4HDX12211} achieving below
-\qty{200}{\pico\second}, and the other two showing around \qty{120}{\pico\second}. A noteworthy detail is that
-\partno{MAX3748} and \partno{TDP0604} only achieved a low output signal amplitude, which stems from a combination of
-them having low output amplitude by design and of our circuit loading their outputs heavily. Since their amplitude is
-only marginally within the knee region of the RF Schottky diodes used in the sampling bridges, in these variants,
-the sampling gates end up slower than the raw pulse rise time value alone would suggest.
+Figure\ \ref{fig_spec_risetime} and Table\ \ref{tab_edge_risetime} show the resulting measurements both in the frequency
+domain (upper traces), and projected back into the time domain (lower traces) along with measured rise times. As
+expected, the bare \partno{74LVC}-series logic gate has the slowest rise time at approximately \qty{500}{\pico\second}.
+All three amplifier variants we implemented showed significantly improved rise time, with the \partno{PI4HDX12211}
+achieving below \qty{200}{\pico\second}, and the other two showing around \qty{120}{\pico\second}. \partno{MAX3748} and
+\partno{TDP0604} only achieved a low output signal amplitude, which stems from a combination of them having low output
+amplitude by design and of our circuit loading their outputs heavily. Since their amplitude is only marginally within
+the knee region of the RF Schottky diodes used in the sampling bridges, in these variants, the sampling gates end up
+slower than the raw pulse rise time value alone would suggest.
 
 \subsubsection{Self-Characterization}
+\label{sec_spec_risetime_selfchar}
 
 \begin{figure}
     \begin{center}
@@ -737,43 +728,41 @@ the sampling gates end up slower than the raw pulse rise time value alone would 
     \label{tab_edge_risetime}
 \end{table}
 
-Figure\ \ref{fig_edge_risetime} shows the result of our self-characterization experiments, where we used the frontend to
-measure its own pulse shape. These results correspond to the actual rise time we can expect in practical measurements.
-In these experiments, we ran a measurement using $256\times$ oversampling at \qty{12}{b} ADC resolution. The plots show
-voltage at the amplifier output voltage against time in \unit{\nano\second}. The absolute value of the amplifier output
-voltage is not relevant here - only the rise time is. Since we use some of these amplifiers--particularly the redriver
-ICs--well outside of their intended application, the actual voltage they develop across the nonlinear load that our
-sampling gate's diode bridge presents depends on implementation details of the amplifier's CML output stage. To maximize
-ADC resolution and minimize ringing, we tuned gain and bandwidth of each post-sampling amplifier for each IC. Ringing in
-the amplifier output leads to jitter in the ADC's sampling period to directly feeding through to the ADC output value.
-Since in \partno{STM32} MCUs, the ADC is clocked independently of the rest of the system, its sampling timing is poorly
-controlled and this jitter causes a significant error unless the amplifier is well-compensated. The key figure for us is
-how fast our sampling gate turns on, not how hard, so we can largely ignore the units on the graph's vertical scale.
+While a fast edge is a necessary component for a fast sampling gate, the concrete speed of the sampling gate also
+depends on other factors such as the pulse's amplitude. Figure\ \ref{fig_edge_risetime} shows the result of our
+self-characterization experiments, where we used the frontend to measure its own pulse shape representing its concrete
+sampling performance. In these experiments, we used $256\times$ oversampling at \qty{12}{b} ADC resolution. The plots
+show the voltage at the ADC input against time in \unit{\nano\second}. The absolute voltage levels are not relevant here
+- only the rise time is. Since we use some of these amplifiers--particularly the redriver ICs--well outside of their
+intended application, the actual voltage they develop across the nonlinear load that our sampling gate's diode bridge
+presents depends on implementation details of the amplifier's CML output stage. To maximize ADC resolution and minimize
+ringing, we tuned gain and bandwidth of each post-sampling amplifier for each IC. Ringing in the amplifier output leads
+to jitter in the ADC's sampling period to directly feeding through to the ADC output value. Since in \partno{STM32}
+MCUs, the ADC is clocked independently of the rest of the system, its sampling timing is poorly
+controlled and this jitter causes a significant error unless the amplifier is well-compensated.
 
 Table\ \ref{tab_edge_risetime} shows rise times calculated from each trace, averaged across both traces of the
-differential pair. From these results and from the graphs in Figure\ \ref{fig_edge_risetime} we can see that in the
-optical networking limiting amplifier produces slower edges than the measurements from Figure\ \ref{fig_spec_risetime}
-would suggest. We suspect that this is caused by its low output amplitude resulting in part from its specifications and
-in part from a poor match between its CML output structure and the nonlinear impedance presented by the sampling diode
-bridges. Surprisingly, even the \partno{74LVC2G157} baseline unit has a rise time of less than \qty{1}{\nano\second}. We
-estimate that this is caused by the large output voltage swing of this part, going from ground to its $V_{CC}$ at
-\qty{3.3}{\volt}. Due to the construction of our sampling gate, its switching happens in the short period between its
-input differential voltage crossing zero and it rising above the combined forward voltage of the Schottky diodes. Thus,
-while the \partno{74LVC} might produce slow edges overall, its large output swing results in a high slew rate in the
-critical region around the zero crossing that mostly determines the speed of the sampling gates.
+differential pair. Our results show that the optical networking limiting amplifier produces slower edges than the
+measurements from Figure\ \ref{fig_spec_risetime} would suggest. We suspect that this is caused by its low output
+amplitude resulting in part from its specifications and in part from a poor match between its CML output structure and
+the nonlinear impedance presented by the sampling diode bridges. Surprisingly, even the \partno{74LVC2G157} baseline
+unit has a rise time of less than \qty{1}{\nano\second}. We estimate that this is caused by the large output voltage
+swing of this part, going from ground to its $V_{CC}$ at \qty{3.3}{\volt}. Due to the construction of our sampling gate,
+its switching happens in the short period between its input differential voltage crossing zero and it rising above the
+combined forward voltage of the Schottky diodes. Thus, while the \partno{74LVC} might produce slow edges overall, its
+large output swing results in a high slew rate in the critical region around the zero crossing.
 
 We observed the best result overall with the \partno{PI3HDX12211} redriver, resulting in a rise time of
 \qty{264}{\pico\second}. In this test specimen, we fed the pulse through the amplifier twice since we had two unused
-channels, and we used \qty{200}{\pico\second} clip lines on the amplifier's output for pulse shaping. We could only use
-the clip lines in this specimen as in all other specimens, the amplifiers' output did not contain sufficient harmonic
-content such that it was still able to turn on the sampling gate's diode bridge when used with the clip line.
+channels, and we used \qty{200}{\pico\second} clip lines on the amplifier's output for pulse shaping. We only used clip
+lines here and for \partno{TDP0604} since the other amplifiers' output did not contain sufficient harmonic content.
 
 \subsection{Mesh Specimen Characterization}
 
 \begin{table}
     \begin{center}
         \begin{tabular}{r|cccc}
-            \textbf{Specimen}
+            \textbf{Mesh}
             &1
             &2
             &3
@@ -822,56 +811,53 @@ content such that it was still able to turn on the sampling gate's diode bridge 
             \qty{26}{\nano\second}\\
         \end{tabular}
     \end{center}
-    \caption{Specifications of mesh test specimens used in the experiments in this paper. All four specimens were placed
-        on a single, four-layer, \qty{1.0}{\milli\meter} thickness PCB. The meshes were placed two per side on the outer
-        layers, and the inner layers were used as ground. Approximate signal delays were calculated using wave velocity
+    \caption{Specifications of mesh test specimens used in the experiments in this paper. Approximate signal delays were
+        calculated using wave velocity
         $v=\frac{c}{\sqrt{\epsilon_r}}\approx\frac{c}{2}$\cite{wheelerTransmissionLinePropertiesParallel1965} assuming
         $\epsilon_r\approx 4$\cite{mumbyDielectricPropertiesFR41989} for the test specimens' \partno{FR-4} substrate.}
     \label{tab_mesh_spec}
 \end{table}
 
-To measure the practical performance of our prototype, we created a set of security mesh test specimens. Four specimens
-each cover the same area using four different mesh pitches using two, looped mesh traces according to the design
-specifications listed in Table\ \ref{tab_mesh_spec}. The four specimens have a trace length ratio of approximately
-$1:2:3:4$. As a baseline validation of our prototype as well as the mesh design, we performed TDR measurements of each
-mesh specimen using each amplifier variant of our prototype. Figure\ \ref{fig_mesh_length} shows the results of these
-measurements. The graphs show the step response resulting from an edge entering the mesh, and its reflection arriving
-back at the start after traversing the mesh back and forth.
+To measure the practical performance of our prototype, we created a set of tamper sensing mesh test specimens. Each
+specimen contains four separate meshes with the same area. Table~\ref{tab_mesh_spec} shows the design specifications.
+Each specimen contains four separate meshes on the outer layers of a four-layer, \qty{1.0}{\milli\meter} thickness PCB,
+two equal-size meshes on each side. The inner layers were used as ground. Figure\ \ref{fig_mesh_length} shows the
+results of a baseline measurement of each mesh using each design variant. The step response resulting from an edge
+entering the mesh and its reflection arriving back at the start after traversing the mesh back and forth is clearly
+visible.
 
 We validated the results from Figure\ \ref{fig_mesh_length} by calculating speed of light in our mesh specimen's
 substrate based on them. The resulting measurements are shown in Table\ \ref{tab_speed_of_light}. All amplifier
-configurations yield comparable measurements of approximately \qty{1.6}{\meter\per\second}, which corresponds well with
-the expected signal propagation velocity in \partno{FR-4} PCB material of
+configurations yield comparable measurements of approximately \qty{1.6}{\meter\per\second}, which corresponds with the
+expected signal propagation velocity in \partno{FR-4} PCB material of
 \qty{1.5d8}{\meter\per\second}\cite{wheelerTransmissionLinePropertiesParallel1965,mumbyDielectricPropertiesFR41989}.
 
-An interesting aspect of the graphs in Figure\ \ref{fig_mesh_length} is that all except the \partno{74LVC} graph show a
-dispersion effect increasingly rounding out the trailing edge of the response with longer mesh lengths. We suspect this
-effect stems from higher-frequency components coupling into adjacent trace segments further up or down the mesh more
-easily, spreading high-frequency components of the response signal out throughout time and effectively creating a
-low-pass response. We suspect the poor visibility of this effect in the \partno{74LVC} measurements is a result of this
-variant's pulse amplifier output amplitude being very large, allowing reflected response components to forward-bias the
-sampling gate's diode bridges, resulting in amplitude clipping. 
+The graphs in Figure~\ref{fig_mesh_length} show a dispersion effect that increasingly rounds off the trailing edge of
+the response with longer mesh lengths. This effect stems from higher-frequency components coupling into adjacent trace
+segments further up or down the mesh, spreading high-frequency components of the response signal out throughout time.
+This effect is less visible in the \partno{74LVC} measurements, which we suspect is a result of this variant's large
+pulse amplitude, which enables reflected response components to forward-bias the sampling gate's diode bridges,
+resulting in amplitude clipping. 
 
 From this dispersion effect follows a key point for the design of practical security meshes: To increase the temporal
-resolution of TDR mesh monitoring, meshes should be broken up into relatively short segments that are multiplexed
-through signal switching. Where this is not desirable, the mesh can be treated as a microwave circuit design that can be
-optimized through the electronic CAD/electromagnetic simulation co-design approach used for such circuits.
+resolution of TDR mesh monitoring, meshes should be broken up into segments that are multiplexed through signal
+switching.
 
 \begin{figure}
     \begin{center}
         \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
         \vspace*{-10mm}
     \end{center}
-    \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four mesh test
-        specimens. The shown time range covers the primary reflection of the stimulus pulse's falling edge. The vertical
-        scale of all four graphs is in Volts at the ADC. For clarity, only one channel of the response is shown.}
+    \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four test
+        meshes. The shown time range covers the primary reflection of the stimulus pulse's falling edge. The vertical
+        scale of the graphs is in Volts at the ADC. For clarity, only one channel of the differential response is shown.}
     \label{fig_mesh_length}
 \end{figure}
 
 \begin{table}
     \begin{center}
         \begin{tabular}{r|cccc|c}
-            &\multicolumn{4}{c|}{Specimen}&\\
+            &\multicolumn{4}{c|}{Mesh}&\\
             Pulse amplifier IC&
             1&
             2&
@@ -914,94 +900,201 @@ optimized through the electronic CAD/electromagnetic simulation co-design approa
     \label{tab_speed_of_light}
 \end{table}
 
-\subsection{Tamper tests}
+\color{highlightgreen}
+\subsection{Classification performance}
+\label{sec-class-perf}
 
-After validating our prototype's electrical performance as well as our mesh specimen designs in the previous sections,
-we performed a series of experiments where we performed tampering attempts on a mesh specimen while monitoring it using
-our TDR prototype, capturing responses both before and after tampering. We performed two sets of experiments.
+To evaluate the practical performance of our system in a baseline scenario, we captured approximately 1250 measurement
+series under a variety of environmental and attack conditions. In each series, we captured 7 differential traces with
+$2\times768$ points per trace. One differential trace served as a calibration reference with the multiplexers configured
+to disconnect the mesh. The other six traces cover each of open circuit, short circuit, and matched load termination
+measuring the mesh once from each of both ends.
 
-\subsubsection{Short and Open Circuits}
-\label{sec_attack_short}
+We explored two variants of our baseline classifier, each consisting of three steps: First, traces are passed through a
+B-spline smoothing filter. This filter serves as a low-pass filter, evening out noise contributions. We only applied
+this filter where necessary. Second, we calculate a distance between each channel
+($\{\text{open},\text{short},\text{load}\}\times\{\text{forward},\text{reverse}\}\times\{\text{positive},\text{negative}\}$
+of the baseline trace and the corresponding channel of the experiment traces, resulting in a vector with 12 entries.
+Third, we apply a norm to this vector to reduce it to a single, scalar distance value.
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[width=\textwidth]{fig_manip_shape.pdf}
-    \end{center}
-    \caption{TDR responses captured using our design under three short- and one open-circuit scenario. The distance from
-    mesh start to Location 1, 2, and 3  is \qty{558}{\milli\meter}, \qty{125}{\milli\meter} and \qty{850}{\milli\meter},
-    respectively. The cut is approximately halfway through the mesh. Left and right plots show the positive and negative
-    trace of the differential pair, respectively. Black traces show baseline measurements in between attacks. The
-    baselines show vertical offsets due to temperature drift, which causes a small DC offset in our design. The vertical
-    scale is in Volts at the ADC.}
-    \label{fig_manip_shape}
-\end{figure}
+The two variants of our classifier differ in the distance function and the vector norm. The first variant uses the
+pearson ccorrelation coefficient as its distance function and mean as its vector norm. The second variant uses the
+maximum distance at any one trace point as its distance function, and selects the maximum component in its vector norm.
+The first variant is sensitive to changes in the overall shape of a trace, while the second variant is sensitive to
+localized changes to one or a few points of a trace.
 
-In our first experiment, we tested both short and open-circuit conditions. We tested a short circuit between the two
-mesh traces in three locations as well as a cut trace halfway through the mesh. Figure\ \ref{fig_pic_specimens} in
-Appendix\ \ref{appendix_photos} shows photos of our test specimens. Figure\ \ref{fig_manip_shape} shows the result of
-our experiment. The graphs show a clear response of our monitoring circuit to all four tampering scenarios. Short and
-open circuit conditions can clearly be distinguished from each other, and in all cases, the fault location can be
-determined with sub-nanosecond precision, corresponding to several centimeters in distance along the mesh.
+Figure~\ref{fig_layout_identity} shows the performance of the correlation classifier on intact meshes. For each
+performance measurement, we show the correlation matrix between a set of baseline measurements and a set of experiment
+measurements. High values indicate similarity, low values indicate differences. We show the baseline set top
+left, and the experiment set bottom right. Uniform color within the top left indicates high similarity between baseline
+measurements. Nonuniform color in the bottom right is expected, and indicates that mutliple experiment (attack)
+measurements are unlike each other. Classification performance is indicated by the top right and bottom left quadrants,
+which indicate misclassification probability. Misclassification is likely when the top left and top right quadrants look
+alike. Misclassification is unlikely the more they differ.
 
-\subsubsection{Probing by Oscilloscope Probe}
-\label{sec_attack_probe}
+Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left) to four variants that have
+the same pitch and area, but different layout of the traces (bottom right). Here and in all following graphs we list the
+false negative / missed alarm rate of the classifier when calibrated to a $0.1\%$ false positive / false alarm rate
+calculated assuming normally distributed samples as well as the crossover error rate calculated from the empirical
+cumulative distribution function. In this instance, our classifier can clearly distinguish mesh layouts in most cases.
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[width=\textwidth]{fig_probe_shape.pdf}
-        \vspace*{-7mm}
-    \end{center}
-    \caption{The circuit's TDR response under a probing attack using an oscilloscope probe. Black traces are a series of
-    un-probed baseline measurements taken between attacks. All traces are plotted relative to a separate baseline trace
-    taken at the beginning of the experiment. The top and bottom plots show the two halves of the differential pair.}
-    \label{fig_probe_shape}
-\end{figure}
-
-In our second experiment, we probed each of the three locations from the test specimen shown in Figure\
-\ref{fig_pic_specimens} in the Appendix once at each trace of the trace pair using a Rigol \partno{PVP3150} $\times
-1/\times 10$ oscilloscope probe set to $\times 10$ mode. We grounded the probe's ground clip to the mesh ground and used
-the probe without tip attachment.
-
-Using the \partno{PI3HDX12211} variant of our prototype, we measured the mesh's TDR response while probing. Figure\
-\ref{fig_manip_shape} shows the resulting TDR traces. Oscilloscope probes are specifically designed to disturb the
-circuit under test as little as possible, with this one being specified as presenting as a \qty{10}{\mega\ohm} resistive
-load in parallel with a \qty{10}{\pico\farad} capacitance when used in $\times 10$ mode as we did here. Since the
-resulting disturbance to the TDR traces is smaller than those in Figure\ \ref{fig_manip_shape}, we post-processed the
-traces by subtracting a baseline trace taken before the measurements. To highlight drift in the baseline trace, we
-include additional baseline traces taken in between and after measurements using the same post-processing.
-
-In each trace, the mesh was probed in one of three locations as in Figure\ \ref{fig_manip_shape}, and on one of the two
-mesh traces. The time range shown in the graph covers the primary reflection of the stimulus pulse's rising edge. We can
-clearly see a distinct response to each of the three probing attempts with the only caveat being that the response of
-the two mesh traces is asymmetrical due to asymmetry in our sampling frontend when measuring such low signal levels.
-Interestingly, this asymmetry is fully compensated by the fact that we excite the mesh differentially, and as a result
-probing either trace distorts their shared electromagnetic field, and impacts measurements on \emph{both} traces.
-Particularly on the first trace, we can distinguish which trace was probed, as well as where it was probed, in a single
-measurement.
-
-\subsubsection{Circumvention Through Micro-Soldering}
-\label{sec_attack_bridge}
+The variance between samples of the baseline group in Figure~\ref{fig_layout_identity_layout} alerted us to the
+possibility that while all mesh samples of the same layout were supposed to be identical copies, our measurement circuit
+might be sensitive enough to pick up on manufacturing variations from one copy to another in a PUF-like manner. To
+evaluate this scenario, in Figure~\ref{fig_layout_identity_identity} we show the result of repeated measurements of
+three copies of the same mesh. The measurements were taken interleavedi (i.e. $1, 2, 3, 1, 2, \hdots$) to exclude
+systematic errors from affecting the conclusion. As we can see, our system indeed exhibits a PUF-like response and can
+distinguish multiple copies of the same mesh with precision. We leave a detailed analysis of this effect to future work.
+For the scope of this paper, the presense of this effect indicates good performance of our design, and increases the
+detection efficiency of our approach. 
 
 \begin{figure}
     \centering
-    \begin{subfigure}{0.78\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig_drill_mod_shape.pdf}
-        \label{fig_drill_mod_shape_plot}
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
+        \caption{Different mesh layouts, False negative rate 18\% at 0.1\% false positive rate, CER=0\%}
+        \label{fig_layout_identity_layout}
     \end{subfigure}
-    \begin{subfigure}{0.2\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{pic_manip_microsoldering_small.jpg}
-        \vspace*{2mm}
-        \label{fig_drill_mod_shape_pic}
+    \hspace*{5mm}
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
+        \caption{Three identical copies, False negative rate 1.7\% at 0.1\% false positive rate, CER=0\%}
+        \label{fig_layout_identity_identity}
     \end{subfigure}
-    \caption{The circuit's TDR response under a manipulation attack bridging part of a trace to allow a
-        \qty{300}{\micro\meter} drill to penetrate. The mesh pitch is \qty{240}{\micro\meter}. Red traces show
-        measurements with a looped wire patch comparable to \textcite{immlerSecurePhysicalEnclosures2018}, black traces
-        show the same gap bridged with a minimally short straight piece of wire. The left and right plots show the two
-        halves of the differential pair. The photo shows the looped wire patch with a \qty{1}{\milli\meter} pitch ruler
-        for reference. Traces are normalized as in Figure\ \ref{fig_probe_shape}.}
-    \label{fig_drill_mod_shape}
+    \hfill
+    \caption{Measurements of intact meshes, correlation classifier.}
+    \label{fig_layout_identity}
+\end{figure}
+
+\subsubsection{Basic attacks}
+
+\begin{figure}
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_open_p0.3.pdf}
+        \caption{Open, p=\qty{0.3}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.3.pdf}
+        \caption{Short, p=\qty{0.3}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_open_p0.4.pdf}
+        \caption{Open, p=\qty{0.4}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
+        \caption{Short, p=\qty{0.4}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+    \end{subfigure}
+    \caption{Covariance matrix of intact (top left) and modified meshes (bottom right). Shown are two pitches. Ten
+        specimens each with either one trace interrupted, or both traces shorted in a random location.}
+    \label{fig_covar_basic_attacks}
+\end{figure}
+
+Figure~\ref{fig_covar_basic_attacks} shows the performance of our classifier under the two basic attack scenarios of an
+interrupted trace, and a short between the mesh's differential traces. Such attacks lead to large changes in the
+location of the reflected pulse edge, which our classifier picks up with perfect accuracy across our test set.
+
+\subsubsection{Hairpin shortening}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_short_within_0.3.pdf}
+        \caption{Correlation classifier, False negative rate 18\% at 0.1\% false positive rate, CER=17\%}
+        \label{fig_short_within_corr}
+    \end{subfigure}
+    \hspace*{5mm}
+    \begin{subfigure}[t]{0.28\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_short_within_0.3_min_max.pdf}
+        \caption{Min/Max classifier, False negative rate 23\% at 0.1\% false positive rate, CER=23\%}
+        \label{fig_short_within_minmax}
+    \end{subfigure}
+    \hfill
+    \caption{Classification results of several mesh specimens that have one trace shorted to an adjacent location on the
+    same trace.}
+    \label{fig_short_within}
+\end{figure}
+
+When one trace is not shorted to the other mesh trace, but instead shorted to another location within the same trace,
+the resulting distortion in response shape is harder to detect. The reason for this is that such modifications introduce
+a skew in the delay of the differential pair. Depending on the length of the shorted-out section, this skew may be as
+little as a few picoseconds, which is hard to detect given our system's measurement resolution.
+
+Figure~\ref{fig_short_within} shows the performance of our classifier under this scenario. As we can see in the
+structure of the correlation plots, for some samples which have longer sections of mesh trace shorted out, this attack
+is easy to distinguish, but for others, where only a short section of trace is shorted out, it is harder to distinguish.
+
+\subsubsection{Advanced attacks}
+
+\begin{figure}
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
+        \caption{Oscilloscope probe. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \label{fig_covar_adv_probe}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
+        \caption{Soldering iron. Missed alarm rage 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \label{fig_covar_adv_soldering}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
+        \caption{30mm wire soldered. Missed alarm rage 9.6\% at 0.1\% false alarm rate, CER=1\%.}
+        \label{fig_covar_adv_antenna}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_probe_points_p0.3.pdf}
+        \caption{Baseline vs. specimens with soldermask removed for previous plots.}
+        \label{fig_covar_adv_baseline}
+    \end{subfigure}
+    \caption{}
+    \label{fig_covar_adv_attack}
+    %too much: fig_covar_soldering_p0.3_minmax.pdf
+    %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
+\end{figure}
+
+Figure~\ref{fig_covar_adv_attack} shows our classifier's performance under a set of more advanced attacks: An
+oscilloscsope probe touching one mesh trace (Figure~\ref{fig_covar_adv_probe}, Rigol PVP3150 probe), a soldering iron
+touching one mesh trace (Figure~\ref{fig_covar_adv_soldering}), and a mesh where one trace has a
+$l=\qty{30}{\milli\meter},d=\qty{120}{\micro\meter}$ copper wire soldered to one trace
+(Figure~\ref{fig_covar_adv_probe}). The probing attack is interesting since oscilloscope probes are specifically
+designed to disturb the probed circuit as little as possible. The wire attack simulates an attacker attaching a wire in
+an attempt to patch a trace in preparation for an attack. Our classifier is able to clearly distinguish each attack.
+Figure~\ref{fig_covar_adv_baseline} compares baseline specimens against the three specimens that had soldermask removed
+for these attacks while no attack is being conducted. This result shows that this preparation has no effect on the
+measurement.
+
+\subsubsection{Patching attacks}
+\label{sec_attack_probe}
+
+\begin{figure}
+    \begin{subfigure}[t]{0.27\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_patch_interleave_baseline.pdf}
+        \caption{Test boards before experiment}
+        \label{fig_covar_patch_attack_baseline}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.27\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_patch_ref_exp_interleave_direct.pdf}
+        \caption{Experiment specimen compared to reference before and after}
+        \label{fig_covar_patch_attack_direct}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{fig_patch_interleave_scatter.pdf}
+        \caption{Trajectory of experiment and control speciments}
+        \label{fig_covar_patch_attack_scatter}
+    \end{subfigure}
+    \hfill
+    \caption{Classifier performance under a patching attack that bridges a short gap within a mesh trace using wire.
+        B-spline smoothing was applied during classification.}
+    \label{fig_covar_patch_attack}
 \end{figure}
 
 While our proposed measurement setup significantly increases the level of effort required from an attacker, as long as
@@ -1010,18 +1103,158 @@ for PCB repair. If we assume a standard PCB process with \qty{100}{\micro\meter}
 attack targeting a \qty{300}{\micro\meter} hole size as proposed by \textcite{immlerSecurePhysicalEnclosures2018} will
 break at least one trace. Patching the resulting break using a wire is possible, but with increasing wire length, the
 TDR response of the mesh is increasingly distorted. We experimentally performed an attack comparable to the one shown by
-\textcite{immlerSecurePhysicalEnclosures2018} on a \qty{240}{\micro\meter} pitch mesh specimen. Figure\
-\ref{fig_drill_mod_shape} shows our modification and the resulting change in TDR response. As we can see, adding even
-just a few millimeters of wire will measurably and consistently distort the TDR response.
+\textcite{immlerSecurePhysicalEnclosures2018} on a \qty{300}{\micro\meter} pitch mesh specimen. In this attack, we
+removed a small part of one mesh trace and bridged it with a wire. Figure\ \ref{fig_drill_mod_shape} shows our
+modification and the resulting change in the time-domain response.
+
+Figure~\ref{fig_covar_patch_attack} shows the classification result of this attack. Because the patch is small,
+this type of attack leaves only subtle traces in the measurement data. To extract this effect, we performed two
+experiments in a row. First, we interleaved measurements of two reference specimens, a control specimen, and the
+unmodified experiment specimen to establish a baseline. Then, we modified the experiment specimen and repeated the
+experiment. Temperature drift and other possible external factors affecting the measurement can be excluded by comparing
+both control and experiment measurements against the two references before and after the modification.
+Figure~\ref{fig_covar_patch_attack_baseline} shows the four samples before the attack, exhibiting the same subtle
+PUF-like effect that we described in Section~\ref{sec-class-perf}. Since we peform both before and after measurements on
+the same sample, we can separate this effect from the effect of the attack. Figure~\ref{fig_covar_patch_attack_direct}
+compares both control and experiment samples before and after the attack, and shows a clear change in the experiment
+sample during the attack. Figure~\ref{fig_covar_patch_attack_scatter} plots the similarity of both samples to each of
+the two reference samples. We can see that the control distribution stays in one place, while the experiment
+distribution shifts.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig_drill_mod_shape_new.pdf}
+        \label{fig_drill_mod_shape_plot}
+    \end{subfigure}
+    \begin{subfigure}{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{pic_manip_microsoldering_new_small.jpg}
+        \vspace*{2mm}
+        \label{fig_drill_mod_shape_pic}
+    \end{subfigure}
+    \caption{The mesh response under a manipulation attack patching across a drill location for a 
+        \qty{300}{\micro\meter} drill. The mesh pitch is \qty{300}{\micro\meter}. Traces were smoothed for readability.}
+    \label{fig_drill_mod_shape}
+\end{figure}
+
+Based on the above results, we peformed a larger-scale experiment using seven samples with patches applied compared
+against baseline measurements taken before and after measuring the experiment samples. Each sample was measured ten
+times in an interleaved order. Figure~\ref{fig_patch_large_scale} shows the results of this experiment. As we can see,
+the min/max classifier is better at distinguishing the subtle, localized effects of such patches. Using the min/max
+classifier, half of attack attempts are detected in a single measurement when fixing the false alarm rate at 0.1\%.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_p0.3.pdf}
+        \caption{Correlation classifier. Missed alarm rate 71.5\% at 0.1\% false alarm rate, CER=34\%.}
+        \label{fig_patch_large_scale_corr}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_p0.3_minmax.pdf}
+        \caption{Min/max classifier. Missed alarm rate 51.1\% at 0.1\% false alarm rate, CER=15\%.}
+        \label{fig_patch_large_scale_minmax}
+    \end{subfigure}
+    \caption{Classification performance in a larger-scale experiment using 10 measurements each of 7 samples with
+        traces patched through micro-soldering. B-spline smoothing was applied before classification.}
+    \label{fig_patch_large_scale}
+\end{figure}
+
+\subsubsection{Environmental susceptibility}
+
+The measurement sensitivity of our design raises the question of how environmental factors such as handling, or
+electromagnetic interference affect the measurements. Figure~\ref{fig_env_effects} shows the result in several
+scenarios. As shown in Figure~\ref{fig_env_effects_time}, time alone does not contribute significantly to the
+measurement results. As indicated by Figure~\ref{fig_env_effects_touch}, touching parts of the device other than the
+mesh during normal handling also does not disturb measurements. However, when the mesh is directly touched, this can
+easily be detected. In a practical application, this is of little concern since any PCB tamper sensing mesh would lie on
+the inside of the device. Since the meshes we use have a continous ground plane, a simple solution to touch sensitivity
+is to put the ground plane on the outside of the device, shielding the mesh from touching.
+
+A significant effect on the measurements can be seen when the mesh is heated, as shown by the results in
+Figure~\ref{fig_env_effects_heat}. Figure\ \ref{fig_tempco_time} shows the relative difference between the time-domain
+response of a mesh at room temperature and a mesh heated to \qty{70}{\degree C}. This temperature dependence has two
+main factors. First, the resistance of the mesh's copper traces has a positive temperature coefficient, meaning that its
+resistance increases with temperature. Across the \qty{50}{\degree C} temperature difference shown here, this
+corresponds to a change in resistance of approximately 20\%. Besides the resistance of copper, the dielectric constant
+and dissipation factor of the FR-4 dielectric of the mesh PCB also have a significant temperature
+coefficient\cite{sagarStudiesTemperatureDependent2024,hinagaThermalEffectsPCB2010}. An increase in copper resistance can
+be seen in the overall shift of the response curve due to resistive attenuation. An increase in the dielectric
+dissipation factor can be seen in the slope of the difference, since pulse energy is dissipated more the longer the
+pulse travels through the material. Finally, a change in dielectric constant moves the response's trailing edge in time,
+with the pulse propagating slightly slower at high temperature.
+
+Since these effects are consistent with physical predictions and only reach problematic levels at large temperature
+differences, it would be possible to design a classifier that is insensitive to temperature effects. Furthermore, given
+the predictable, physical nature of these effects, they could also be compensated before classification in the digital
+domain based on a temperature measurement and a set of per-mesh calibration data.
+
+\begin{figure}
+    \begin{subfigure}[t]{0.25\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_time_drift.pdf}
+        \caption{Time drift (2.5h). False negative rate 100\% at 0.1\% false positive rate, CER=60\%.}
+        \label{fig_env_effects_time}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
+        \caption{Touch sensitivity. False negative rate 0.0\% at 0.1\% false positive rate, CER=0\%.}
+        \label{fig_env_effects_touch}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.25\textwidth}
+        \includegraphics[width=\textwidth]{fig_covar_hot_mesh.pdf}
+        \caption{Mesh heated (\qty{70}{\degree C}). False negative rate 0.6\% at 0.1\% false positive rate, CER=0\%.}
+        \label{fig_env_effects_heat}
+    \end{subfigure}
+    \caption{Classification results of the same mesh under various environmental factors.}
+    \label{fig_env_effects}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
+    \caption{The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
+    difference between hot and cool cases.}
+    \label{fig_tempco_time}
+\end{figure}
+
+Besides temperature, other environmental factors such as electromagnetic interference could theoretically also influence
+our measurements. Although our system's equivalent-time sampling setup inherently cancels out EMI since it is not
+synchronous to the sampling clock, the setup is unshielded so we verified its actual susceptibility in several
+scenarios. Figure~\ref{fig_env_covar} shows the result of these measurement series. For comparison, we included several
+measurements from Figure~\ref{fig_patch_large_scale}. From these figures, we can see that there are some environmental
+effects, but these effects are small even when compared against a subtle attack like a patching attack.
+
+\begin{figure}
+    \begin{subfigure}{0.3\textwidth}
+        % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
+        \caption{Covariance Metric, Missed alarm rate 69.0\% at 0.1\% false alarm rate, CER=20\%.}
+    \end{subfigure}
+    \hspace*{2mm}
+    \begin{subfigure}{0.3\textwidth}
+        % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
+        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridalta_all_the_data_p0.3_minmax.pdf}
+        \caption{Min/Max Metric, Missed alarm rate 63.5\% at 0.1\% false alarm rate, CER=17\%.}
+    \end{subfigure}
+    \caption{Covariance matrices comparing all environmental runs. For scale, measurements from
+        Figure~\ref{fig_patch_large_scale} are included on the bottom/right. B-spline smoothing was applied.}
+    \label{fig_env_covar}
+\end{figure}
 
 \subsection{Countermeasures}
 
-As shown above, PCB security meshes can be manipulated using industry-standard micro-soldering techniques. Keeping the
-length of any patch wires as short as possible, it is conceivable that the impact on TDR response could be kept below
-detection thresholds. Our setup provides increased resistance against such attacks since the entire attack would have to
-be carried out without electrically contacting either mesh trace. In particular, soldering would have to be done using a
-minimal amount of solder as well as a bespoke, insulated soldering iron tip. While manufacturing such a tool out of a
-material like sintered ceramic is conceivable, to our knowledge, no such tool exists on the market.
+As shown above, PCB security meshes can be manipulated through micro-soldering. Keeping the modifications as physically
+small as possible, their impact on TDR response can potentially be kept below detection thresholds of our single-shot
+baseline classifier. However, even with such a simple classifier, the entire attack would have to be carried out without
+raising an alarm, e.g. by touching the mesh or contacting a trace with the soldering iron. Soldering would have to be
+done using a minimal amount of solder as well as a bespoke, insulated soldering iron tip. While manufacturing such a
+tool out of a material like sintered ceramic is conceivable, to our knowledge, no such tool exists on the market.
 
 Furthermore, the actual drilling would have to happen with a dielectric drill bit, placing special attention on
 evacuating conductive copper chips before they can create shorts to nearby traces. Again, it is conceivable that such a
@@ -1029,183 +1262,42 @@ tool could be manufactured, but to our knowledge, such a tool is not currently a
 market.
 
 Finally, any probes penetrating the mesh would have to be placed such that their presence in the vicinity of the mesh
-traces does not disturb the TDR response. In particular, we have observed that even touching the mesh will distort the
-response, so modifications would have to be carried out with great care, likely using micromanipulators or similar
-specialized equipment.
+traces does not disturb the TDR response. Modifications would have to be carried out with great care, likely using
+micromanipulators or similar specialized equipment.
 
 The PCI PTS HSM DTR standard\cite{pcisecuritystandardscouncilPaymentCardIndustry2021a} contains a useful framework for
 thinking about attacker capabilities. Applying their taxonomy, our monitoring system raises the skill level required for
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
 
-% FIXME peer review only, for major revision @ TCHES
-\color{highlightgreen}
-\begin{figure}[H]
-    \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
-        \label{fig_covar_patch_repeat_tridalta_all_the_data_covar}
-        \caption{Covariance Metric, Missed alarm rate 35.5\% at 0.1\% false alarm rate, CER=14.6\%.}
-    \end{subfigure}
-    \hspace*{2mm}
-    \begin{subfigure}{0.5\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridalta_all_the_data_p0.3_minmax.pdf}
-        \label{fig_covar_patch_repeat_tridalta_all_the_data_minmax}
-        \caption{Min/Max Metric, Missed alarm rate 91\% at 0.1\% false alarm rate, CER=22.6\%.}
-    \end{subfigure}
-    \caption{Covariance matrices comparing all environmental runs as well as experiment baselines and seven runs of
-        meshes that have a broken trace patched by a soldered wire.}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
-        \label{}
-        \caption{Oscilloscope probe}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
-        \label{}
-        \caption{Soldering iron}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
-        \label{}
-        \caption{30mm wire soldered}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_probe_points_p0.3.pdf}
-        \label{}
-        \caption{Baseline vs. specimens with soldermask removed for previous plots}
-    \end{subfigure}
-    \caption{}
-    %too much: fig_covar_soldering_p0.3_minmax.pdf
-    %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
-\end{figure}
-
-\begin{figure}[H]
-    \begin{subfigure}[t]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_time_drift.pdf}
-        \label{}
-        \caption{Time drift (2.5h)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
-        \label{}
-        \caption{Touch sensitivity}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_hot_mesh.pdf}
-        \label{}
-        \caption{Mesh heated (\qty{70}{\degree C})}
-    \end{subfigure}
-    \caption{}
-    \label{}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
-    \caption{The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
-    difference between hot and cool cases.}
-    \label{fig_pic_board}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{subfigure}[t]{0.27\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_patch_interleave_baseline.pdf}
-        \label{Test boards before experiment}
-        \caption{}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.27\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_patch_ref_exp_interleave_direct.pdf}
-        \label{}
-        \caption{Experiment specimen compared to reference before and after}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.4\textwidth}
-        \includegraphics[width=\textwidth]{fig_patch_interleave_scatter.pdf}
-        \label{}
-        \caption{Trajectory of experiment and control speciments}
-    \end{subfigure}
-    \hfill
-    \caption{}
-    \label{}
-\end{figure}
 % fig_covar_short_within_0.3.pdf % FIXME repeat these runs, we have conflicting data. Do runs in both .3 and .4, .4
 % seems to work better.
 
-\begin{figure}[H]
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_open_p0.3.pdf}
-        \label{}
-        \caption{Open, p=\qty{0.3}{\milli\meter}}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.3.pdf}
-        \label{}
-        \caption{Short, p=\qty{0.3}{\milli\meter}}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_open_p0.4.pdf}
-        \label{}
-        \caption{Open, p=\qty{0.4}{\milli\meter}}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
-        \label{}
-        \caption{Short, p=\qty{0.4}{\milli\meter}}
-    \end{subfigure}
-    \caption{Covariance matrix of intact (top left) and modified meshes (bottom right). Shown are two pitches. Ten
-    specimens each with either one trace interrupted, or both traces shorted in a random location.}
-    \label{}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.28\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
-        \label{}
-        \caption{Different mesh layouts, False negative rate 18\% at 0.1\% false positive rate, CER=0\%}
-    \end{subfigure}
-    \hspace*{5mm}
-    \begin{subfigure}[t]{0.28\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
-        \label{}
-        \caption{Three identical copies, False negative rate 1.7\% at 0.1\% false positive rate, CER=0\%}
-    \end{subfigure}
-    \hfill
-    \caption{}
-    \label{}
-\end{figure}
-
 % FIXME peer review only, for major revision @ TCHES
-\color{black}
+\color{highlightred}
 \section{Future Work}
 
-\paragraph{Design variants.} We found that the timing jitter of our sampling frontend is low enough to reach the
-\qty{184}{\pico\second} resolution limit of the \partno{STM32G4} \partno{HRTIM} peripheral.  In our prototype, we
-implemented a -- so far unused -- adjustable power supply for the \partno{74LVC} series buffer in between the
-\partno{HRTIM} outputs and the pulse amplifier. By adjusting this buffer's power supply through one of the
-microcontroller's digital-to-analog converter (DAC) channels, we expect that it should be possible to exploit the supply
-voltage dependency of the propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay
-with picosecond resolution.
+%\paragraph{Design variants.} We found that the timing jitter of our sampling frontend is low enough to reach the
+%\qty{184}{\pico\second} resolution limit of the \partno{STM32G4} \partno{HRTIM} peripheral.  In our prototype, we
+%implemented a -- so far unused -- adjustable power supply for the \partno{74LVC} series buffer in between the
+%\partno{HRTIM} outputs and the pulse amplifier. By adjusting this buffer's power supply through one of the
+%microcontroller's digital-to-analog converter (DAC) channels, we expect that it should be possible to exploit the supply
+%voltage dependency of the propagation delay of \partno{74LVC} series CMOS logic to create a digitally controllable delay
+%with picosecond resolution.
 
-\paragraph{Non-sequential sampling.} Not all parts of the reflected signal are equally sensitive to tampering atttempts.
-For instance, the reflection's trailing edge corresponds contains information on both the length of the mesh and on its
-attenuation. Instead of recording the response waveform in a linear scan, in a practical application, more relevant
-parts of the response such as this trailing edge could be scanned at a higher rate than other, less relevant parts.
-Similarly, fast scans at a coarse time resolution could be interleaved with slow scans at a finer time resolution to
-detect large changes more quickly.
+%\paragraph{Non-sequential sampling.} Not all parts of the reflected signal are equally sensitive to tampering atttempts.
+%For instance, the reflection's trailing edge corresponds contains information on both the length of the mesh and on its
+%attenuation. Instead of recording the response waveform in a linear scan, in a practical application, more relevant
+%parts of the response such as this trailing edge could be scanned at a higher rate than other, less relevant parts.
+%Similarly, fast scans at a coarse time resolution could be interleaved with slow scans at a finer time resolution to
+%detect large changes more quickly.
+\color{highlightgreen}
+\paragraph{Advanced attack classification.} While we proposed a simple baseline classifier, there is a large parameter
+space for more advanced designs. For instance, a classifier could apply machine learning techniques to adapt to the
+response of a particular mesh, learn its benigh behavior under temperature changes, and dynamically schedule sample
+timing to focus attention on the parts of the response signal that are most susceptible to attacks.
 
+\color{highlightred}
 \paragraph{Auxiliary applications.} The low-cost, embedded TDR frontend presented in this paper could be used for other
 monitoring tasks from tamper sensing to system health monitoring. For instance,
 \textcite{vaiSecureArchitectureEmbedded2015} propose checking the integrity of a PCBA using an external Vector Network
@@ -1213,6 +1305,14 @@ Analyzer (VNA) attached to test points on the PCBA's Power Distribution Network 
 similar to a VNA and it would be interesting to measure parts of the secure subsystem other than its security mesh using
 our TDR frontend.
 
+\color{highlightgreen}
+\paragraph{Characterization of PUF-like effects.} In Section~\ref{sec-class-perf}, we have described a PUF-like effect
+we observed during measurements, where our baseline classifier was repeatedly able to distinguish supposedly identical
+copies of the same mesh. It would be interesting to precisely characterize this effect and its dependence on factors
+such as the chosen PCB manufacturer, and to quantify if it indeed rises to the level of a PUF in entropy and
+repeatability.
+
+\color{black}
 \section{Conclusion}
 
 In this paper, we presented a design for a low-cost frontend for integrity monitoring of security meshes in applications
@@ -1222,8 +1322,7 @@ TDR sampling. Our design creates a detailed fingerprint of the intact mesh's con
 of the mesh's traces but also reflects the impedance at every point along the mesh.
 
 Beyond simply detecting faults or manipulations that disturb the mesh without causing breaks, we have demonstrated our
-prototype circuit's capability to distinguish and physically localize faults inside the mesh in several practical attack
-scenarios with even careful attacks causing strong disturbances in the generated fingerprint.
+prototype circuit's capability to reliably detect almost all of a wide range of practical attacks.
 
 Compared to the state of the art, our approach enables the monitoring of larger meshes, at higher sensitivity and lower
 cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
