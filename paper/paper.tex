@@ -669,10 +669,11 @@ turn-on knee of the sampling diodes.
         \end{subfigure}
     \end{center}
     \vspace*{-5mm}
-    \caption{Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse measured at the
-    mesh interface for each of the four driver ICs. Vertical scale shows arbitrary units. Spectrum plots include a
-    $\frac{1}{f}$ curve indicating the frequency components of an ideal infinite-bandwidth square wave. Horizontal gray
-    lines in the time domain plots indicate thresholds used for rise time calculation.}
+    \caption{\color{highlightred}Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse
+        measured at the mesh interface for each of the four driver ICs, captured using a spectrum analyzer. Vertical
+        scale shows arbitrary units. Spectrum plots include a $\frac{1}{f}$ curve indicating the frequency components of
+        an ideal infinite-bandwidth square wave. Horizontal gray lines in the time domain plots indicate thresholds used
+        for rise time calculation.}
     \label{fig_spec_risetime}
 \end{figure}
 
@@ -865,9 +866,10 @@ switching.
         \includegraphics[width=.8\textwidth]{fig_mesh_length.pdf}
         \vspace*{-10mm}
     \end{center}
-    \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four test
-        meshes. The shown time range covers the primary reflection of the stimulus pulse's falling edge. The vertical
-        scale of the graphs is in Volts at the ADC. For clarity, only one channel of the differential response is shown.}
+    \caption{\color{highlightred}TDR responses captured by the microcontroller's internal ADCs with each of four
+        candidate pulse amplifier ICs and four test meshes. The shown time range covers the primary reflection of the
+        stimulus pulse's falling edge. The vertical scale of the graphs is in Volts at the ADC. For clarity, only one
+        channel of the differential response is shown.}
     \label{fig_mesh_length}
 \end{figure}
 
@@ -982,7 +984,7 @@ indicates good performance of our design, and increases the detection efficiency
         \label{fig_layout_identity_identity}
     \end{subfigure}
     \hfill
-    \caption{Similarity matrices of measurement series on intact meshes.}
+    \caption{\color{highlightgreen}Similarity matrices of measurement series on intact meshes.}
     \label{fig_layout_identity}
 \end{figure}
 
@@ -1008,8 +1010,8 @@ indicates good performance of our design, and increases the detection efficiency
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
         \caption{Both traces shorted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
-    \caption{Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes under two different attack
-    scenarios: An interrupted trace, and both mesh traces shorted.}
+    \caption{\color{highlightgreen}Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes under two
+        different attack scenarios: An interrupted trace, and both mesh traces shorted.}
     \label{fig_covar_basic_attacks}
 \end{figure}
 
@@ -1022,8 +1024,8 @@ location of the reflected pulse edge, leading to 0\% Crossover Error Rate.
 \begin{figure}
     \centering
     \includegraphics[width=0.33\textwidth,trim=0 5mm 0 5mm]{fig_covar_short_within_0.3.pdf}
-    \caption{Similarity matrix of several mesh specimens that have one trace shorted to an adjacent location on the same
-    trace. Classification FNR 18\% at 0.1\% FPR, CER=17\%.}
+    \caption{\color{highlightgreen}Similarity matrix of several mesh specimens that have one trace shorted to an
+        adjacent location on the same trace. Classification FNR 18\% at 0.1\% FPR, CER=17\%.}
     \label{fig_short_within}
 \end{figure}
 
@@ -1060,7 +1062,7 @@ and others never detected.
         \caption{Baseline vs. experiment specimens with no attack.}
         \label{fig_covar_adv_baseline}
     \end{subfigure}
-    \caption{Classifier performance under advanced attack scenarios.}
+    \caption{\color{highlightgreen}Classifier performance under advanced attack scenarios.}
     \label{fig_covar_adv_attack}
     %too much: fig_covar_soldering_p0.3_minmax.pdf
     %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
@@ -1095,7 +1097,8 @@ cases at 0\% FNR, with a maximum of 9.6\% FNR at 0.1\% FNR in the soldered wire 
         \label{fig_covar_patch_attack_scatter}
     \end{subfigure}
     \hfill
-    \caption{Classifier performance under a patching attack that bridges a short gap within a mesh trace using wire.}
+    \caption{\color{highlightgreen}Classifier performance under a patching attack that bridges a short gap within a mesh
+        trace using wire.}
     \label{fig_covar_patch_attack}
 \end{figure}
 
@@ -1130,9 +1133,9 @@ in one place, while the experiment distribution shifts.
         \vspace*{2mm}
         \label{fig_drill_mod_shape_pic}
     \end{subfigure}
-    \caption{The mesh response under a manipulation attack patching across a drill location for a 
-        \qty{300}{\micro\meter} drill. The mesh pitch is \qty{300}{\micro\meter}. B-spline smoothing was applied for
-        readability.}
+    \caption{\color{highlightred}The mesh response under a manipulation attack patching across a drill location for a 
+        \qty{300}{\micro\meter} drill, as captured by the microcontroller's ADCs. The mesh pitch is
+        \qty{300}{\micro\meter}. B-spline smoothing was applied for readability.}
     \label{fig_drill_mod_shape}
 \end{figure}
 
@@ -1160,8 +1163,8 @@ at 0.1\%.
         \caption{\emph{maximum} classifier variant. FNR 51.1\% at 0.1\% FPR, CER=15\%.}
         \label{fig_patch_large_scale_minmax}
     \end{subfigure}
-    \caption{Classification performance in a larger-scale experiment using 10 measurements each of 7 samples with
-        traces patched through micro-soldering.}
+    \caption{\color{highlightgreen}Classification performance in a larger-scale experiment using 10 measurements each of
+        7 samples with traces patched through micro-soldering.}
     \label{fig_patch_large_scale}
 \end{figure}
 
@@ -1207,14 +1210,14 @@ domain based on a temperature measurement.
         \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_heat}
     \end{subfigure}
-    \caption{Classification results of the same mesh under various environmental factors.}
+    \caption{\color{highlightgreen}Classification results of the same mesh under various environmental factors.}
     \label{fig_env_effects}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
-    \caption{The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
+    \caption{\color{highlightgreen}The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
     difference between hot and cool cases.}
     \label{fig_tempco_time}
 \end{figure}
@@ -1233,9 +1236,9 @@ classification performance remaining approximately constant at 69.0\% FNR at 0.1
     % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
     \includegraphics[width=0.6\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
     \hspace*{2mm}
-    \caption{Classifier similarity scores of measurements in different environments, 10 measurements each. For scale,
-        measurements from Figure~\ref{fig_patch_large_scale} are included on the bottom/right. FNR 69.0\% at 0.1\% FPR,
-        CER=20\%.}
+    \caption{\color{highlightgreen}Classifier similarity scores of measurements in different environments, 10
+        measurements each. For scale, measurements from Figure~\ref{fig_patch_large_scale} are included on the
+        bottom/right. FNR 69.0\% at 0.1\% FPR, CER=20\%.}
     \label{fig_env_covar}
 \end{figure}
 
@@ -1328,31 +1331,4 @@ LaTeX source for this paper, all hardware design files, and firmware and analysi
 \FloatBarrier
 
 \printbibliography[heading=bibintoc]
-
-\appendix
-\section{Additional photos}
-\label{appendix_photos}
-
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=0.8\textwidth]{pic_short_2_small.jpg}
-        \label{fig_pic_specimens_short}
-        \caption{Short circuit test specimen}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=0.8\textwidth]{pic_cut_1_small.jpg}
-        \label{fig_pic_specimens_open}
-        \caption{Cut trace test specimen}
-    \end{subfigure}
-    \caption{Photos of the short circuit and cut trace test specimens. In the specimen shown on the left, in each of the
-        three marked locations, both traces of the mesh were exposed. To measure short circuit response, the traces were
-        shorted in one of the locations using a soldering iron. In the specimen shown on the right, one trace was
-        exposed and cut in the marked location. To measure baseline values, the test specimen shown on the right was
-        used with the trace temporarily repaired.}
-    \label{fig_pic_specimens}
-\end{figure}
-
 \end{document}
