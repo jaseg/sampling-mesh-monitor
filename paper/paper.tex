@@ -78,9 +78,8 @@
     approach is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as
     security mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
     components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
-    improvement over previous work. We demonstrate our prototype's capability to detect and localize faults in several
-    practical attack scenarios including probing using a high impedance oscilloscope probe and a patching attempt using
-    micro soldering.
+    improvement over previous work. We demonstrate a simple classifier that detects several classes of advanced attacks
+    such as probing using an oscilloscope probe or micro-soldering attacks with perfect accuracy.
 \end{abstract}
 
 \section{Introduction}
@@ -96,9 +95,9 @@ Security meshes continue to be the state of the art for tamper sensing in applic
 attacks such as attempts at drilling or sawing through the device's enclosure to place probes must be prevented. Common
 applications for such meshes include Hardware Security Modules (HSMs) used to store and process cryptographic keys
 applying security standards such as
-FIPS-140-2\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002} or ISO/IEC
-24759\cite{ISOIEC24759}. Other applications include card payment terminals where PCI PTS HSM
-standards\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicable. Security meshes usually consist of
+FIPS-140-2~\cite{usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002} or ISO/IEC
+24759~\cite{ISOIEC24759}. Other applications include card payment terminals where PCI PTS HSM
+standards~\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} are applicable. Security meshes usually consist of
 two or more conductive traces that are laid out in a meandering pattern to cover a surface. A sensing circuit
 electrically monitors these traces to detect attempts at penetrating this surface.
 
@@ -112,23 +111,23 @@ lower-security applications such as card payment terminals, simpler approaches a
 implementation. Often, standard copper/polyimide Flexible Printed Circuits (FPCs) or even standard Printed Circuit
 Boards (PCBs) are used because of the wide availability of manufacturing services.
 
-Several academic approaches exist that target low-cost\cite{
+Several academic approaches exist that target low-cost~\cite{
     vasileActiveTamperDetection2017,
     vasileTemperatureSensitiveActive2017,
     dupontMiniaturizedUltraLowPowerTamper2022,
     vasileProtectingSecretsAdvanced2019,
-} or high-performance mesh monitoring\cite{
+} or high-performance mesh monitoring~\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     immlerSecurePhysicalEnclosures2018,
     garbTamperSensitiveDesignPUFBased,
-}. Some academic works even try to replace the security mesh with entirely different tamper sensing primitives\cite{
+}. Some academic works even try to replace the security mesh with entirely different tamper sensing primitives~\cite{
     staatAntiTamperRadioSystemLevel2022,
     vaiSecureArchitectureEmbedded2015,}.
 High-performance mesh monitoring approaches try to characterize the mesh's physical properties with high accuracy, but
 often come at the cost of specialized, expensive circuitry. Low-cost approaches utilize advanced analog techniques in
 their circuitry to extract precise measurements using few components. They trade off measurement precision for lower
 component cost. Besides simple monitoring, detecting tamper attempts by replacing the mesh with a macro-scale Physically
-Unclonable Function (PUF) has also been researched\cite{
+Unclonable Function (PUF) has also been researched~\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     staatAntiTamperRadioSystemLevel2022,
     vaiSecureArchitectureEmbedded2015,}, albeit this comes with complex monitoring circuits that utilize expensive,
@@ -162,7 +161,7 @@ specimen is shown in Figure\ \ref{fig_pic_board}.
 
 Compared to previous academic designs, our approach can be implemented at a lower cost using exclusively inexpensive,
 commercially available mass-market components. Our TDR frontend improves upon previous, delay-based approaches in
-monitoring fidelity\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}. Our design achieves
+monitoring fidelity~\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}. Our design achieves
 sufficient sensitivity to detect high-impedance oscilloscope probes despite such probes being specifically designed to
 conduct measurements without disturbing the circuit under test. Unlike previous, capacitance-based approaches, our
 design is compatible with inexpensive signal switch ICs, enabling the protection of arbitrarily large meshes at minimal
@@ -174,7 +173,7 @@ The contributions of our work are as follows:
     \item To our knowledge, our design is the first to apply a low-cost embedded differential Time Domain Reflectometry
         (TDR) frontend to security mesh monitoring. Our design achieves pulse rise times below \qty{200}{\pico\second},
         a $25\times$ improvement over the closest previous
-        work\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
+        work~\cite{vasileActiveTamperDetection2017,vasileTemperatureSensitiveActive2017}.
     \item Our approach provides higher fidelity compared to state-of-the-art security mesh conductivity monitoring or
         previous low-cost approaches. It enables the use of meshes manufactured using less advanced technologies such as
         standard FPC or PCB processes. Our TDR frontend produces 70 data points for each meter of mesh length, resulting
@@ -192,12 +191,12 @@ The contributions of our work are as follows:
 \section{Related Work}
 
 Tamper sensing meshes are used in numerous applications from Hardware Security Modules (HSMs) to card payment
-terminals\cite{andersonCryptographicProcessorsASurvey2006,tehranipoorHardwareSecurityPrimitives2023}. Despite their
+terminals~\cite{andersonCryptographicProcessorsASurvey2006,tehranipoorHardwareSecurityPrimitives2023}. Despite their
 widespread use, security mesh design and monitoring is covered by a sparse research corpus. Commercially,
 security-by-obscurity is often considered a good idea and little detail is published on physical security
-implementations\cite{andersonSecurityEngineeringGuide2020}.
+implementations~\cite{andersonSecurityEngineeringGuide2020}.
 
-Patent literature gives a partial view of commercial developments in this area. Even in recent patents such as\cite{
+Patent literature gives a partial view of commercial developments in this area. Even in recent patents such as~\cite{
     brodskyTamperRespondentAssemblyFlexible2019, % IBM. ok, mentions conductivity monitoring but mostly on mesh
     nortonTamperDetectingCases2019, % HP. ok, mentions continuity monitoring only but mostly on mesh
     razaghiTamperDetectionSystem2020, % Square. ok. mentions what is effectively conductivity monitoring
@@ -210,13 +209,13 @@ manufacturers Texas Instruments and Zilog, cited monitoring methods are basic an
 of resistance or capacitance.
 
 Academic research in the area is more advanced and spans both improvements to security meshes and their monitoring
-circuits\cite{
+circuits~\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     dupontMiniaturizedUltraLowPowerTamper2022,
     vasileProtectingSecretsAdvanced2019},
 as well as approaches that entirely replace the security mesh with other primitives based on e.g.\ radio frequency or
 optical measurements that aim to sense tampering
-with a device\cite{staatAntiTamperRadioSystemLevel2022,vaiSecureArchitectureEmbedded2015}. A drawback of techniques
+with a device~\cite{staatAntiTamperRadioSystemLevel2022,vaiSecureArchitectureEmbedded2015}. A drawback of techniques
 aiming to replace security meshes with other sensor types is that it is difficult to prove such sensors do not have
 blind spots.
 
@@ -232,16 +231,16 @@ security mesh as a Physically Unclonable Function (PUF), combining tamper sensin
 their design, the mesh consists of a cross-hatch pattern made from several dozen individually addressable capacitive
 electrodes. They manufacture their meshes in a specialized process that results in unpredictable, random variations in
 capacitance between electrodes. They propose an analog frontend that measures the precise mutual capacitance of each
-pair of electrodes\cite{obermaierMeasurementSystemCapacitive2018} using an approach similar to
+pair of electrodes~\cite{obermaierMeasurementSystemCapacitive2018} using an approach similar to
 \textcite{satoToucheEnhancingTouch2012}, and they use the resulting capacitance matrix as the basis of their PUF. In
 further work, they demonstrate a custom IC integrating the monitoring
-circuit\cite{garbFORTRESSFORtifiedTamperResistant2021}.
+circuit~\cite{garbFORTRESSFORtifiedTamperResistant2021}.
 
 Advantages of their system include high sensitivity to modifications, as well as that as a PUF, the system does not
 require a continuous power supply. Disadvantages include the limited mesh size a single circuit can support due to
 dynamic range constraints, the specialized manufacturing process needed for the mesh as well as the high cost of the
 monitoring circuit. Common physical security standards require systems to actively destroy all key material when
-tampering is detected\cite{
+tampering is detected~\cite{
     usnationalinstituteofstandardsandtechnologySecurityRequirementsCryptographic2002,
     ISOIEC24759,
     pcisecuritystandardscouncilPaymentCardIndustry2021}.
@@ -283,7 +282,7 @@ to any signal characteristics apart from total signal power.
 
 \paragraph{Time domain mesh monitoring.}
 Time-Domain Reflectometry has been proposed for tamper sensing in nuclear arms control
-applications\cite{parsonsTamperRadiationResistant1977}. However, compared to our design, the systems proposed in this
+applications~\cite{parsonsTamperRadiationResistant1977}. However, compared to our design, the systems proposed in this
 field are usually much larger, using standard benchtop measurement equipment to perform TDR. Additionally, they target
 lower time resolution since they are designed to monitor spans of cable up to several hundred meters in length.
 
@@ -323,7 +322,7 @@ downconverting mixers. This development was enabled by both the increasing avail
 hundreds of megasamples per second at a reasonable resolution, and by the increase in speed of CPUs,
 FPGAs, and other components of the digital processing chain. However, this is largely a development of this
 millennium--meanwhile, signals far into the gigahertz range have been studied since the advent of radar technology in
-the Second World War\cite{kahrs50YearsRF2003}. Enabled by the progress from vacuum tubes to semiconductor devices,
+the Second World War~\cite{kahrs50YearsRF2003}. Enabled by the progress from vacuum tubes to semiconductor devices,
 equivalent time sampling became the technology of choice for the latter half of the twentieth century until around the
 turn of the millennium the introduction of high-speed digital processing and fast ADCs enabled real-time conversion up
 into higher microwave frequencies, today reaching beyond the \qty{100}{\giga\hertz} boundary.
@@ -331,10 +330,10 @@ into higher microwave frequencies, today reaching beyond the \qty{100}{\giga\her
 \textcite{kahrs50YearsRF2003} trace back the style of four-diode balanced bridge sampling gate that we use to a vacuum
 tube implementation presented in \textcite{chanceWaveforms1949}. This style of sampling gate found application in a
 number of sampling oscilloscopes throughout the twentieth century in several oscilloscope sampling frontends such as
-HP's 187B\cite{HP187BDualTrace1962}. 
+HP's 187B~\cite{HP187BDualTrace1962}. 
 
 While initially equivalent time sampling was used to circumvent technological limitations, more recently it has also
-been used to achieve cost-optimized designs\cite{houtman1GHzSamplingOscilloscope2000}. Going along similar principles,
+been used to achieve cost-optimized designs~\cite{houtman1GHzSamplingOscilloscope2000}. Going along similar principles,
 \textcite{polasekReflektometrCasoveOblasti2020} presents a design for a minimal sampling TDR circuit that uses a CMOS
 clock generator IC along with a CML fanout buffer for pulse generation. The circuit improves upon the double sampling
 design first presented by \textcite{houtman1GHzSamplingOscilloscope2000} to reconstruct a downsampled copy of the input
@@ -376,7 +375,7 @@ length.
 In this paper, we apply TDR to monitor a security mesh for changes caused by an attack. Our prototype setup consists of
 a custom circuit board containing a low-cost embedded TDR frontend that can be connected to a security mesh specimen to
 measure its response, creating a fingerprint of the mesh. In a standard PCB manufacturing process, we construct a
-security mesh with a ground plane underneath that works similarly to previous work\cite{
+security mesh with a ground plane underneath that works similarly to previous work~\cite{
     immlerBTREPIDBatterylessTamperresistant2018,
     obermaierMeasurementSystemCapacitive2018,
     garbTamperSensitiveDesignPUFBased}.
@@ -447,7 +446,7 @@ to use a comparatively lossy but simple \qty{-6}{\deci\bel} resistive tee instea
 We implemented the sub-nanosecond sampler using a simple four-diode bridge sampling gate made from commodity
 \partno{BAT17-04W} RF Schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
 \price{0.13}{\euro} per device at quantity 1000. In contrast to prior
-work\cite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, we precisely control the timing of
+work~\cite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, we precisely control the timing of
 our ADC and avoid the need for a second sampling stage.
 
 We base our circuit around an \partno{STM32G474RB} microcontroller, \price{5}{\euro}-class commodity ARM
@@ -458,10 +457,10 @@ adjustable, phase-locked stimulus and sampling pulses.
 
 While the HRTIM peripheral provides sub-nanosecond phase adjustment, the digital outputs of the \partno{STM32G4} series
 are limited to a minimum transition time of $t_r=t_f=\qty{1.7}{\nano\second}$\footnote{Datasheet specification, when
-driving a \qty{10}{\pico\farad} load\cite{stmicroelectronicsSTM32G474xBDatasheet2021}.}. We work around this issue with
+driving a \qty{10}{\pico\farad} load~\cite{stmicroelectronicsSTM32G474xBDatasheet2021}.}. We work around this issue with
 two circuit tricks. First, we send the output through a fast amplifier to square up the edges to a rise time better than
 \qty{500}{\pico\second}. We then reduce the \qty{10}{\nano\second} minimum pulse width supported by the \partno{HRTIM}
-peripheral by applying a clip line\cite{tektronixinc.TektronixS6Sampling1982} pulse forming network--i.e.\ we connect
+peripheral by applying a clip line~\cite{tektronixinc.TektronixS6Sampling1982} pulse forming network--i.e.\ we connect
 the amplifier's output to the load in parallel with a short, terminated transmission line stub. The length of this stub
 determines the pulse width.
 
@@ -506,7 +505,7 @@ such as the CML-output comparators made by Analog Devices due to cost.
 \paragraph{Standard logic ICs.}
 As a baseline, we evaluated the \partno{74LVC2G157} CMOS multiplexer configured to provide complementary outputs.
 According to manufacturer specifications, this part provides slightly faster rise and fall times than
-oumicrocontroller\cite{renesaselectronicscorporationApplicationNoteAN2242019}.
+oumicrocontroller~\cite{renesaselectronicscorporationApplicationNoteAN2242019}.
 
 \paragraph{Optical Networking Chipsets.}
 Optical transceivers use CML-output limiting amplifiers and laser drivers, some of which are still available as discrete
@@ -813,8 +812,8 @@ lines here and for \partno{TDP0604} since the other amplifiers' output did not c
     \end{center}
     \caption{Specifications of mesh test specimens used in the experiments in this paper. Approximate signal delays were
         calculated using wave velocity
-        $v=\frac{c}{\sqrt{\epsilon_r}}\approx\frac{c}{2}$\cite{wheelerTransmissionLinePropertiesParallel1965} assuming
-        $\epsilon_r\approx 4$\cite{mumbyDielectricPropertiesFR41989} for the test specimens' \partno{FR-4} substrate.}
+        $v=\frac{c}{\sqrt{\epsilon_r}}\approx\frac{c}{2}$~\cite{wheelerTransmissionLinePropertiesParallel1965} assuming
+        $\epsilon_r\approx 4$~\cite{mumbyDielectricPropertiesFR41989} for the test specimens' \partno{FR-4} substrate.}
     \label{tab_mesh_spec}
 \end{table}
 
@@ -830,7 +829,7 @@ We validated the results from Figure\ \ref{fig_mesh_length} by calculating speed
 substrate based on them. The resulting measurements are shown in Table\ \ref{tab_speed_of_light}. All amplifier
 configurations yield comparable measurements of approximately \qty{1.6}{\meter\per\second}, which corresponds with the
 expected signal propagation velocity in \partno{FR-4} PCB material of
-\qty{1.5d8}{\meter\per\second}\cite{wheelerTransmissionLinePropertiesParallel1965,mumbyDielectricPropertiesFR41989}.
+\qty{1.5d8}{\meter\per\second}~\cite{wheelerTransmissionLinePropertiesParallel1965,mumbyDielectricPropertiesFR41989}.
 
 The graphs in Figure~\ref{fig_mesh_length} show a dispersion effect that increasingly rounds off the trailing edge of
 the response with longer mesh lengths. This effect stems from higher-frequency components coupling into adjacent trace
@@ -904,33 +903,38 @@ switching.
 \subsection{Classification performance}
 \label{sec-class-perf}
 
-To evaluate the practical performance of our system in a baseline scenario, we captured approximately 1250 measurement
-series under a variety of environmental and attack conditions. In each series, we captured 7 differential traces with
-$2\times768$ points per trace. One differential trace served as a calibration reference with the multiplexers configured
-to disconnect the mesh. The other six traces cover each of open circuit, short circuit, and matched load termination
-measuring the mesh once from each of both ends.
+To evaluate the practical performance of our system, we captured approximately 1250 measurement series under a variety
+of environmental and attack conditions and evaluated its performance using a simple template-matching classifier. In
+each measurement series, we captured 7 differential traces with $2\times768$ points per trace. One differential trace
+served as a calibration reference with the multiplexers configured to disconnect the mesh. The other six traces cover
+each of open circuit, short circuit, and matched load termination measuring the mesh once from each of both ends for 12
+channels total ($\{\text{open}, \text{short}, \text{load}\} \times \{\text{forward}, \text{reverse}\} \times
+\{\text{positive}, \text{negative}\}$).
 
-We explored two variants of our baseline classifier, each consisting of three steps: First, traces are passed through a
-B-spline smoothing filter. This filter serves as a low-pass filter, evening out noise contributions. We only applied
-this filter where necessary. Second, we calculate a distance between each channel
-($\{\text{open},\text{short},\text{load}\}\times\{\text{forward},\text{reverse}\}\times\{\text{positive},\text{negative}\}$
-of the baseline trace and the corresponding channel of the experiment traces, resulting in a vector with 12 entries.
-Third, we apply a norm to this vector to reduce it to a single, scalar distance value.
+Our classifier is designed to compare two measurement series and produce a scalar score indicating their similarity. A
+simple threshold can then be applied on the similarity score to decide the class. Type 1 and type 2 error rates can be
+tuned by adjusting this threshold.
 
-The two variants of our classifier differ in the distance function and the vector norm. The first variant uses the
-pearson ccorrelation coefficient as its distance function and mean as its vector norm. The second variant uses the
-maximum distance at any one trace point as its distance function, and selects the maximum component in its vector norm.
-The first variant is sensitive to changes in the overall shape of a trace, while the second variant is sensitive to
-localized changes to one or a few points of a trace.
+Our classifier proceeds in four steps: B-spline smoothing, per-channel pearson correlation coefficient, channel score
+mean, and threshold. B-spline smoothing serves as a low-pass filter, evening out random noise. We only applied this
+filter where necessary---most attacks leave a strong signal that stands out from noise. We calculate the pearson
+correlation coefficient for each measurement channel separately, producing a vector with 12 entries. We average the
+components of this vector to a single, scalar similarity score.
 
-Figure~\ref{fig_layout_identity} shows the performance of the correlation classifier on intact meshes. For each
-performance measurement, we show the correlation matrix between a set of baseline measurements and a set of experiment
-measurements. High values indicate similarity, low values indicate differences. We show the baseline set top
-left, and the experiment set bottom right. Uniform color within the top left indicates high similarity between baseline
-measurements. Nonuniform color in the bottom right is expected, and indicates that mutliple experiment (attack)
+\subsubsection{Interpreting these performance plots}
+Figure~\ref{fig_layout_identity} shows the similarity score of multiple intact meshes. For each performance measurement,
+we show the similarity scores for each pair of measurements as a matrix, with each measurement appearing once in each
+row and column. High values indicate similarity, low values indicate differences. We show the baseline measurement set
+top left, and the experiment set bottom right. Uniform color within the top left indicates high similarity between
+baseline measurements. Nonuniform color in the bottom right is expected, and indicates that mutliple experiment (attack)
 measurements are unlike each other. Classification performance is indicated by the top right and bottom left quadrants,
 which indicate misclassification probability. Misclassification is likely when the top left and top right quadrants look
-alike. Misclassification is unlikely the more they differ.
+alike. Misclassification is less likely the more they differ. Under each figure, we give the False Negative Rate (FNR),
+i.e. the rate of missed alarms, when the threshold is adjusted for a False Positive Rate, i.e. a false alarm rate, of
+$0.1\%$. These values are calculated assuming a normal distribution of similarity scores. Additionally, we provide the
+Crossover Error Rate (CER) derived from the empirical cumulative distribution function of the results, i.e. the error
+rate where for some threshold FPR is equal to FNR. A CER near $50\%$ indicates the classifier cannot distinguish the
+classes, lower values indicate good performance.
 
 Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left) to four variants that have
 the same pitch and area, but different layout of the traces (bottom right). Here and in all following graphs we list the
@@ -942,27 +946,26 @@ The variance between samples of the baseline group in Figure~\ref{fig_layout_ide
 possibility that while all mesh samples of the same layout were supposed to be identical copies, our measurement circuit
 might be sensitive enough to pick up on manufacturing variations from one copy to another in a PUF-like manner. To
 evaluate this scenario, in Figure~\ref{fig_layout_identity_identity} we show the result of repeated measurements of
-three copies of the same mesh. The measurements were taken interleavedi (i.e. $1, 2, 3, 1, 2, \hdots$) to exclude
-systematic errors from affecting the conclusion. As we can see, our system indeed exhibits a PUF-like response and can
-distinguish multiple copies of the same mesh with precision. We leave a detailed analysis of this effect to future work.
-For the scope of this paper, the presense of this effect indicates good performance of our design, and increases the
-detection efficiency of our approach. 
+three copies of the same mesh. The measurements were taken interleaved ($1, 2, 3, 1, 2, \hdots$) to exclude systematic
+errors. We found our system can indeed distinguish multiple copies of the same mesh at a 1.7\% FNR at 0.1\% FPR. We
+leave a detailed analysis of this effect to future work. For the scope of this paper, the presense of this effect
+indicates good performance of our design, and increases the detection efficiency of our approach. 
 
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.28\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
-        \caption{Different mesh layouts, False negative rate 18\% at 0.1\% false positive rate, CER=0\%}
+        \caption{Five copies of the same layout compared to four other layouts, FNR 18\% at 0.1\% FPR, CER=0\%}
         \label{fig_layout_identity_layout}
     \end{subfigure}
     \hspace*{5mm}
     \begin{subfigure}[t]{0.28\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
-        \caption{Three identical copies, False negative rate 1.7\% at 0.1\% false positive rate, CER=0\%}
+        \caption{Three identical copies, FNR 1.7\% at 0.1\% FPR, CER=0\%}
         \label{fig_layout_identity_identity}
     \end{subfigure}
     \hfill
-    \caption{Measurements of intact meshes, correlation classifier.}
+    \caption{Similarity matrices of measurement series on intact meshes.}
     \label{fig_layout_identity}
 \end{figure}
 
@@ -971,104 +974,86 @@ detection efficiency of our approach.
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.3.pdf}
-        \caption{Open, p=\qty{0.3}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{One trace interrupted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.3.pdf}
-        \caption{Short, p=\qty{0.3}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{Both traces shorted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.4.pdf}
-        \caption{Open, p=\qty{0.4}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{One trace interrupted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
-        \caption{Short, p=\qty{0.4}{\milli\meter}. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{Both traces shorted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
-    \caption{Covariance matrix of intact (top left) and modified meshes (bottom right). Shown are two pitches. Ten
-        specimens each with either one trace interrupted, or both traces shorted in a random location.}
+    \caption{Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes.}
     \label{fig_covar_basic_attacks}
 \end{figure}
 
 Figure~\ref{fig_covar_basic_attacks} shows the performance of our classifier under the two basic attack scenarios of an
-interrupted trace, and a short between the mesh's differential traces. Such attacks lead to large changes in the
-location of the reflected pulse edge, which our classifier picks up with perfect accuracy across our test set.
+interrupted trace, and a short circuit between the mesh's differential traces. Such attacks lead to large changes in the
+location of the reflected pulse edge, leading to 0\% Crossover Error Rate.
 
-\subsubsection{Hairpin shortening}
+\subsubsection{Trace shortening}
 
 \begin{figure}
     \centering
-    \begin{subfigure}[t]{0.28\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_short_within_0.3.pdf}
-        \caption{Correlation classifier, False negative rate 18\% at 0.1\% false positive rate, CER=17\%}
-        \label{fig_short_within_corr}
-    \end{subfigure}
-    \hspace*{5mm}
-    \begin{subfigure}[t]{0.28\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_short_within_0.3_min_max.pdf}
-        \caption{Min/Max classifier, False negative rate 23\% at 0.1\% false positive rate, CER=23\%}
-        \label{fig_short_within_minmax}
-    \end{subfigure}
-    \hfill
+    \includegraphics[width=0.3\textwidth]{fig_covar_short_within_0.3.pdf}
     \caption{Classification results of several mesh specimens that have one trace shorted to an adjacent location on the
-    same trace.}
+    same trace. FNR 18\% at 0.1\% FPR, CER=17\%.}
     \label{fig_short_within}
 \end{figure}
 
-When one trace is not shorted to the other mesh trace, but instead shorted to another location within the same trace,
-the resulting distortion in response shape is harder to detect. The reason for this is that such modifications introduce
-a skew in the delay of the differential pair. Depending on the length of the shorted-out section, this skew may be as
-little as a few picoseconds, which is hard to detect given our system's measurement resolution.
-
-Figure~\ref{fig_short_within} shows the performance of our classifier under this scenario. As we can see in the
-structure of the correlation plots, for some samples which have longer sections of mesh trace shorted out, this attack
-is easy to distinguish, but for others, where only a short section of trace is shorted out, it is harder to distinguish.
+Figure~\ref{fig_short_within} shows classification results when one trace is short circuited to another location within
+the same trace. Here, the resulting distortion in response shape is harder to detect. Depending on the length of the
+shorted-out section, the timing skew such modifications introduce may be as little as a few picoseconds. For some
+samples which have longer sections of mesh trace shorted out, this attack is easy to distinguish, but for others, our
+classifier cannot distinguish it leading to an overall FNR of 18\% at 0.1\% FPR, with some specimens reliably detected,
+and others never detected.
 
 \subsubsection{Advanced attacks}
 
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
-        \caption{Oscilloscope probe. Missed alarm rate 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{Oscilloscope probe. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_covar_adv_probe}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
-        \caption{Soldering iron. Missed alarm rage 0.0\% at 0.1\% false alarm rate, CER=0\%.}
+        \caption{Soldering iron. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_covar_adv_soldering}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
-        \caption{30mm wire soldered. Missed alarm rage 9.6\% at 0.1\% false alarm rate, CER=1\%.}
+        \caption{30mm wire soldered. FNR 9.6\% at 0.1\% FPR, CER=1\%.}
         \label{fig_covar_adv_antenna}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_probe_points_p0.3.pdf}
-        \caption{Baseline vs. specimens with soldermask removed for previous plots.}
+        \caption{Baseline vs. experiment specimens with no attack.}
         \label{fig_covar_adv_baseline}
     \end{subfigure}
-    \caption{}
+    \caption{Classifier performance under advanced attack scenarios.}
     \label{fig_covar_adv_attack}
     %too much: fig_covar_soldering_p0.3_minmax.pdf
     %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
 \end{figure}
 
-Figure~\ref{fig_covar_adv_attack} shows our classifier's performance under a set of more advanced attacks: An
-oscilloscsope probe touching one mesh trace (Figure~\ref{fig_covar_adv_probe}, Rigol PVP3150 probe), a soldering iron
-touching one mesh trace (Figure~\ref{fig_covar_adv_soldering}), and a mesh where one trace has a
-$l=\qty{30}{\milli\meter},d=\qty{120}{\micro\meter}$ copper wire soldered to one trace
-(Figure~\ref{fig_covar_adv_probe}). The probing attack is interesting since oscilloscope probes are specifically
-designed to disturb the probed circuit as little as possible. The wire attack simulates an attacker attaching a wire in
-an attempt to patch a trace in preparation for an attack. Our classifier is able to clearly distinguish each attack.
-Figure~\ref{fig_covar_adv_baseline} compares baseline specimens against the three specimens that had soldermask removed
-for these attacks while no attack is being conducted. This result shows that this preparation has no effect on the
-measurement.
+Figure~\ref{fig_covar_adv_attack} shows our classifier's performance under conditions similar to actions an attacker
+would perform during an attack: An oscilloscsope probe\footnote{Part number Rigol PVP3150.} touching one mesh trace
+(Figure~\ref{fig_covar_adv_probe}), a soldering iron touching one mesh trace (Figure~\ref{fig_covar_adv_soldering}), and
+a mesh where one trace has a $l=\qty{30}{\milli\meter},d=\qty{120}{\micro\meter}$ piece of copper wire soldered to one
+trace (Figure~\ref{fig_covar_adv_probe}). Our classifier is able to clearly distinguish the probing and soldering iron
+cases at 0\% FNR, with a maximum of 9.6\% FNR at 0.1\% FNR in the soldered wire case.
 
 \subsubsection{Patching attacks}
 \label{sec_attack_probe}
@@ -1076,50 +1061,43 @@ measurement.
 \begin{figure}
     \begin{subfigure}[t]{0.27\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_patch_interleave_baseline.pdf}
-        \caption{Test boards before experiment}
+        \caption{Test boards before experiment.}
         \label{fig_covar_patch_attack_baseline}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.27\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_patch_ref_exp_interleave_direct.pdf}
-        \caption{Experiment specimen compared to reference before and after}
+        \caption{Experiment specimen compared to reference before and after attack.}
         \label{fig_covar_patch_attack_direct}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.4\textwidth}
         \includegraphics[width=\textwidth]{fig_patch_interleave_scatter.pdf}
-        \caption{Trajectory of experiment and control speciments}
+        \caption{Trajectory of relative difference to reference specimens.}
         \label{fig_covar_patch_attack_scatter}
     \end{subfigure}
     \hfill
-    \caption{Classifier performance under a patching attack that bridges a short gap within a mesh trace using wire.
-        B-spline smoothing was applied during classification.}
+    \caption{Classifier performance under a patching attack that bridges a short gap within a mesh trace using wire.}
     \label{fig_covar_patch_attack}
 \end{figure}
 
-While our proposed measurement setup significantly increases the level of effort required from an attacker, as long as
-standard PCBs are used as meshes, the attacker can apply PCB rework techniques like they are widely used in the industry
-for PCB repair. If we assume a standard PCB process with \qty{100}{\micro\meter} trace/space design rules, a drilling
-attack targeting a \qty{300}{\micro\meter} hole size as proposed by \textcite{immlerSecurePhysicalEnclosures2018} will
-break at least one trace. Patching the resulting break using a wire is possible, but with increasing wire length, the
-TDR response of the mesh is increasingly distorted. We experimentally performed an attack comparable to the one shown by
-\textcite{immlerSecurePhysicalEnclosures2018} on a \qty{300}{\micro\meter} pitch mesh specimen. In this attack, we
-removed a small part of one mesh trace and bridged it with a wire. Figure\ \ref{fig_drill_mod_shape} shows our
-modification and the resulting change in the time-domain response.
+PCB tamper sensing meshes are susceptible to industry-standard PCB rework techniques. If we assume a standard PCB
+process with \qty{100}{\micro\meter} trace/space design rules, a drilling attack targeting a \qty{300}{\micro\meter}
+hole size requires cutting and patching at least one trace~\cite{immlerSecurePhysicalEnclosures2018}. We performed such
+an attack on a set of \qty{300}{\micro\meter} pitch meshes. Figure\ \ref{fig_drill_mod_shape} shows our modification and
+the resulting change in the time-domain response.
 
-Figure~\ref{fig_covar_patch_attack} shows the classification result of this attack. Because the patch is small,
-this type of attack leaves only subtle traces in the measurement data. To extract this effect, we performed two
-experiments in a row. First, we interleaved measurements of two reference specimens, a control specimen, and the
-unmodified experiment specimen to establish a baseline. Then, we modified the experiment specimen and repeated the
-experiment. Temperature drift and other possible external factors affecting the measurement can be excluded by comparing
-both control and experiment measurements against the two references before and after the modification.
-Figure~\ref{fig_covar_patch_attack_baseline} shows the four samples before the attack, exhibiting the same subtle
-PUF-like effect that we described in Section~\ref{sec-class-perf}. Since we peform both before and after measurements on
-the same sample, we can separate this effect from the effect of the attack. Figure~\ref{fig_covar_patch_attack_direct}
-compares both control and experiment samples before and after the attack, and shows a clear change in the experiment
-sample during the attack. Figure~\ref{fig_covar_patch_attack_scatter} plots the similarity of both samples to each of
-the two reference samples. We can see that the control distribution stays in one place, while the experiment
-distribution shifts.
+Figure~\ref{fig_covar_patch_attack} shows the classification result of this attack. To extract the subtle effect of this
+attack, we measured two reference specimens, one control, and one experiment specimen twice in a row, once before the
+attack, and once after. Measurements were repeated 10 times interleaved. Factors such as temperature drift can be
+excluded by comparing both control and experiment measurements against the two references before and after the
+modification. Figure~\ref{fig_covar_patch_attack_baseline} shows the four samples before the attack, exhibiting the same
+subtle PUF-like effect that we described in Section~\ref{sec-class-perf}. Since we peform both before and after
+measurements on the same sample, we can separate this effect from the effect of the attack.
+Figure~\ref{fig_covar_patch_attack_direct} compares both control and experiment samples before and after the attack, and
+shows a clear change in the experiment sample during the attack. Figure~\ref{fig_covar_patch_attack_scatter} plots the
+similarity scores of both samples to each of the two reference samples. We can see that the control distribution stays
+in one place, while the experiment distribution shifts.
 
 \begin{figure}
     \centering
@@ -1141,74 +1119,73 @@ distribution shifts.
 
 Based on the above results, we peformed a larger-scale experiment using seven samples with patches applied compared
 against baseline measurements taken before and after measuring the experiment samples. Each sample was measured ten
-times in an interleaved order. Figure~\ref{fig_patch_large_scale} shows the results of this experiment. As we can see,
-the min/max classifier is better at distinguishing the subtle, localized effects of such patches. Using the min/max
-classifier, half of attack attempts are detected in a single measurement when fixing the false alarm rate at 0.1\%.
+times, interleaved. Figure~\ref{fig_patch_large_scale} shows the results of this experiment, resulting in a FNR of
+71.5\% at 0.1\% FPR. Since such patches only affect few data points along the reflection response, we included a variant
+of our classifier that uses the maximum difference across all channels instead of the averaged pearson correlation
+coefficient to better at distinguishing the subtle, localized effects of such patches. Using this classifier variant,
+FNR improves to 51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate
+at 0.1\%.
 
 \begin{figure}
     \centering
     \begin{subfigure}{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig_covar_patch_repeat_p0.3.pdf}
-        \caption{Correlation classifier. Missed alarm rate 71.5\% at 0.1\% false alarm rate, CER=34\%.}
+        \caption{Micro-soldering patching attack. FNR 71.5\% at 0.1\% FPR, CER=34\%.}
         \label{fig_patch_large_scale_corr}
     \end{subfigure}
+    \hspace*{5mm}
     \begin{subfigure}{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig_covar_patch_repeat_p0.3_minmax.pdf}
-        \caption{Min/max classifier. Missed alarm rate 51.1\% at 0.1\% false alarm rate, CER=15\%.}
+        \caption{\emph{maximum} classifier variant. FNR 51.1\% at 0.1\% FPR, CER=15\%.}
         \label{fig_patch_large_scale_minmax}
     \end{subfigure}
     \caption{Classification performance in a larger-scale experiment using 10 measurements each of 7 samples with
-        traces patched through micro-soldering. B-spline smoothing was applied before classification.}
+        traces patched through micro-soldering.}
     \label{fig_patch_large_scale}
 \end{figure}
 
 \subsubsection{Environmental susceptibility}
 
-The measurement sensitivity of our design raises the question of how environmental factors such as handling, or
-electromagnetic interference affect the measurements. Figure~\ref{fig_env_effects} shows the result in several
-scenarios. As shown in Figure~\ref{fig_env_effects_time}, time alone does not contribute significantly to the
-measurement results. As indicated by Figure~\ref{fig_env_effects_touch}, touching parts of the device other than the
-mesh during normal handling also does not disturb measurements. However, when the mesh is directly touched, this can
-easily be detected. In a practical application, this is of little concern since any PCB tamper sensing mesh would lie on
-the inside of the device. Since the meshes we use have a continous ground plane, a simple solution to touch sensitivity
-is to put the ground plane on the outside of the device, shielding the mesh from touching.
+Figure~\ref{fig_env_effects} shows the results of a series of experiments evaluating the effect of environmental factors
+such as handling or electromagnetic interference on our measurements. Figure~\ref{fig_env_effects_time} shows our
+measurements exhibit little time drift (CER=60\%). Figure~\ref{fig_env_effects_touch} shows that touching the mesh is
+easily detected (FNR=0\%), but the system is insensitive to touching other parts of the circuit. Our tamper-sensing mesh
+uses a continous ground plane. In a practical application the mesh would be on the inside of the protected envelope,
+with the ground plane on the outside, shielding it from touch.
 
-A significant effect on the measurements can be seen when the mesh is heated, as shown by the results in
-Figure~\ref{fig_env_effects_heat}. Figure\ \ref{fig_tempco_time} shows the relative difference between the time-domain
-response of a mesh at room temperature and a mesh heated to \qty{70}{\degree C}. This temperature dependence has two
-main factors. First, the resistance of the mesh's copper traces has a positive temperature coefficient, meaning that its
-resistance increases with temperature. Across the \qty{50}{\degree C} temperature difference shown here, this
-corresponds to a change in resistance of approximately 20\%. Besides the resistance of copper, the dielectric constant
-and dissipation factor of the FR-4 dielectric of the mesh PCB also have a significant temperature
-coefficient\cite{sagarStudiesTemperatureDependent2024,hinagaThermalEffectsPCB2010}. An increase in copper resistance can
-be seen in the overall shift of the response curve due to resistive attenuation. An increase in the dielectric
-dissipation factor can be seen in the slope of the difference, since pulse energy is dissipated more the longer the
-pulse travels through the material. Finally, a change in dielectric constant moves the response's trailing edge in time,
-with the pulse propagating slightly slower at high temperature.
+As shown in Figure~\ref{fig_env_effects_heat}, heating the mesh distors its measurements (FNR=0.6\%, CER=0\%).
+Figure~\ref{fig_tempco_time} shows the difference caused by heating the mesh to \qty{70}{\degree C} in the time domain.
+This temperature dependence stems from the resistance of the mesh's copper traces increasing with temperature, and the
+dielectric properties of the FR-4 PCB substrate changing. Both dielectric constant and dissipation factor of FR-4 change
+with temperature~\cite{sagarStudiesTemperatureDependent2024, hinagaThermalEffectsPCB2010}. The increase in copper
+resistance causes a shift of the response curve. An increase in the dielectric dissipation factor affects the slope of
+the difference in Figure~\ref{fig_tempco_time} since pulse energy is dissipated more the longer the pulse travels
+through the material. A change in dielectric constant moves the response's trailing edge in time, with the pulse
+propagating slightly slower at high temperature.
 
 Since these effects are consistent with physical predictions and only reach problematic levels at large temperature
 differences, it would be possible to design a classifier that is insensitive to temperature effects. Furthermore, given
 the predictable, physical nature of these effects, they could also be compensated before classification in the digital
-domain based on a temperature measurement and a set of per-mesh calibration data.
+domain based on a temperature measurement.
 
 \begin{figure}
     \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_time_drift.pdf}
-        \caption{Time drift (2.5h). False negative rate 100\% at 0.1\% false positive rate, CER=60\%.}
+        \caption{Time drift (2.5h). FNR 100\% at 0.1\% FPR, CER=60\%.}
         \label{fig_env_effects_time}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.4\textwidth}
+    \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
-        \caption{Touch sensitivity. False negative rate 0.0\% at 0.1\% false positive rate, CER=0\%.}
+        \caption{Touch sensitivity. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_touch}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_hot_mesh.pdf}
-        \caption{Mesh heated (\qty{70}{\degree C}). False negative rate 0.6\% at 0.1\% false positive rate, CER=0\%.}
+        \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_heat}
     \end{subfigure}
     \caption{Classification results of the same mesh under various environmental factors.}
@@ -1228,25 +1205,22 @@ our measurements. Although our system's equivalent-time sampling setup inherentl
 synchronous to the sampling clock, the setup is unshielded so we verified its actual susceptibility in several
 scenarios. Figure~\ref{fig_env_covar} shows the result of these measurement series. For comparison, we included several
 measurements from Figure~\ref{fig_patch_large_scale}. From these figures, we can see that there are some environmental
-effects, but these effects are small even when compared against a subtle attack like a patching attack.
+effects, but these effects are small even when compared against a subtle attack like a patching attack with the
+classification performance remaining approximately constant at 69.0\% FNR at 0.1\% FPR and a slightly reduced CER of
+20\%.
 
 \begin{figure}
-    \begin{subfigure}{0.3\textwidth}
-        % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
-        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
-        \caption{Covariance Metric, Missed alarm rate 69.0\% at 0.1\% false alarm rate, CER=20\%.}
-    \end{subfigure}
+    \centering
+    % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
+    \includegraphics[width=0.4\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
     \hspace*{2mm}
-    \begin{subfigure}{0.3\textwidth}
-        % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
-        \includegraphics[width=\textwidth]{fig_covar_patch_repeat_tridalta_all_the_data_p0.3_minmax.pdf}
-        \caption{Min/Max Metric, Missed alarm rate 63.5\% at 0.1\% false alarm rate, CER=17\%.}
-    \end{subfigure}
-    \caption{Covariance matrices comparing all environmental runs. For scale, measurements from
-        Figure~\ref{fig_patch_large_scale} are included on the bottom/right. B-spline smoothing was applied.}
+    \caption{Classifier similarity scores of measurements in different environments, 10 measurements each. For scale,
+        measurements from Figure~\ref{fig_patch_large_scale} are included on the bottom/right. FNR 69.0\% at 0.1\% FPR,
+        CER=20\%.}
     \label{fig_env_covar}
 \end{figure}
 
+\color{highlightred}
 \subsection{Countermeasures}
 
 As shown above, PCB security meshes can be manipulated through micro-soldering. Keeping the modifications as physically
@@ -1257,15 +1231,15 @@ done using a minimal amount of solder as well as a bespoke, insulated soldering 
 tool out of a material like sintered ceramic is conceivable, to our knowledge, no such tool exists on the market.
 
 Furthermore, the actual drilling would have to happen with a dielectric drill bit, placing special attention on
-evacuating conductive copper chips before they can create shorts to nearby traces. Again, it is conceivable that such a
-tool could be manufactured, but to our knowledge, such a tool is not currently available as a standard component on the
-market.
+evacuating conductive copper chips before they can create short circuits to nearby traces. Again, it is conceivable that
+such a tool could be manufactured, but to our knowledge, such a tool is not currently available as a standard component
+on the market.
 
 Finally, any probes penetrating the mesh would have to be placed such that their presence in the vicinity of the mesh
 traces does not disturb the TDR response. Modifications would have to be carried out with great care, likely using
 micromanipulators or similar specialized equipment.
 
-The PCI PTS HSM DTR standard\cite{pcisecuritystandardscouncilPaymentCardIndustry2021a} contains a useful framework for
+The PCI PTS HSM DTR standard~\cite{pcisecuritystandardscouncilPaymentCardIndustry2021a} contains a useful framework for
 thinking about attacker capabilities. Applying their taxonomy, our monitoring system raises the skill level required for
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
@@ -1274,7 +1248,6 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
 % seems to work better.
 
 % FIXME peer review only, for major revision @ TCHES
-\color{highlightred}
 \section{Future Work}
 
 %\paragraph{Design variants.} We found that the timing jitter of our sampling frontend is low enough to reach the
@@ -1306,11 +1279,10 @@ similar to a VNA and it would be interesting to measure parts of the secure subs
 our TDR frontend.
 
 \color{highlightgreen}
-\paragraph{Characterization of PUF-like effects.} In Section~\ref{sec-class-perf}, we have described a PUF-like effect
-we observed during measurements, where our baseline classifier was repeatedly able to distinguish supposedly identical
-copies of the same mesh. It would be interesting to precisely characterize this effect and its dependence on factors
-such as the chosen PCB manufacturer, and to quantify if it indeed rises to the level of a PUF in entropy and
-repeatability.
+\paragraph{Characterization of PUF-like effects.} In Section~\ref{sec-class-perf}, we have described a PUF-like effect,
+where our classifier was able to distinguish supposedly identical copies of the same mesh. It would be interesting to
+precisely characterize this effect and its dependence on factors such as the chosen PCB manufacturer, and to quantify if
+it indeed rises to the level of a PUF in entropy and repeatability.
 
 \color{black}
 \section{Conclusion}
