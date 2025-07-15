@@ -78,7 +78,7 @@
     approach is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as
     security mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
     components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
-    improvement over previous work. We demonstrate a simple classifier that detects several classes of advanced attacks
+    improvement over previous work. We demonstrate a simple classifier that detects several types of advanced attacks
     such as probing using an oscilloscope probe or micro-soldering attacks with perfect accuracy.
 \end{abstract}
 
@@ -430,7 +430,7 @@ conversion through an ADC. Using equivalent-time sampling, we can sample \unit{\
 \unit{\mega\hertz}-scale sampling rate of the internal ADCs of the commodity microcontroller we use. We use two of the
 microcontroller's ADCs interleaved, each of which provides approximately \qty{1.7}{\mega Sp\per\second} at
 \qty{12}{\bit} resolution. Due to the high conversion speed of the modern ADC cores in this microcontroller, we are able
-to use up to $384\times$ oversampling for increased precision without unduly affecting measurement times.
+to use up to $384\times$ oversampling for increased precision.
 
 %A challenge in equivalent time sampling is precisely phase-synchronizing the sampling pulse to the fundamental
 %frequency of the input signal, which is usually implemented by using a high-speed comparator. In a TDR-style frontend
@@ -443,9 +443,9 @@ our chosen microcontroller. The main source of frontend noise stems from timing 
 ADC due to the clock generation of the ADC, which could be reduced through firmware changes. The strong signal allows us
 to use a comparatively lossy but simple \qty{-6}{\deci\bel} resistive tee instead of a directional coupler.
 
-We implemented the sub-nanosecond sampler using a simple four-diode bridge sampling gate made from commodity
-\partno{BAT17-04W} RF Schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at
-\price{0.13}{\euro} per device at quantity 1000. In contrast to prior
+We implemented the sub-nanosecond sampler using a four-diode bridge sampling gate made from commodity \partno{BAT17-04W}
+RF Schottky diodes, which offer turn-on times better than \qty{100}{\pico\second} at \price{0.13}{\euro} per device at
+quantity 1000. In contrast to prior
 work~\cite{polasekReflektometrCasoveOblasti2020,houtman1GHzSamplingOscilloscope2000}, we precisely control the timing of
 our ADC and avoid the need for a second sampling stage.
 
@@ -527,10 +527,14 @@ Both parts have four independent channels, so only one chip is needed for the tw
 
 \subsection{Cost Breakdown}
 
+\color{highlightgreen}
 Table\ \ref{tab_bom} shows a breakdown of the cost of the main components of our prototype, totalling less than
 \price{10}{\euro}. We did not include power supply components in this breakdown since our circuit is meant to be
-embedded into a payload circuit that will already have sufficient power supplies.
+embedded into a payload circuit that will already have sufficient power supplies. Our design works with strong signal
+levels, and does not have special power supply requirements. In a practical implementation, it is unlikely that the
+power supply would negatively affect performance.
 
+\color{highlightred}
 Due to its \partno{HRTIM} peripheral, the \partno{STM32G4} microcontroller is the component of our design that is
 hardest to replace. However, this part can still be replaced with a wide range of FPGAs, which commonly include
 digitally configurable delay lines on their IO pins for signal de-skewing. For instance, the \partno{ODELAY} primitive
@@ -548,8 +552,8 @@ of Xilinx 7 Series FPGAs provides the same $\frac{1}{32}$ clock cycle resolution
         SKYA21003&2&0.49&Termination switch\\
         74LVC2G157&2&0.15&Pulse pre-conditioning\\
         BAT17-04W&4&0.12&Sampling gates\\
-        &25&0.01&Various MLCC capacitors\\
-        &25&0.01&Various resistors\\\hline
+        N/A&25&0.01&Various MLCC capacitors\\
+        N/A&25&0.01&Various resistors\\\hline
         \multicolumn{2}{r}{}&\textbf{9.67}&\textbf{Total}
     \end{tabular}
     \caption{Cost breakdown of our prototype design. Prices are listed at order quantity 1000 to make prices more
@@ -590,6 +594,20 @@ processing out of the interrupt handler, and by interleaving four instead of two
 peripherals, the lower limit of acquisition time of a $768$-point scan is \qty{37}{\milli\second} for $384\times$
 oversampling.
 
+\color{highlightgreen}
+\subsection{ADC accuracy and noise immunity}
+
+Our system uses high-frequency pulses for measurement, which inherently reject low-frequency noise components. Through
+our TDR approach, both the stimulus and the sampling pulses are phase-locked, functioning similarly to a lock-in
+amplifier. This significantly attenuates asynchronous noise. We excite the mesh with a differential signal, similar to
+standards such as Ethernet or HDMI. Differential signaling cancels out external interference, which tends to affect both
+lines equally\cite{bogatinSignalPowerIntegrity2018}.
+
+Our front-end circuit is designed such that the analog signal entering the ADCs is strong and low in noise. Due to the
+high sample rate of the microcontroller's internal ADCs, we can apply extensive oversampling ($384\times$) to enhance
+resolution.
+
+\color{highlightred}
 \section{Experimental Evaluation}
 
 We evaluated our design in two phases. In the first phase, we measured the electrical performance of our sampling
@@ -844,7 +862,7 @@ switching.
 
 \begin{figure}
     \begin{center}
-        \includegraphics[width=\textwidth]{fig_mesh_length.pdf}
+        \includegraphics[width=.8\textwidth]{fig_mesh_length.pdf}
         \vspace*{-10mm}
     \end{center}
     \caption{TDR responses captured using our design with each of four candidate pulse amplifier ICs and four test
@@ -907,17 +925,16 @@ To evaluate the practical performance of our system, we captured approximately 1
 of environmental and attack conditions and evaluated its performance using a simple template-matching classifier. In
 each measurement series, we captured 7 differential traces with $2\times768$ points per trace. One differential trace
 served as a calibration reference with the multiplexers configured to disconnect the mesh. The other six traces cover
-each of open circuit, short circuit, and matched load termination measuring the mesh once from each of both ends for 12
-channels total ($\{\text{open}, \text{short}, \text{load}\} \times \{\text{forward}, \text{reverse}\} \times
-\{\text{positive}, \text{negative}\}$).
+each of open circuit, short circuit, and matched load termination measuring each of the two traces of the mesh once from
+each of both ends for 12 channels total ($\{\text{open}, \text{short}, \text{load}\} \times \{\text{forward},
+\text{reverse}\} \times \{\text{mesh trace A}, \text{mesh trace B}\}$).
 
 Our classifier is designed to compare two measurement series and produce a scalar score indicating their similarity. A
 simple threshold can then be applied on the similarity score to decide the class. Type 1 and type 2 error rates can be
 tuned by adjusting this threshold.
 
 Our classifier proceeds in four steps: B-spline smoothing, per-channel pearson correlation coefficient, channel score
-mean, and threshold. B-spline smoothing serves as a low-pass filter, evening out random noise. We only applied this
-filter where necessary---most attacks leave a strong signal that stands out from noise. We calculate the pearson
+mean, and threshold. B-spline smoothing serves as a low-pass filter, evening out random noise. We calculate the pearson
 correlation coefficient for each measurement channel separately, producing a vector with 12 entries. We average the
 components of this vector to a single, scalar similarity score.
 
@@ -925,22 +942,21 @@ components of this vector to a single, scalar similarity score.
 Figure~\ref{fig_layout_identity} shows the similarity score of multiple intact meshes. For each performance measurement,
 we show the similarity scores for each pair of measurements as a matrix, with each measurement appearing once in each
 row and column. High values indicate similarity, low values indicate differences. We show the baseline measurement set
-top left, and the experiment set bottom right. Uniform color within the top left indicates high similarity between
-baseline measurements. Nonuniform color in the bottom right is expected, and indicates that mutliple experiment (attack)
-measurements are unlike each other. Classification performance is indicated by the top right and bottom left quadrants,
-which indicate misclassification probability. Misclassification is likely when the top left and top right quadrants look
-alike. Misclassification is less likely the more they differ. Under each figure, we give the False Negative Rate (FNR),
-i.e. the rate of missed alarms, when the threshold is adjusted for a False Positive Rate, i.e. a false alarm rate, of
-$0.1\%$. These values are calculated assuming a normal distribution of similarity scores. Additionally, we provide the
-Crossover Error Rate (CER) derived from the empirical cumulative distribution function of the results, i.e. the error
-rate where for some threshold FPR is equal to FNR. A CER near $50\%$ indicates the classifier cannot distinguish the
-classes, lower values indicate good performance.
+in the top left quadrant of the plot (1), and the experiment set bottom right (4), separated by white lines. Uniform
+color within the top left quadrant (1) indicates high similarity between baseline measurements. Nonuniform color in the
+bottom right (4) is expected, and indicates that mutliple experiment (attack) measurements are unlike each other.
+Classification performance is indicated by the top right (2) and bottom left (3) quadrants, which indicate
+misclassification probability. Misclassification is likely when the top left (1) and top right (2) quadrants look alike.
+Misclassification is less likely the more they differ. Under each figure, we give the False Negative Rate (FNR), i.e.
+the rate of missed alarms, when the threshold is adjusted for a False Positive Rate, i.e. a false alarm rate, of
+$0.1\%$. These values are calculated assuming the similarity scores are normally distributed. Additionally, we provide
+the Crossover Error Rate (CER) derived from the empirical cumulative distribution function of the results, i.e. the
+error rate where for some threshold FPR is equal to FNR. A CER near $50\%$ indicates the classifier cannot distinguish
+the classes, lower values indicate good performance.
 
-Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left) to four variants that have
-the same pitch and area, but different layout of the traces (bottom right). Here and in all following graphs we list the
-false negative / missed alarm rate of the classifier when calibrated to a $0.1\%$ false positive / false alarm rate
-calculated assuming normally distributed samples as well as the crossover error rate calculated from the empirical
-cumulative distribution function. In this instance, our classifier can clearly distinguish mesh layouts in most cases.
+Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left quadrant, 1) to four variants
+that have the same pitch and area, but different randomized layout of the traces (bottom right). Our classifier can
+distinguish mesh layouts with a 18\% FNR at 0.1\% FPR.
 
 The variance between samples of the baseline group in Figure~\ref{fig_layout_identity_layout} alerted us to the
 possibility that while all mesh samples of the same layout were supposed to be identical copies, our measurement circuit
@@ -953,15 +969,16 @@ indicates good performance of our design, and increases the detection efficiency
 
 \begin{figure}
     \centering
-    \begin{subfigure}[t]{0.28\textwidth}
+    \begin{subfigure}[t]{0.4\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
-        \caption{Five copies of the same layout compared to four other layouts, FNR 18\% at 0.1\% FPR, CER=0\%}
+        \caption{Five copies of the same layout compared to four other layouts. FNR 18\% at 0.1\% FPR, CER=0\%.}
         \label{fig_layout_identity_layout}
     \end{subfigure}
     \hspace*{5mm}
-    \begin{subfigure}[t]{0.28\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
-        \caption{Three identical copies, FNR 1.7\% at 0.1\% FPR, CER=0\%}
+    \begin{subfigure}[t]{0.4\textwidth}
+        \centering
+        \includegraphics[width=0.7\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
+        \caption{Three identical copies, 20 measurements each. FNR 1.7\% at 0.1\% FPR, CER=0\%.}
         \label{fig_layout_identity_identity}
     \end{subfigure}
     \hfill
@@ -991,7 +1008,8 @@ indicates good performance of our design, and increases the detection efficiency
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
         \caption{Both traces shorted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
-    \caption{Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes.}
+    \caption{Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes under two different attack
+    scenarios: An interrupted trace, and both mesh traces shorted.}
     \label{fig_covar_basic_attacks}
 \end{figure}
 
@@ -1003,9 +1021,9 @@ location of the reflected pulse edge, leading to 0\% Crossover Error Rate.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.3\textwidth]{fig_covar_short_within_0.3.pdf}
-    \caption{Classification results of several mesh specimens that have one trace shorted to an adjacent location on the
-    same trace. FNR 18\% at 0.1\% FPR, CER=17\%.}
+    \includegraphics[width=0.33\textwidth,trim=0 5mm 0 5mm]{fig_covar_short_within_0.3.pdf}
+    \caption{Similarity matrix of several mesh specimens that have one trace shorted to an adjacent location on the same
+    trace. Classification FNR 18\% at 0.1\% FPR, CER=17\%.}
     \label{fig_short_within}
 \end{figure}
 
@@ -1021,19 +1039,19 @@ and others never detected.
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
-        \caption{Oscilloscope probe. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Oscilloscope probe contacting mesh. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_covar_adv_probe}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
-        \caption{Soldering iron. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Soldering iron touching mesh. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_covar_adv_soldering}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
-        \caption{30mm wire soldered. FNR 9.6\% at 0.1\% FPR, CER=1\%.}
+        \caption{30mm wire soldered to mesh. FNR 9.6\% at 0.1\% FPR, CER=1\%.}
         \label{fig_covar_adv_antenna}
     \end{subfigure}
     \hfill
@@ -1113,7 +1131,8 @@ in one place, while the experiment distribution shifts.
         \label{fig_drill_mod_shape_pic}
     \end{subfigure}
     \caption{The mesh response under a manipulation attack patching across a drill location for a 
-        \qty{300}{\micro\meter} drill. The mesh pitch is \qty{300}{\micro\meter}. Traces were smoothed for readability.}
+        \qty{300}{\micro\meter} drill. The mesh pitch is \qty{300}{\micro\meter}. B-spline smoothing was applied for
+        readability.}
     \label{fig_drill_mod_shape}
 \end{figure}
 
@@ -1172,19 +1191,19 @@ domain based on a temperature measurement.
 
 \begin{figure}
     \begin{subfigure}[t]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_time_drift.pdf}
+        \includegraphics[width=\textwidth,trim=0 5mm 0 5mm]{fig_covar_time_drift.pdf}
         \caption{Time drift (2.5h). FNR 100\% at 0.1\% FPR, CER=60\%.}
         \label{fig_env_effects_time}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.35\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
         \caption{Touch sensitivity. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_touch}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.25\textwidth}
-        \includegraphics[width=\textwidth]{fig_covar_hot_mesh.pdf}
+        \includegraphics[width=\textwidth,trim=0 5mm 0 5mm]{fig_covar_hot_mesh.pdf}
         \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_heat}
     \end{subfigure}
@@ -1212,7 +1231,7 @@ classification performance remaining approximately constant at 69.0\% FNR at 0.1
 \begin{figure}
     \centering
     % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
-    \includegraphics[width=0.4\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
+    \includegraphics[width=0.6\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
     \hspace*{2mm}
     \caption{Classifier similarity scores of measurements in different environments, 10 measurements each. For scale,
         measurements from Figure~\ref{fig_patch_large_scale} are included on the bottom/right. FNR 69.0\% at 0.1\% FPR,
@@ -1239,7 +1258,7 @@ Finally, any probes penetrating the mesh would have to be placed such that their
 traces does not disturb the TDR response. Modifications would have to be carried out with great care, likely using
 micromanipulators or similar specialized equipment.
 
-The PCI PTS HSM DTR standard~\cite{pcisecuritystandardscouncilPaymentCardIndustry2021a} contains a useful framework for
+The PCI PTS HSM DTR standard~\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} contains a useful framework for
 thinking about attacker capabilities. Applying their taxonomy, our monitoring system raises the skill level required for
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.

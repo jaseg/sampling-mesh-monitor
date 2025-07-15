@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_short_across_traces_p0.4_minmax.pdf / fig_cdf_short_across_traces_p0.4_minmax.pdf on 2025-07-14T19:47:21.044313
+Results calculated from plots fig_covar_short_across_traces_p0.4_minmax.pdf / fig_cdf_short_across_traces_p0.4_minmax.pdf on 2025-07-15T16:44:08.937535
 
 setting threshold for quantile 0.001
 Baseline threshold set at -0.044841

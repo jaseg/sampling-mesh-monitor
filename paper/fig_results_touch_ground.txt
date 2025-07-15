@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_touch_ground.pdf / fig_cdf_touch_ground.pdf on 2025-07-10T11:36:26.460549
+Results calculated from plots fig_covar_touch_ground.pdf / fig_cdf_touch_ground.pdf on 2025-07-15T16:44:07.409709
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.981497

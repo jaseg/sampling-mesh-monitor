@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf / fig_cdf_patch_repeat_tridelta_all_the_data_p0.3.pdf on 2025-07-14T21:07:52.114674
+Results calculated from plots fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf / fig_cdf_patch_repeat_tridelta_all_the_data_p0.3.pdf on 2025-07-15T16:46:33.203127
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.978057
