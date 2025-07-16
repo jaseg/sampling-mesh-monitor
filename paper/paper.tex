@@ -29,8 +29,10 @@
 \tcbuselibrary{breakable}
 \usepackage{float}
 
-\definecolor{highlightred}{rgb}{0.6 0.1 0.1}
-\definecolor{highlightgreen}{rgb}{0.12 0.07 0.6}
+%\definecolor{highlightred}{rgb}{0.6 0.1 0.1}
+%\definecolor{highlightgreen}{rgb}{0.12 0.07 0.6}
+\definecolor{highlightred}{rgb}{0 0 0}
+\definecolor{highlightgreen}{rgb}{0 0 0}
 \DeclareSIUnit{\baud}{Bd}
 \DeclareSIUnit{\year}{a}
 \DeclareSIUnit{\rpm}{rpm}
@@ -66,10 +68,10 @@
             (HSM)\and FIPS 140-2/3\and ISO/IEC 24759\and PCI PTS HSM MSR}
 \maketitle
 
-\begin{center}
-    \textbf{Note:} This major revision has all shortened parts \color{highlightred}highlighted in red, \color{black}and
-    all parts that are new or that have large changes \color{highlightgreen}highlighted in blue.\color{black}
-\end{center}
+%\begin{center}
+%    \textbf{Note:} This major revision has all shortened parts \color{highlightred}highlighted in red, \color{black}and
+%    all parts that are new or that have large changes \color{highlightgreen}highlighted in blue.\color{black}
+%\end{center}
 
 % FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
 
@@ -84,7 +86,7 @@
     security mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
     components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
     improvement over previous work. We demonstrate a simple classifier that detects several types of advanced attacks
-    such as probing using an oscilloscope probe or micro-soldering attacks with perfect accuracy.
+    such as probing using an oscilloscope probe or micro-soldering attacks with no false negatives.
 \end{abstract}
 
 \section{Introduction}
@@ -940,10 +942,10 @@ Our classifier is designed to compare two measurement series and produce a scala
 simple threshold can then be applied on the similarity score to decide the class. Type 1 and type 2 error rates can be
 tuned by adjusting this threshold.
 
-Our classifier proceeds in four steps: B-spline smoothing, per-channel pearson correlation coefficient, channel score
-mean, and threshold. B-spline smoothing serves as a low-pass filter, evening out random noise. We calculate the pearson
-correlation coefficient for each measurement channel separately, producing a vector with 12 entries. We average the
-components of this vector to a single, scalar similarity score.
+Our classifier proceeds in four steps: B-spline smoothing, per-channel Pearson Correlation Coefficient, averaging all
+channel results, and applying a threshold. B-spline smoothing serves as a low-pass filter, evening out random noise. We
+calculate the Pearson Correlation Coefficient for each measurement channel separately, producing a vector with 12
+entries. We average the components of this vector to a single, scalar similarity score.
 
 \subsubsection{Interpreting these performance plots}
 Figure~\ref{fig_layout_identity} shows the similarity score of multiple intact meshes. For each performance measurement,
@@ -971,7 +973,7 @@ might be sensitive enough to pick up on manufacturing variations from one copy t
 evaluate this scenario, in Figure~\ref{fig_layout_identity_identity} we show the result of repeated measurements of
 three copies of the same mesh. The measurements were taken interleaved ($1, 2, 3, 1, 2, \hdots$) to exclude systematic
 errors. We found our system can indeed distinguish multiple copies of the same mesh at a 1.7\% FNR at 0.1\% FPR. We
-leave a detailed analysis of this effect to future work. For the scope of this paper, the presense of this effect
+leave a detailed analysis of this effect to future work. For the scope of this paper, the presence of this effect
 indicates good performance of our design, and increases the detection efficiency of our approach. 
 
 \begin{figure}
@@ -1022,7 +1024,7 @@ indicates good performance of our design, and increases the detection efficiency
 
 Figure~\ref{fig_covar_basic_attacks} shows the performance of our classifier under the two basic attack scenarios of an
 interrupted trace, and a short circuit between the mesh's differential traces. Such attacks lead to large changes in the
-location of the reflected pulse edge, leading to 0\% Crossover Error Rate.
+location of the reflected pulse edge, resulting in 0\% Crossover Error Rate.
 
 \subsubsection{Trace shortening}
 
@@ -1074,11 +1076,11 @@ and others never detected.
 \end{figure}
 
 Figure~\ref{fig_covar_adv_attack} shows our classifier's performance under conditions similar to actions an attacker
-would perform during an attack: An oscilloscsope probe\footnote{Part number Rigol PVP3150.} touching one mesh trace
+would perform during an attack: An oscilloscope probe\footnote{Part number Rigol PVP3150.} touching one mesh trace
 (Figure~\ref{fig_covar_adv_probe}), a soldering iron touching one mesh trace (Figure~\ref{fig_covar_adv_soldering}), and
 a mesh where one trace has a $l=\qty{30}{\milli\meter},d=\qty{120}{\micro\meter}$ piece of copper wire soldered to one
 trace (Figure~\ref{fig_covar_adv_probe}). Our classifier is able to clearly distinguish the probing and soldering iron
-cases at 0\% FNR, with a maximum of 9.6\% FNR at 0.1\% FNR in the soldered wire case.
+cases at 0\% FNR, with a maximum of 9.6\% FPR at 0.1\% FNR in the soldered wire case.
 
 \subsubsection{Patching attacks}
 \label{sec_attack_probe}
@@ -1114,16 +1116,16 @@ an attack on a set of \qty{300}{\micro\meter} pitch meshes. Figure\ \ref{fig_dri
 the resulting change in the time-domain response.
 
 Figure~\ref{fig_covar_patch_attack} shows the classification result of this attack. To extract the subtle effect of this
-attack, we measured two reference specimens, one control, and one experiment specimen twice in a row, once before the
-attack, and once after. Measurements were repeated 10 times interleaved. Factors such as temperature drift can be
-excluded by comparing both control and experiment measurements against the two references before and after the
-modification. Figure~\ref{fig_covar_patch_attack_baseline} shows the four samples before the attack, exhibiting the same
-subtle PUF-like effect that we described in Section~\ref{sec-class-perf}. Since we peform both before and after
-measurements on the same sample, we can separate this effect from the effect of the attack.
-Figure~\ref{fig_covar_patch_attack_direct} compares both control and experiment samples before and after the attack, and
-shows a clear change in the experiment sample during the attack. Figure~\ref{fig_covar_patch_attack_scatter} plots the
-similarity scores of both samples to each of the two reference samples. We can see that the control distribution stays
-in one place, while the experiment distribution shifts.
+attack, we measured two reference specimens, one control, and one experiment specimen twice: Once before the attack, and
+once after. Measurements were interleaved and repeated 10 times. Factors such as temperature drift can be excluded by
+comparing both control and experiment measurements against the two references before and after the modification.
+Figure~\ref{fig_covar_patch_attack_baseline} shows the four samples before the attack, exhibiting the same subtle
+PUF-like effect that we described in Section~\ref{sec-class-perf}. Since we peform both before and after measurements on
+the same sample, we can separate this effect from the effect of the attack. Figure~\ref{fig_covar_patch_attack_direct}
+compares both control and experiment samples before and after the attack, and shows a clear change in the experiment
+sample during the attack. Figure~\ref{fig_covar_patch_attack_scatter} plots the similarity scores of both samples to
+each of the two reference samples. We can see that the control distribution stays in one place, while the experiment
+distribution shifts.
 
 \begin{figure}
     \centering
@@ -1148,10 +1150,10 @@ Based on the above results, we peformed a larger-scale experiment using seven sa
 against baseline measurements taken before and after measuring the experiment samples. Each sample was measured ten
 times, interleaved. Figure~\ref{fig_patch_large_scale} shows the results of this experiment, resulting in a FNR of
 71.5\% at 0.1\% FPR. Since such patches only affect few data points along the reflection response, we included a variant
-of our classifier that uses the maximum difference across all channels instead of the averaged pearson correlation
-coefficient to better at distinguishing the subtle, localized effects of such patches. Using this classifier variant,
-FNR improves to 51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate
-at 0.1\%.
+of our classifier that uses the maximum difference across all channels instead of the averaged Pearson Correlation
+Coefficient to improve sensitivity to the subtle, localized effects of such patches. Using this classifier variant, FNR
+improves to 51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate at
+0.1\%.
 
 \begin{figure}
     \centering
@@ -1269,7 +1271,7 @@ micromanipulators or similar specialized equipment.
 The PCI PTS HSM DTR standard~\cite{pcisecuritystandardscouncilPaymentCardIndustry2021} contains a useful framework for
 thinking about attacker capabilities. Applying their taxonomy, our monitoring system raises the skill level required for
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
-\emph{standard} equipment to \emph{bespoke} equipment such as dielectric drill bits and ceramic soldering tips.
+\emph{standard} equipment to \emph{bespoke} equipment.
 
 % fig_covar_short_within_0.3.pdf % FIXME repeat these runs, we have conflicting data. Do runs in both .3 and .4, .4
 % seems to work better.
@@ -1295,7 +1297,9 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
 \paragraph{Advanced attack classification.} While we proposed a simple baseline classifier, there is a large parameter
 space for more advanced designs. For instance, a classifier could apply machine learning techniques to adapt to the
 response of a particular mesh, learn its benigh behavior under temperature changes, and dynamically schedule sample
-timing to focus attention on the parts of the response signal that are most susceptible to attacks.
+timing to focus attention on the parts of the response signal that are most susceptible to attacks. Moving from a
+single-shot classifier that only observes measurements in isolation to a more advanced approach that considers the full
+history of measurements during the mesh's lifetime would also likely improve performance.
 
 \color{highlightred}
 \paragraph{Auxiliary applications.} The low-cost, embedded TDR frontend presented in this paper could be used for other
@@ -1311,22 +1315,24 @@ where our classifier was able to distinguish supposedly identical copies of the 
 precisely characterize this effect and its dependence on factors such as the chosen PCB manufacturer, and to quantify if
 it indeed rises to the level of a PUF in entropy and repeatability.
 
-\color{black}
+\color{highlightred}
 \section{Conclusion}
 
 In this paper, we presented a design for a low-cost frontend for integrity monitoring of security meshes in applications
 such as HSMs based on the principles of sub-nanosecond Time Domain Reflectometry. Our design repurposes an inexpensive
-HDMI redriver IC to produce sharp edges for the TDR stimulus, and applies a microwave clip line to form fast pulses for
-TDR sampling. Our design creates a detailed fingerprint of the intact mesh's condition that not only captures the length
-of the mesh's traces but also reflects the impedance at every point along the mesh.
+HDMI redriver IC and uses a microwave clip line to form fast pulses for TDR sampling. Our design creates a detailed
+fingerprint of the intact mesh's condition that not only captures the length of the mesh's traces but that can
+distinguish copies of the same mesh.
 
-Beyond simply detecting faults or manipulations that disturb the mesh without causing breaks, we have demonstrated our
-prototype circuit's capability to reliably detect almost all of a wide range of practical attacks.
+We have demonstrated our prototype circuit's capability to reliably detect and distinguish a wide range of practical
+attacks with no classification erros in most attack classes, and a worst-case FNR of $71.5\%$ at $0.1\%$ FPR when
+detecting tiny, micro-soldered patch wires.
 
 Compared to the state of the art, our approach enables the monitoring of larger meshes, at higher sensitivity and lower
 cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
 applications for security meshes made using low-cost, standard PCB manufacturing processes.
 
+\color{black}
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today. The git repository with the
 LaTeX source for this paper, all hardware design files, and firmware and analysis source code can be found at:

@@ -8,7 +8,7 @@ MAKEFLAGS += --no-builtin-rules
 
 main_tex ?= paper
 
-VERSION_STRING := $(shell git describe --tags --long --dirty)
+VERSION_STRING := $(shell git describe --tags --long)
 
 all: ${main_tex}.pdf
 
