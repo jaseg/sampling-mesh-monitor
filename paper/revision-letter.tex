@@ -1,0 +1,59 @@
+\documentclass[a4paper, 10pt]{article}
+\title{Revision Letter: High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
+\begin{document}
+\maketitle
+
+Below is a list of changes between the paper version submitted to TCHES 2025/4 and reviewed with a majR decision, and
+the version submitted to TCHES 2026/1.
+
+\section{Susceptibility to power fluctuations and ADC accuracy (2025/4 Reviewer A)}
+
+\begin{itemize}
+    \item Reworded beginning of Section 4 to improve clarity and to better explain the signal path to the ADC .
+    \item Add new Section 4.4, ``ADC Accuracy and Noise Immunity''.
+    \item Condensed Section 4.3, ``Measurement Principle and Scan Scheduling'' to make space.
+    \item Reworded Section 5.1.2, ``Self-Characterization'' to improve clarity.
+\end{itemize}
+
+\section{Detection method and False Positive/Negative Rates(2025/4 Reviewer B)}
+
+\begin{itemize}
+    \item Reworked Section 5.3, ``Tamper Tests'' from the ground up into Section 5.3, ``Classification Performance''.
+        The new section introduces a concrete classifier, and presents the results of about 1200 new measurement series
+        across 16 new sets of attack and environmental condition experiments.
+    \item Replaced Figures 7-9 (2025/4 version) with Figure 12, 15 (2026/1 version). The new figures are plotted to
+        improve clarity, and include new measurement data.
+    \item Add new Figures 7-11, 13, 14, and 16 based on new measurement data.
+    \item Re-scaled scan timing and length values for adjusted measurement series size in new measurement series for
+        majR (768 instead of 1024 points) in Section 4.3, ``Measurement Principle and Scan Scheduling''.
+    \item Removed nonessential detail from Section 4.1, ``Driver selection'' to make space, such as detail on optical
+        networking chipset market availability and bus redriver types.
+    \item Removed nonessential detail from Section 4.2, ``Cost breakdown'' such as power supply details, and details on
+        signal routing variants in the kcost breakdown table caption.
+    \item Shortened the introductory paragraph in Section 5, ``Experimental Evaluation'' to make space.
+    \item Condensed Section 5.1.1, ``Stimulus Pulse Rise Time at the Mesh'' to make space.
+    \item Add ``Advanced Attack Classification'' paragraph to Section 6, ``Future Work''.
+    \item Add ``Characterization of PUF-like Effects'' paragraph to Section 6, ``Future Work'' based on new measurement
+        results.
+    \item Remove ``Design Variants'' and ``System Design'' paragraphs from Section 6, ``Future Work'' to make space.
+\end{itemize}
+
+\section{Source code availability (2025/4 Reviewer C)}
+
+\begin{itemize}
+    \item Added anonymized source code and schematics as supplementary material with 2026/1 submission. The raw data set
+        too large for direct upload in HotCRP, thus we provided a (non-anonymous) download link as a comment to the
+        editors-in-chief.
+\end{itemize}
+
+\section{Clarity, consistency and spelling changes}
+
+\begin{itemize}
+    \item Mention added classifier evaluation in abstract.
+    \item Whitespace fixes around citation brackets in several places.
+    \item Re-worded Section 5.1, ``Rise Time Measurement'' to improve clarity.
+    \item Re-worded Section 5.2, ``Mesh Specimen Characterization'' to improve clarity.
+    \item Re-worded Section 5.4, ``Countermeasures'' to improve clarity.
+    \item Re-worded Section 7, ``Conclusion'' to improve clarity and include new results.
+\end{itemize}
+\end{document}
