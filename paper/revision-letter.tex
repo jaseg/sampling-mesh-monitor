@@ -1,59 +1,113 @@
 \documentclass[a4paper, 10pt]{article}
-\title{Revision Letter: High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
+\usepackage{csquotes}
 \begin{document}
-\maketitle
+\section*{Revision Letter: High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
+\vspace*{10mm}
 
-Below is a list of changes between the paper version submitted to TCHES 2025/4 and reviewed with a majR decision, and
-the version submitted to TCHES 2026/1.
+We are grateful for the reviewers' thorough and insightful feedback from both the 2025/4 review cycle. Below, we have
+compiled a list of questions and comments by the reviewers. We will give detail how we addressed each point in the
+present major revision and answer any questions.
 
-\section{Susceptibility to power fluctuations and ADC accuracy (2025/4 Reviewer A)}
+Reviewer A stated,
+\begin{displayquote}
+    (...) I think the experiments could be expanded a bit to build more confidence (...)
+\end{displayquote}
 
-\begin{itemize}
-    \item Reworded beginning of Section 4 to improve clarity and to better explain the signal path to the ADC .
-    \item Add new Section 4.4, ``ADC Accuracy and Noise Immunity''.
-    \item Condensed Section 4.3, ``Measurement Principle and Scan Scheduling'' to make space.
-    \item Reworded Section 5.1.2, ``Self-Characterization'' to improve clarity.
-\end{itemize}
+We have adressed Reviewer A's concern in the major revision by reworking all experiments, collecting a large amount of
+additional data. In the new experimental section, each experiment has been repeated multiple times, and it is based on a
+total of about 1200 additional measurement series. Each measurement series consists of twelve traces and two calibration
+traces.
 
-\section{Detection method and False Positive/Negative Rates(2025/4 Reviewer B)}
+Reviewer A asked,
+\begin{displayquote}
+    How sensitive is the proposed method to power fluctuations? More generally, what rate of false alarms should we
+    expect? In a real-world scenario, there will be environmental impacts, and I'm unsure how robust the proposed method
+    is.
+\end{displayquote}
 
-\begin{itemize}
-    \item Reworked Section 5.3, ``Tamper Tests'' from the ground up into Section 5.3, ``Classification Performance''.
-        The new section introduces a concrete classifier, and presents the results of about 1200 new measurement series
-        across 16 new sets of attack and environmental condition experiments.
-    \item Replaced Figures 7-9 (2025/4 version) with Figure 12, 15 (2026/1 version). The new figures are plotted to
-        improve clarity, and include new measurement data.
-    \item Add new Figures 7-11, 13, 14, and 16 based on new measurement data.
-    \item Re-scaled scan timing and length values for adjusted measurement series size in new measurement series for
-        majR (768 instead of 1024 points) in Section 4.3, ``Measurement Principle and Scan Scheduling''.
-    \item Removed nonessential detail from Section 4.1, ``Driver selection'' to make space, such as detail on optical
-        networking chipset market availability and bus redriver types.
-    \item Removed nonessential detail from Section 4.2, ``Cost breakdown'' such as power supply details, and details on
-        signal routing variants in the kcost breakdown table caption.
-    \item Shortened the introductory paragraph in Section 5, ``Experimental Evaluation'' to make space.
-    \item Condensed Section 5.1.1, ``Stimulus Pulse Rise Time at the Mesh'' to make space.
-    \item Add ``Advanced Attack Classification'' paragraph to Section 6, ``Future Work''.
-    \item Add ``Characterization of PUF-like Effects'' paragraph to Section 6, ``Future Work'' based on new measurement
-        results.
-    \item Remove ``Design Variants'' and ``System Design'' paragraphs from Section 6, ``Future Work'' to make space.
-\end{itemize}
+In the major revision, We have adressed Reviewer A's questions in two separate ways. First, we have conducted additional
+experiments under a wide range of real-world environmental scenarios including inside a server room. These new results
+can now be found in Section 5.3.6 and Figures 14-16. Furthermore, we have improved our experimental design based on
+Reviewer A's helpful input to more clearly separate the experiment condition from concurrent environmental effects. To
+separate both effects, we took alternating experiment and control measurements, ensuring that environmental effects
+affect both groups equally. The experiments shown in Section 5.3.5 and Figure 11, showing performance under
+micro-soldering patching attacks, benefitted the most from this improved experimental design.
 
-\section{Source code availability (2025/4 Reviewer C)}
+Reviewer A asked,
+\begin{displayquote}
+2. Looking at the figures, I believe those are signals at the input of the ADC, not the output, correct? If so, how
+likely is it to capture these tiny fluctuations with a microcontroller's ADC? Typically, these ADCs are not very fast or
+precise. How fast and precise would the ADCs need to be to achieve good precision with your method?
+\end{displayquote}
 
-\begin{itemize}
-    \item Added anonymized source code and schematics as supplementary material with 2026/1 submission. The raw data set
-        too large for direct upload in HotCRP, thus we provided a (non-anonymous) download link as a comment to the
-        editors-in-chief.
-\end{itemize}
+In addition to our clarifications in our 2025/4 cycle rebuttal response, we have addressed Reviewer A's questions by
+adding Section 4.4 ``ADC Accuracy and Noise Immunity'' and by improving the text of Section 5.1.2
+``Self-Characterization''. We additionally re-worded the beginning of Section 4 to more clearly explain the signal path
+to the ADC.
 
-\section{Clarity, consistency and spelling changes}
+Reviewer B noted,
+\begin{displayquote}
+Weaknesses
+    \begin{itemize}
+        \item lacking a more elaborated exposition of the detection method, e.g., algorithmically
+        \item as a result, also no study on false positive/negative rates
+    \end{itemize}
+\end{displayquote}
 
-\begin{itemize}
-    \item Mention added classifier evaluation in abstract.
-    \item Whitespace fixes around citation brackets in several places.
-    \item Re-worded Section 5.1, ``Rise Time Measurement'' to improve clarity.
-    \item Re-worded Section 5.2, ``Mesh Specimen Characterization'' to improve clarity.
-    \item Re-worded Section 5.4, ``Countermeasures'' to improve clarity.
-    \item Re-worded Section 7, ``Conclusion'' to improve clarity and include new results.
-\end{itemize}
+Reviewer B further elaborated,
+\begin{displayquote}
+    Whereas the experimental results demonstrate 'visually' that the proposed circuit is able to distinguish several
+    types of tampering attempts, it is not specified how the system will effectively detect tampering. E.g., which
+    signal features will be extracted and how will these be processed algorithmically? Which thresholds will be set and
+    how will they be calibrated? Etc. In other words, the 'back-end' of the tamper-detection solution is completely
+    missing.
+
+    As a result of this, it is not possible to fully assess the viability of the solution, since the most critical
+    trade-off between sensitivity and stability cannot be assessed. In other words, how likely is it that a tampering
+    event is effectively detected, and how likely is it that a non-tampering event (e.g., noise, or conventional
+    handling) is mis-classified as tampering? A study of this in terms of false positive/negative rate needs to be
+    performed.
+
+    It is highly recommended to add an effective tamper detection algorithm to the solution, and study its false
+    positive/negative rate under various scenarios.
+\end{displayquote}
+
+We agree with Reviewer B's observations and their insightful contextualization of the importance of such a detection
+algorithm. To include such an algorithm, we reworked our entire experimental section from the ground up in the major
+revision. We developed a baseline classifier to better illustrate our design's performance, and we performed a number of
+new experiments to collect extensive data for the evaluation of our baseline classifier. We provide the design of our
+classifier and detailed performance measurements throughout the reworked Section 5.3, now titled ``Classification
+Performance''. As part of this rework, we replaced Figures 7-9 from the 2025/4 version with Figures 12 and 15 to improve
+clarity and include new measurement data. Figures 7-11, 13, 14, and 16 are new in the revised paper and are based on the
+new measurement data. To make space for the large amount of new work, we improved the wording of several parts of the
+paper, and we condensed Section 4.1, ``Driver Selection'' and Section 4.2, ``Cost Breakdown'' to remove nonessential
+detail.
+
+During the evaluation of our new measurement data, we noticed PUF-like behavior of our system using our baseline
+classifier as mentioned in Section 5.3.1. We believe a closer investigation of this behavior including an entropy
+analysis and the construction of an optimized classifier would be an interesting topic for future work. We provide an
+outline of this setting in the revised paper in Section 6, ``Future Work''.
+
+Reviewer C noted,
+\begin{displayquote}
+    The authors are making all the code and the information available to the community. This is certainly a good
+    contribution. Would have been interesting to have it already, in anonymous form, during the submission.
+    Nevertheless, the fact that it will be available after is certainly to be appreciated.
+\end{displayquote}
+
+We fully agree with this evaluation and we have provided CAD data, source code, and raw data with the revised paper
+during submission. We added anonymized source code and schematics as supplementary material in HotCRP. The raw data set
+was too large for direct upload in HotCRP, so we provided it as a (non-anonymous) download link as a comment to the
+editors-in-chief.
+
+In conclusion, we wish to thank the reviewers for their thorough and insightful reviews containing many helpful comments
+and interesting questions. We hope we have provided clarity on all points raised, and we believe with the reviewers'
+feedback we will be able to improve our revised paper further, creating a final version that is more understandable,
+scientifically rigorous and well-founded than it would have been without the reviewers' helpful input.
+
+\vspace*{10mm}
+Best regards,
+
+The Authors.
+%    \item Add ``Advanced Attack Classification'' paragraph to Section 6, ``Future Work''.
 \end{document}
