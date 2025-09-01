@@ -4,9 +4,9 @@
 \section*{Revision Letter: High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Reflectometry}
 \vspace*{10mm}
 
-We are grateful for the reviewers' thorough and insightful feedback from both the 2025/4 review cycle. Below, we have
+We are grateful for the reviewers' thorough and insightful feedback during the 2025/4 review cycle. Below, we have
 compiled a list of questions and comments by the reviewers. We will give detail how we addressed each point in the
-present major revision and answer any questions.
+present 2026/1 review cycle major revision and answer any questions.
 
 Reviewer A stated,
 \begin{displayquote}
@@ -14,9 +14,9 @@ Reviewer A stated,
 \end{displayquote}
 
 We have adressed Reviewer A's concern in the major revision by reworking all experiments, collecting a large amount of
-additional data. In the new experimental section, each experiment has been repeated multiple times, and it is based on a
-total of about 1200 additional measurement series. Each measurement series consists of twelve traces and two calibration
-traces.
+additional data. In the new experimental section, each experiment has been repeated multiple times, and the section is
+based on a total of about 1200 additional measurement series. Each measurement series consists of twelve traces and two
+calibration traces of 768 points each.
 
 Reviewer A asked,
 \begin{displayquote}
@@ -26,12 +26,13 @@ Reviewer A asked,
 \end{displayquote}
 
 In the major revision, We have adressed Reviewer A's questions in two separate ways. First, we have conducted additional
-experiments under a wide range of real-world environmental scenarios including inside a server room. These new results
-can now be found in Section 5.3.6 and Figures 14-16. Furthermore, we have improved our experimental design based on
-Reviewer A's helpful input to more clearly separate the experiment condition from concurrent environmental effects. To
-separate both effects, we took alternating experiment and control measurements, ensuring that environmental effects
-affect both groups equally. The experiments shown in Section 5.3.5 and Figure 11, showing performance under
-micro-soldering patching attacks, benefitted the most from this improved experimental design.
+experiments under a wide range of real-world environmental scenarios including inside a server room where
+electromagnetic interference is abundant. These new results can now be found in Section 5.3.6 and Figures 14-16.
+Furthermore, we have improved our experimental design based on Reviewer A's helpful input to more clearly separate the
+experiment condition from concurrent environmental effects. To separate both effects in runs not focused on
+environmental effects, we took alternating experiment and control measurements, ensuring that environmental effects
+affect both groups equally. The experiments shown in Section 5.3.5 and Figure 11 where performance under
+micro-soldering patching attacks is displayed benefitted the most from this improved experimental design.
 
 Reviewer A asked,
 \begin{displayquote}
@@ -86,7 +87,8 @@ detail.
 During the evaluation of our new measurement data, we noticed PUF-like behavior of our system using our baseline
 classifier as mentioned in Section 5.3.1. We believe a closer investigation of this behavior including an entropy
 analysis and the construction of an optimized classifier would be an interesting topic for future work. We provide an
-outline of this setting in the revised paper in Section 6, ``Future Work''.
+outline of this setting in the revised paper in Section 6, ``Future Work''. We expect that once this effect has been
+characterized, it can serve as a basis for improved attack detection in a more advanced classifier.
 
 Reviewer C noted,
 \begin{displayquote}
@@ -96,9 +98,9 @@ Reviewer C noted,
 \end{displayquote}
 
 We fully agree with this evaluation and we have provided CAD data, source code, and raw data with the revised paper
-during submission. We added anonymized source code and schematics as supplementary material in HotCRP. The raw data set
-was too large for direct upload in HotCRP, so we provided it as a (non-anonymous) download link as a comment to the
-editors-in-chief.
+during submission. We added anonymized source code and schematics as supplementary material to the major revision in
+HotCRP. The raw data set was too large for direct upload in HotCRP, so we provided it as a (non-anonymous) download link
+as a comment to the editors-in-chief.
 
 In conclusion, we wish to thank the reviewers for their thorough and insightful reviews containing many helpful comments
 and interesting questions. We hope we have provided clarity on all points raised, and we believe with the reviewers'
