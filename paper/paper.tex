@@ -29,10 +29,10 @@
 \tcbuselibrary{breakable}
 \usepackage{float}
 
-%\definecolor{highlightred}{rgb}{0.6 0.1 0.1}
-%\definecolor{highlightgreen}{rgb}{0.12 0.07 0.6}
-\definecolor{highlightred}{rgb}{0 0 0}
-\definecolor{highlightgreen}{rgb}{0 0 0}
+\definecolor{highlightred}{rgb}{0.6 0.1 0.1}
+\definecolor{highlightgreen}{rgb}{0.12 0.07 0.6}
+%\definecolor{highlightred}{rgb}{0 0 0}
+%\definecolor{highlightgreen}{rgb}{0 0 0}
 \DeclareSIUnit{\baud}{Bd}
 \DeclareSIUnit{\year}{a}
 \DeclareSIUnit{\rpm}{rpm}
@@ -90,6 +90,17 @@
 \end{abstract}
 
 \section{Introduction}
+
+% Minor revision criteria from shepherd
+% =====================================
+%
+% [ ] Including a section elaborating on the structure of a typical device secured by the proposed system, and defining an explicit threat model.
+% [ ] Expanding the literature review.
+% [ ] Recalculating CER based on the same fitted distribution for better comparison.
+% [ ] Elaborating on why 0.1% FPR was chosen. 
+% [ ] Interpretation of poor results in particular cases (in response to reviewer C).
+%
+%
 
 % Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
 % 2.2 / 2.3 Wie related? Warum interessant? In Intro erwähnen?
@@ -367,6 +378,63 @@ nanosecond-scale stimulus rise time--not by frontend time resolution. Compared w
 our proposed system is not only faster, but presents a more balanced trade-off between time resolution and analog
 bandwidth.
 
+\color{highlightgreen}
+\subsection{Device Fingerprinting through Impedance Sensing}
+
+Recently, impedance analysis on the Power Distribution Network (PDN) of PCB assemblies has been proposed as a
+fingerprinting technique aimed at detecting Hardware Trojans (HT) inserted into a board.
+% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
+% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+Usually, all chips on a board are directly connected to the board's PDN. Thus, characterizing the board's PDN does not
+only yield information on possible modifications to the board's PDN itself such as modified traces or removed passive
+components such as capacitors, it also reflects information about the internal structure of any chips or other
+components connected to the PDN. Impedance analysis techniques generally probe the circuit during operation using
+high-frequency signals. They have been proven using an external Vector Network Analyzer in one-Port
+% cite: https://doi.org/10.46586/tches.v2023.i4.238-261 [external VNA]
+configuration measuring reflected signal components as well as using two or more ports measuring transmitted signal
+components.
+% cite: 10.1109/TIFS.2023.3285490 [exterenal VNA, different people]
+Both Time Domain Reflectometry
+% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
+and conventional frequency-domain VNA measurements
+% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+have been shown to be effective. From a signal theory point of view, both techniques can be considered equivalent.
+
+While using an external VNA is feasible for validation in a factory setting, several research works embed the measuring
+system into the PCB as either a discrete circuit
+% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
+or as part of an FPGA gateware.
+% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+% cite: https://doi.org/10.1145/3689939.3695784 [backside tamper detection, gateware VNA]
+With such a system, boards can self-verify in the field after deployment, enabling the use of the system for active
+tamper sensing. While at less than \qty{2}{\giga\hertz} the achievable bandwith of such systems is lower than that
+provided by an external, research-grade VNA, it turns out that the frequencies of interest in the impedance profile of
+practical boards lie inside of this small bandwidth.
+% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+
+Variations of impedance analysis techniques have been demonstrated that detect changes inside individual chips using
+board-level measurements,
+% cite: 10.1109/DDECS57882.2023.10139623 [chip fp, using external VNA]
+that detect manipulatoins using non-contact near-field Radio Frequency (RF) measurements,
+% cite: https://doi.org/10.3390/s25134188 [near-field antenna]
+that detect the mechanical preparation of a target chip for backside attacks using onboard measurements,
+% cite: https://doi.org/10.1145/3689939.3695784 [backside tamper detection, gateware VNA]
+and that adapt the technique as an offensive tool for side-channel analysis (SCA) attacks.
+% cite: https://doi.org/10.1145/3576915.3623092 [SCA attack]
+
+The technique we propose in this work is related in that it also embeds a RF measurement circuit in a target board, and
+that TDR and frequency-domain VNA measurements resolve the same information about a target circuit from a signal theory
+perspective. Our system differs from the PDN impedance analysis literature in that it reaches a significantly higher
+bandwidth than other embedded measurement setups, and that our proposed tamper-sensing meshes are specifically built as
+sensors. Our technique is better suited to active tamper-sensing applications where the sensing circuit is continuously
+powered, since in contrast to PDN impedance analysis techniques that need the entire PDN to be powered, our proposed
+technique can be applied to protect an unpowered payload circuit. In a practical application, both PDN impedance
+analysis and TDR-based tamper-sensing meshes could complement each other to form a comprehensive defense where PDN
+impedance analysis checks the core system's integrity, with TDR-based meshes covering everything outside the purview of
+PDN impedance analysis.
+
+\color{black}
+
 \section{Monitoring a Security Mesh using Time Domain Reflectometry}
 
 Time Domain Reflectometry (TDR) is a well-known technique that is used to locate faults along a signal channel such as a
@@ -413,10 +481,33 @@ segments can be monitored by a single frontend, enabling the monitoring of arbit
 concept, in our prototype we implemented software-controllable flipping of the mesh using \partno{TMUXHS4212} bus
 multiplexers.
 
+\color{highlightgreen}
+\subsection{Typical System Design and Threat Model}
+
+A typical system design for a device like an HSM that employs TDR-based tamper sensing meshes would consist of a payload
+PCB assembly enveloped from all directions in tamper sensing mesh PCBs. The payload PCB assembly would contain both the
+TDR mesh monitoring circuit as well as payload circuitry such as the HSM's cryptographic coprocessor. The tamper-sensing
+meshes we analyze in this paper have the mesh trace layer adjacent to a continuous ground plane to provide a clean,
+constant impedance along the mesh trace. In a practical design, the mesh trace would be on the payload-facing side of
+the mesh PCB(s), and the ground plane on the outside-facing side. This way, the ground plane simultaneously shields both
+the mesh's traces and the payload circuitry from electromagnetic interference. At the same time, putting the mesh trace
+on the inside makes it significantly harder to manipulate without disturbing its TDR response. In such a system, the
+mesh monitoring circuit would be battery powered and would check for tamper attempts periodically even when the payload
+is powered off, e.g.\ during shipping.
+
+In this paper, we tested meshes made from inexpensive rigid FR-4 PCBs, multiple of which could be arranged around a
+payload to protect it from all angles, or which could be used in an Inertial HSM as proposed by
+% FIXME cite IHSM paper
+Flexible Printed Circuits (FPCs) made with an industry-standard polyimide substrate could also be used, and would be
+suitable for wrapping around a payload.
+
+
+% FIXME TODO Minor revision system design and threat model
+\color{black}
+
 \section{Circuit Design and Driving Approach}
 
 % FIXME peer review only, for major revision @ TCHES
-\color{highlightred}
 \begin{figure}
     \centering
     \hspace*{-7mm}
@@ -534,14 +625,12 @@ Both parts have four independent channels, so only one chip is needed for the tw
 
 \subsection{Cost Breakdown}
 
-\color{highlightgreen}
 Table\ \ref{tab_bom} shows a breakdown of the cost of the main components of our prototype, totalling less than
 \price{10}{\euro}. We did not include power supply components in this breakdown since our circuit is meant to be
 embedded into a payload circuit that will already have sufficient power supplies. Our design works with strong signal
 levels, and does not have special power supply requirements. In a practical implementation, it is unlikely that the
 power supply would negatively affect performance.
 
-\color{highlightred}
 Due to its \partno{HRTIM} peripheral, the \partno{STM32G4} microcontroller is the component of our design that is
 hardest to replace. However, this part can still be replaced with a wide range of FPGAs, which commonly include
 digitally configurable delay lines on their IO pins for signal de-skewing. For instance, the \partno{ODELAY} primitive
@@ -601,7 +690,6 @@ processing out of the interrupt handler, and by interleaving four instead of two
 peripherals, the lower limit of acquisition time of a $768$-point scan is \qty{37}{\milli\second} for $384\times$
 oversampling.
 
-\color{highlightgreen}
 \subsection{ADC accuracy and noise immunity}
 
 Our system uses high-frequency pulses for measurement, which inherently reject low-frequency noise components. Through
@@ -614,7 +702,6 @@ Our front-end circuit is designed such that the analog signal entering the ADCs 
 high sample rate of the microcontroller's internal ADCs, we can apply extensive oversampling ($384\times$) to enhance
 resolution.
 
-\color{highlightred}
 \section{Experimental Evaluation}
 
 We evaluated our design in two phases. In the first phase, we measured the electrical performance of our sampling
@@ -676,7 +763,7 @@ turn-on knee of the sampling diodes.
         \end{subfigure}
     \end{center}
     \vspace*{-5mm}
-    \caption{\color{highlightred}Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse
+    \caption{Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse
         measured at the mesh interface for each of the four driver ICs, captured using a spectrum analyzer. Vertical
         scale shows arbitrary units. Spectrum plots include a $\frac{1}{f}$ curve indicating the frequency components of
         an ideal infinite-bandwidth square wave. Horizontal gray lines in the time domain plots indicate thresholds used
@@ -873,7 +960,7 @@ switching.
         \includegraphics[width=.8\textwidth]{fig_mesh_length.pdf}
         \vspace*{-10mm}
     \end{center}
-    \caption{\color{highlightred}TDR responses captured by the microcontroller's internal ADCs with each of four
+    \caption{TDR responses captured by the microcontroller's internal ADCs with each of four
         candidate pulse amplifier ICs and four test meshes. The shown time range covers the primary reflection of the
         stimulus pulse's falling edge. The vertical scale of the graphs is in Volts at the ADC. For clarity, only one
         channel of the differential response is shown.}
@@ -926,7 +1013,6 @@ switching.
     \label{tab_speed_of_light}
 \end{table}
 
-\color{highlightgreen}
 \subsection{Classification performance}
 \label{sec-class-perf}
 
@@ -991,7 +1077,7 @@ indicates good performance of our design, and increases the detection efficiency
         \label{fig_layout_identity_identity}
     \end{subfigure}
     \hfill
-    \caption{\color{highlightgreen}Similarity matrices of measurement series on intact meshes.}
+    \caption{Similarity matrices of measurement series on intact meshes.}
     \label{fig_layout_identity}
 \end{figure}
 
@@ -1017,7 +1103,7 @@ indicates good performance of our design, and increases the detection efficiency
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.4.pdf}
         \caption{Both traces shorted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
     \end{subfigure}
-    \caption{\color{highlightgreen}Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes under two
+    \caption{Similarity matrix of 10 intact and 10 modified meshes with two pitch sizes under two
         different attack scenarios: An interrupted trace, and both mesh traces shorted.}
     \label{fig_covar_basic_attacks}
 \end{figure}
@@ -1031,7 +1117,7 @@ location of the reflected pulse edge, resulting in 0\% Crossover Error Rate.
 \begin{figure}
     \centering
     \includegraphics[width=0.33\textwidth,trim=0 5mm 0 5mm]{fig_covar_short_within_0.3.pdf}
-    \caption{\color{highlightgreen}Similarity matrix of several mesh specimens that have one trace shorted to an
+    \caption{Similarity matrix of several mesh specimens that have one trace shorted to an
         adjacent location on the same trace. Classification FNR 18\% at 0.1\% FPR, CER=17\%.}
     \label{fig_short_within}
 \end{figure}
@@ -1069,7 +1155,7 @@ and others never detected.
         \caption{Baseline vs. experiment specimens with no attack.}
         \label{fig_covar_adv_baseline}
     \end{subfigure}
-    \caption{\color{highlightgreen}Classifier performance under advanced attack scenarios.}
+    \caption{Classifier performance under advanced attack scenarios.}
     \label{fig_covar_adv_attack}
     %too much: fig_covar_soldering_p0.3_minmax.pdf
     %too much: fig_covar_antenna_wire_30mm_p0.3_minmax.pdf
@@ -1104,7 +1190,7 @@ cases at 0\% FNR, with a maximum of 9.6\% FPR at 0.1\% FNR in the soldered wire 
         \label{fig_covar_patch_attack_scatter}
     \end{subfigure}
     \hfill
-    \caption{\color{highlightgreen}Classifier performance under a patching attack that bridges a short gap within a mesh
+    \caption{Classifier performance under a patching attack that bridges a short gap within a mesh
         trace using wire.}
     \label{fig_covar_patch_attack}
 \end{figure}
@@ -1140,7 +1226,7 @@ distribution shifts.
         \vspace*{2mm}
         \label{fig_drill_mod_shape_pic}
     \end{subfigure}
-    \caption{\color{highlightred}The mesh response under a manipulation attack patching across a drill location for a 
+    \caption{The mesh response under a manipulation attack patching across a drill location for a 
         \qty{300}{\micro\meter} drill, as captured by the microcontroller's ADCs. The mesh pitch is
         \qty{300}{\micro\meter}. B-spline smoothing was applied for readability.}
     \label{fig_drill_mod_shape}
@@ -1170,7 +1256,7 @@ improves to 51.1\%, detecting half of all attack attempts in a single measuremen
         \caption{\emph{maximum} classifier variant. FNR 51.1\% at 0.1\% FPR, CER=15\%.}
         \label{fig_patch_large_scale_minmax}
     \end{subfigure}
-    \caption{\color{highlightgreen}Classification performance in a larger-scale experiment using 10 measurements each of
+    \caption{Classification performance in a larger-scale experiment using 10 measurements each of
         7 samples with traces patched through micro-soldering.}
     \label{fig_patch_large_scale}
 \end{figure}
@@ -1217,14 +1303,14 @@ domain based on a temperature measurement.
         \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0\%.}
         \label{fig_env_effects_heat}
     \end{subfigure}
-    \caption{\color{highlightgreen}Classification results of the same mesh under various environmental factors.}
+    \caption{Classification results of the same mesh under various environmental factors.}
     \label{fig_env_effects}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{fig_tempco_edited.pdf}
-    \caption{\color{highlightgreen}The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
+    \caption{The effect of heating on a time-domain trace. One of 12 channels shown. Gray: Raw data. Black: Relative
     difference between hot and cool cases.}
     \label{fig_tempco_time}
 \end{figure}
@@ -1243,13 +1329,12 @@ classification performance remaining approximately constant at 69.0\% FNR at 0.1
     % NOTE: not actually "tridelta" data, I'm just too lazy to rename these and fix up the notebook.
     \includegraphics[width=0.6\textwidth]{fig_covar_patch_repeat_tridelta_all_the_data_p0.3.pdf}
     \hspace*{2mm}
-    \caption{\color{highlightgreen}Classifier similarity scores of measurements in different environments, 10
+    \caption{Classifier similarity scores of measurements in different environments, 10
         measurements each. For scale, measurements from Figure~\ref{fig_patch_large_scale} are included on the
         bottom/right. FNR 69.0\% at 0.1\% FPR, CER=20\%.}
     \label{fig_env_covar}
 \end{figure}
 
-\color{highlightred}
 \subsection{Countermeasures}
 
 As shown above, PCB security meshes can be manipulated through micro-soldering. Keeping the modifications as physically
@@ -1293,7 +1378,6 @@ a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, a
 %parts of the response such as this trailing edge could be scanned at a higher rate than other, less relevant parts.
 %Similarly, fast scans at a coarse time resolution could be interleaved with slow scans at a finer time resolution to
 %detect large changes more quickly.
-\color{highlightgreen}
 \paragraph{Advanced attack classification.} While we proposed a simple baseline classifier, there is a large parameter
 space for more advanced designs. For instance, a classifier could apply machine learning techniques to adapt to the
 response of a particular mesh, learn its benigh behavior under temperature changes, and dynamically schedule sample
@@ -1301,7 +1385,6 @@ timing to focus attention on the parts of the response signal that are most susc
 single-shot classifier that only observes measurements in isolation to a more advanced approach that considers the full
 history of measurements during the mesh's lifetime would also likely improve performance.
 
-\color{highlightred}
 \paragraph{Auxiliary applications.} The low-cost, embedded TDR frontend presented in this paper could be used for other
 monitoring tasks from tamper sensing to system health monitoring. For instance,
 \textcite{vaiSecureArchitectureEmbedded2015} propose checking the integrity of a PCBA using an external Vector Network
@@ -1309,13 +1392,11 @@ Analyzer (VNA) attached to test points on the PCBA's Power Distribution Network 
 similar to a VNA and it would be interesting to measure parts of the secure subsystem other than its security mesh using
 our TDR frontend.
 
-\color{highlightgreen}
 \paragraph{Characterization of PUF-like effects.} In Section~\ref{sec-class-perf}, we have described a PUF-like effect,
 where our classifier was able to distinguish supposedly identical copies of the same mesh. It would be interesting to
 precisely characterize this effect and its dependence on factors such as the chosen PCB manufacturer, and to quantify if
 it indeed rises to the level of a PUF in entropy and repeatability.
 
-\color{highlightred}
 \section{Conclusion}
 
 In this paper, we presented a design for a low-cost frontend for integrity monitoring of security meshes in applications
@@ -1332,7 +1413,6 @@ Compared to the state of the art, our approach enables the monitoring of larger 
 cost. Our is easy to replicate, does not require any specialized or custom components, and unlocks high-security
 applications for security meshes made using low-cost, standard PCB manufacturing processes.
 
-\color{black}
 \section*{Availability}
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today. The git repository with the
 LaTeX source for this paper, all hardware design files, and firmware and analysis source code can be found at:
