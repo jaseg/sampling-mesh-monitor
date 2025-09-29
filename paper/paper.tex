@@ -95,8 +95,8 @@
 % =====================================
 %
 % [ ] Including a section elaborating on the structure of a typical device secured by the proposed system, and defining an explicit threat model.
-% [ ] Expanding the literature review.
-% [ ] Recalculating CER based on the same fitted distribution for better comparison.
+% [x] Expanding the literature review.
+% [x] Recalculating CER based on the same fitted distribution for better comparison.
 % [ ] Elaborating on why 0.1% FPR was chosen. 
 % [ ] Interpretation of poor results in particular cases (in response to reviewer C).
 %
@@ -1048,10 +1048,8 @@ Classification performance is indicated by the top right (2) and bottom left (3)
 misclassification probability. Misclassification is likely when the top left (1) and top right (2) quadrants look alike.
 Misclassification is less likely the more they differ. Under each figure, we give the False Negative Rate (FNR), i.e.
 the rate of missed alarms, when the threshold is adjusted for a False Positive Rate, i.e. a false alarm rate, of
-$0.1\%$. These values are calculated assuming the similarity scores are normally distributed. Additionally, we provide
-the Crossover Error Rate (CER) derived from the empirical cumulative distribution function of the results, i.e. the
-error rate where for some threshold FPR is equal to FNR. A CER near $50\%$ indicates the classifier cannot distinguish
-the classes, lower values indicate good performance.
+$0.1\%$. We also provide the Crossover Error Rate (CER) at which for some threshold FPR is equal to FNR. We calculate
+all error rates assuming the similarity scores are normally distributed.
 
 Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left quadrant, 1) to four variants
 that have the same pitch and area, but different randomized layout of the traces (bottom right). Our classifier can
