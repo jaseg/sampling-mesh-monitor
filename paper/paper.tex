@@ -484,24 +484,28 @@ multiplexers.
 \color{highlightgreen}
 \subsection{Typical System Design and Threat Model}
 
-A typical system design for a device like an HSM that employs TDR-based tamper sensing meshes would consist of a payload
-PCB assembly enveloped from all directions in tamper sensing mesh PCBs. The payload PCB assembly would contain both the
-TDR mesh monitoring circuit as well as payload circuitry such as the HSM's cryptographic coprocessor. The tamper-sensing
-meshes we analyze in this paper have the mesh trace layer adjacent to a continuous ground plane to provide a clean,
-constant impedance along the mesh trace. In a practical design, the mesh trace would be on the payload-facing side of
-the mesh PCB(s), and the ground plane on the outside-facing side. This way, the ground plane simultaneously shields both
-the mesh's traces and the payload circuitry from electromagnetic interference. At the same time, putting the mesh trace
-on the inside makes it significantly harder to manipulate without disturbing its TDR response. In such a system, the
-mesh monitoring circuit would be battery powered and would check for tamper attempts periodically even when the payload
-is powered off, e.g.\ during shipping.
+A typical system design for an HSM with TDR-based tamper sensing meshes would consist of a PCB assembly containing
+payload components as well as the mesh monitoring circuit, and enclosed from all directions in rigid or flexible tamper
+sensing mesh PCBs. In this paper we propose meshes that have a ground plane, which would be on the outer side of the
+mesh PCBs and shield electromagnetic interference from outside. Mesh monitoring would be battery powered and would
+periodically check for tamper attempts.
 
-In this paper, we tested meshes made from inexpensive rigid FR-4 PCBs, multiple of which could be arranged around a
-payload to protect it from all angles, or which could be used in an Inertial HSM as proposed by
 % FIXME cite IHSM paper
-Flexible Printed Circuits (FPCs) made with an industry-standard polyimide substrate could also be used, and would be
-suitable for wrapping around a payload.
 
+We consider an attacker motivated to extract the payload's secrets. Self-destruction by deleting secrets would suffice
+as tamper response against this type of attacker. Such an attacker might want to probe parts of the payload circuit
+using either conventional electrical contacts or using electromagnetic near-field probes that must be placed right on
+top of the feature to be probed. An attacker might further attempt to manipulate the payload circuit, such as by
+removing capacitors to enable a later power sidechannel attack. In preparation for an optical fault-injection attack, an
+attacker might attempt decapsulating some of the payload circuit's ICs either using laser ablation or using chemical
+etching. An attacker might also attempt fault injection attacks using either electrical contacts or electromagnetic
+fault injection probes near a target feature.
 
+We consider attackers that have access to industry-standard SMD rework equipment such as microscopes, microsoldering
+irons, and fine tweezers. We also consider attackers that have access to more advanced equipment, such as laboratory
+measurement equipment like high-bandwidth oscilloscopes and waveform generators. We consider attackers with standard
+equipment for mechanical manipulation including precision milling machines and cutters. We do not consider bespoke
+attack tools, or specialized tools for large-scale industrial manufacturing such as industrial drilling machines.
 % FIXME TODO Minor revision system design and threat model
 \color{black}
 
