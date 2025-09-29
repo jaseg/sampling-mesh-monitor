@@ -1070,14 +1070,14 @@ indicates good performance of our design, and increases the detection efficiency
     \centering
     \begin{subfigure}[t]{0.4\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_distinguish_layouts.pdf}
-        \caption{Five copies of the same layout compared to four other layouts. FNR 18\% at 0.1\% FPR, CER=0\%.}
+        \caption{Five copies of the same layout compared to four other layouts. FNR 18\% at 0.1\% FPR, CER=8.3\%.}
         \label{fig_layout_identity_layout}
     \end{subfigure}
     \hspace*{5mm}
     \begin{subfigure}[t]{0.4\textwidth}
         \centering
         \includegraphics[width=0.7\textwidth]{fig_covar_distinguish_copies_large_run.pdf}
-        \caption{Three identical copies, 20 measurements each. FNR 1.7\% at 0.1\% FPR, CER=0\%.}
+        \caption{Three identical copies, 20 measurements each. FNR 1.7\% at 0.1\% FPR, CER=1.1\%.}
         \label{fig_layout_identity_identity}
     \end{subfigure}
     \hfill
@@ -1090,17 +1090,17 @@ indicates good performance of our design, and increases the detection efficiency
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.3.pdf}
-        \caption{One trace interrupted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{One trace interrupted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_short_across_traces_p0.3.pdf}
-        \caption{Both traces shorted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Both traces shorted, p=\qty{0.3}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_open_p0.4.pdf}
-        \caption{One trace interrupted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{One trace interrupted, p=\qty{0.4}{\milli\meter}. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
@@ -1122,7 +1122,7 @@ location of the reflected pulse edge, resulting in 0\% Crossover Error Rate.
     \centering
     \includegraphics[width=0.33\textwidth,trim=0 5mm 0 5mm]{fig_covar_short_within_0.3.pdf}
     \caption{Similarity matrix of several mesh specimens that have one trace shorted to an
-        adjacent location on the same trace. Classification FNR 18\% at 0.1\% FPR, CER=17\%.}
+        adjacent location on the same trace. Classification FNR 23\% at 0.1\% FPR, CER=22\%.}
     \label{fig_short_within}
 \end{figure}
 
@@ -1138,19 +1138,19 @@ and others never detected.
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_probe_0.3.pdf}
-        \caption{Oscilloscope probe contacting mesh. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Oscilloscope probe contacting mesh. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
         \label{fig_covar_adv_probe}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_soldering_p0.3.pdf}
-        \caption{Soldering iron touching mesh. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Soldering iron touching mesh. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
         \label{fig_covar_adv_soldering}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.23\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_antenna_wire_30mm_p0.3.pdf}
-        \caption{30mm wire soldered to mesh. FNR 9.6\% at 0.1\% FPR, CER=1\%.}
+        \caption{30mm wire soldered to mesh. FNR 9.6\% at 0.1\% FPR, CER=6.7\%.}
         \label{fig_covar_adv_antenna}
     \end{subfigure}
     \hfill
@@ -1250,7 +1250,7 @@ improves to 51.1\%, detecting half of all attack attempts in a single measuremen
     \begin{subfigure}{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig_covar_patch_repeat_p0.3.pdf}
-        \caption{Micro-soldering patching attack. FNR 71.5\% at 0.1\% FPR, CER=34\%.}
+        \caption{Micro-soldering patching attack. FNR 71.5\% at 0.1\% FPR, CER=29\%.}
         \label{fig_patch_large_scale_corr}
     \end{subfigure}
     \hspace*{5mm}
@@ -1292,19 +1292,19 @@ domain based on a temperature measurement.
 \begin{figure}
     \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth,trim=0 5mm 0 5mm]{fig_covar_time_drift.pdf}
-        \caption{Time drift (2.5h). FNR 100\% at 0.1\% FPR, CER=60\%.}
+        \caption{Time drift (2.5h). FNR 100\% at 0.1\% FPR, CER=61\%.}
         \label{fig_env_effects_time}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.35\textwidth}
         \includegraphics[width=\textwidth]{fig_covar_touch_combined.pdf}
-        \caption{Touch sensitivity. FNR 0.0\% at 0.1\% FPR, CER=0\%.}
+        \caption{Touch sensitivity. FNR 0.0\% at 0.1\% FPR, CER=0.0\%.}
         \label{fig_env_effects_touch}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth,trim=0 5mm 0 5mm]{fig_covar_hot_mesh.pdf}
-        \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0\%.}
+        \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0.5\%.}
         \label{fig_env_effects_heat}
     \end{subfigure}
     \caption{Classification results of the same mesh under various environmental factors.}
@@ -1335,7 +1335,7 @@ classification performance remaining approximately constant at 69.0\% FNR at 0.1
     \hspace*{2mm}
     \caption{Classifier similarity scores of measurements in different environments, 10
         measurements each. For scale, measurements from Figure~\ref{fig_patch_large_scale} are included on the
-        bottom/right. FNR 69.0\% at 0.1\% FPR, CER=20\%.}
+        bottom/right. FNR 69.0\% at 0.1\% FPR, CER=22\%.}
     \label{fig_env_covar}
 \end{figure}
 

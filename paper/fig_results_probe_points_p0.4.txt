@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_probe_points_p0.4.pdf / fig_cdf_probe_points_p0.4.pdf on 2025-07-15T16:44:10.475336
+Results calculated from plots fig_covar_probe_points_p0.4.pdf / fig_cdf_probe_points_p0.4.pdf on 2025-09-29T17:47:34.513891
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.961962
@@ -9,4 +9,5 @@ Cross class: 0.971±0.00242 min: 0.966 max: 0.975
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.999848317762
-EER: 0.6333333333333333 th: 0.9697796637264954
+EER (from histogram): 0.6333333333333333 th: 0.9697796637264954
+EER (from distribution): 0.610701752 / 0.610701752 @ 0.970021556

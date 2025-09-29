@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_environment_p0.3.pdf / fig_cdf_environment_p0.3.pdf on 2025-07-15T16:44:49.075292
+Results calculated from plots fig_covar_environment_p0.3.pdf / fig_cdf_environment_p0.3.pdf on 2025-09-29T17:48:26.757950
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.998123
@@ -9,4 +9,5 @@ Cross class: 0.998±0.000146 min: 0.998 max: 0.999
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.921090860452
-EER: 0.20936863543788187 th: 0.9984578039815136
+EER (from histogram): 0.20936863543788187 th: 0.9984578039815136
+EER (from distribution): 0.177424541 / 0.177424541 @ 0.998465078

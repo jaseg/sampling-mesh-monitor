@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_short_across_traces_p0.4.pdf / fig_cdf_short_across_traces_p0.4.pdf on 2025-07-15T16:44:08.802393
+Results calculated from plots fig_covar_short_across_traces_p0.4.pdf / fig_cdf_short_across_traces_p0.4.pdf on 2025-09-29T17:47:33.323692
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.961962
@@ -9,4 +9,5 @@ Cross class: 0.585±0.0657 min: 0.501 max: 0.761
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.000000004592
-EER: 0.0 th: 0.9656144972371224
+EER (from histogram): 0.0 th: 0.9656144972371224
+EER (from distribution): 0.000000008 / 0.000000008 @ 0.955838699

@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_patch_repeat_tridelta_p0.3.pdf / fig_cdf_patch_repeat_tridelta_p0.3.pdf on 2025-07-15T16:45:17.990271
+Results calculated from plots fig_covar_patch_repeat_tridelta_p0.3.pdf / fig_cdf_patch_repeat_tridelta_p0.3.pdf on 2025-09-29T17:49:06.614795
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.998986
@@ -9,4 +9,5 @@ Cross class: 0.999±0.000334 min: 0.998 max: 0.999
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.392163077311
-EER: 0.15651478816946443 th: 0.9992030775816553
+EER (from histogram): 0.15651478816946443 th: 0.9992030775816553
+EER (from distribution): 0.175194737 / 0.175194737 @ 0.999206428

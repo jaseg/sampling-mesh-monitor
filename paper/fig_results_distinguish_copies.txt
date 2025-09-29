@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_distinguish_copies.pdf / fig_cdf_distinguish_copies.pdf on 2025-08-28T15:53:37.784314
+Results calculated from plots fig_covar_distinguish_copies.pdf / fig_cdf_distinguish_copies.pdf on 2025-09-29T17:47:19.344342
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.969164
@@ -9,4 +9,5 @@ Cross class: 0.972±0.000948 min: 0.971 max: 0.974
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.998561522708
-EER: 0.0 th: 0.9740695398296001
+EER (from histogram): 0.0 th: 0.9740695398296001
+EER (from distribution): 0.056009294 / 0.056009294 @ 0.973498155

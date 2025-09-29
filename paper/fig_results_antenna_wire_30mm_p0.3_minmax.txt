@@ -1,4 +1,4 @@
-Results calculated from plots fig_covar_antenna_wire_30mm_p0.3_minmax.pdf / fig_cdf_antenna_wire_30mm_p0.3_minmax.pdf on 2025-07-15T16:44:48.468680
+Results calculated from plots fig_covar_antenna_wire_30mm_p0.3_minmax.pdf / fig_cdf_antenna_wire_30mm_p0.3_minmax.pdf on 2025-09-29T17:48:25.798365
 
 setting threshold for quantile 0.001
 Baseline threshold set at 0.414871
@@ -9,4 +9,5 @@ Cross class: 0.281±0.191 min: -0.253 max: 0.534
 
 Type 1 error (false alarm rate): 0.001000000000
 Type 2 error (missed alarm rate): 0.240736936325
-EER: 0.11071428571428572 th: 0.4874180862770304
+EER (from histogram): 0.11071428571428572 th: 0.4874180862770304
+EER (from distribution): 0.131194926 / 0.131194926 @ 0.494367151
