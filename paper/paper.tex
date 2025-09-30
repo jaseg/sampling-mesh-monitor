@@ -94,12 +94,12 @@
 % Minor revision criteria from shepherd
 % =====================================
 %
-% [ ] Including a section elaborating on the structure of a typical device secured by the proposed system, and defining an explicit threat model.
+% [x] Including a section elaborating on the structure of a typical device secured by the proposed system, and defining
+%     an explicit threat model.
 % [x] Expanding the literature review.
 % [x] Recalculating CER based on the same fitted distribution for better comparison.
-% [ ] Elaborating on why 0.1% FPR was chosen. 
+% [x] Elaborating on why 0.1% FPR was chosen. 
 % [ ] Interpretation of poor results in particular cases (in response to reviewer C).
-%
 %
 
 % Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
@@ -382,45 +382,36 @@ bandwidth.
 \subsection{Device Fingerprinting through Impedance Sensing}
 
 Recently, impedance analysis on the Power Distribution Network (PDN) of PCB assemblies has been proposed as a
-fingerprinting technique aimed at detecting Hardware Trojans (HT) inserted into a board.
-% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
-% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+fingerprinting technique aimed at detecting Hardware Trojans (HT) inserted into a board~\cite{
+    fujimotoDemonstrationHTDetectionMethod2018,
+    mosavirikImpedanceVerifOnChipImpedance2022}.
 Usually, all chips on a board are directly connected to the board's PDN. Thus, characterizing the board's PDN does not
 only yield information on possible modifications to the board's PDN itself such as modified traces or removed passive
 components such as capacitors, it also reflects information about the internal structure of any chips or other
 components connected to the PDN. Impedance analysis techniques generally probe the circuit during operation using
-high-frequency signals. They have been proven using an external Vector Network Analyzer in one-Port
-% cite: https://doi.org/10.46586/tches.v2023.i4.238-261 [external VNA]
-configuration measuring reflected signal components as well as using two or more ports measuring transmitted signal
-components.
-% cite: 10.1109/TIFS.2023.3285490 [exterenal VNA, different people]
-Both Time Domain Reflectometry
-% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
-and conventional frequency-domain VNA measurements
-% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
-have been shown to be effective. From a signal theory point of view, both techniques can be considered equivalent.
+high-frequency signals. They have been proven using an external Vector Network Analyzer in
+one-Port~\cite{mosavirikSiliconEchoesNonInvasive2023} configuration measuring reflected signal components as well as
+using two or more ports measuring transmitted signal components~\cite{zhuPDNPulseSensingPCB2023}. Both Time Domain
+Reflectometry~\cite{fujimotoDemonstrationHTDetectionMethod2018} and conventional frequency-domain VNA
+measurements~\cite{mosavirikImpedanceVerifOnChipImpedance2022} have been shown to be effective. From a signal theory
+point of view, both techniques can be considered equivalent.
 
 While using an external VNA is feasible for validation in a factory setting, several research works embed the measuring
-system into the PCB as either a discrete circuit
-% cite: 10.1109/TCSII.2018.2858798 [Fujimoto TDR HT detection, onboard VNA]
-or as part of an FPGA gateware.
-% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
-% cite: https://doi.org/10.1145/3689939.3695784 [backside tamper detection, gateware VNA]
+system into the PCB as either a discrete circuit~\cite{fujimotoDemonstrationHTDetectionMethod2018} or as part of an FPGA
+gateware~\cite{
+    mosavirikImpedanceVerifOnChipImpedance2022,
+    mosavirikBackMonICBackside2024}.
 With such a system, boards can self-verify in the field after deployment, enabling the use of the system for active
 tamper sensing. While at less than \qty{2}{\giga\hertz} the achievable bandwith of such systems is lower than that
 provided by an external, research-grade VNA, it turns out that the frequencies of interest in the impedance profile of
-practical boards lie inside of this small bandwidth.
-% cite: https://doi.org/10.46586/tches.v2023.i1.301-325 [ImpedanceVerif, gateware VNA]
+practical boards lie inside of this small bandwidth~\cite{mosavirikImpedanceVerifOnChipImpedance2022}.
 
 Variations of impedance analysis techniques have been demonstrated that detect changes inside individual chips using
-board-level measurements,
-% cite: 10.1109/DDECS57882.2023.10139623 [chip fp, using external VNA]
-that detect manipulatoins using non-contact near-field Radio Frequency (RF) measurements,
-% cite: https://doi.org/10.3390/s25134188 [near-field antenna]
-that detect the mechanical preparation of a target chip for backside attacks using onboard measurements,
-% cite: https://doi.org/10.1145/3689939.3695784 [backside tamper detection, gateware VNA]
-and that adapt the technique as an offensive tool for side-channel analysis (SCA) attacks.
-% cite: https://doi.org/10.1145/3576915.3623092 [SCA attack]
+board-level measurements~\cite{luCorrelatedRandomnessTeleportation2021}, that detect manipulatoins using non-contact
+near-field Radio Frequency (RF) measurements~\cite{saadatsafaNearFieldMicrowaveSensing2025}, that detect the mechanical
+preparation of a target chip for backside attacks using onboard measurements~\cite{mosavirikBackMonICBackside2024}, and
+that adapt the technique as an offensive tool for side-channel analysis (SCA)
+attacks~\cite{monfaredLeakyOhmSecretBits2023}.
 
 The technique we propose in this work is related in that it also embeds a RF measurement circuit in a target board, and
 that TDR and frequency-domain VNA measurements resolve the same information about a target circuit from a signal theory
@@ -1046,10 +1037,19 @@ color within the top left quadrant (1) indicates high similarity between baselin
 bottom right (4) is expected, and indicates that mutliple experiment (attack) measurements are unlike each other.
 Classification performance is indicated by the top right (2) and bottom left (3) quadrants, which indicate
 misclassification probability. Misclassification is likely when the top left (1) and top right (2) quadrants look alike.
-Misclassification is less likely the more they differ. Under each figure, we give the False Negative Rate (FNR), i.e.
-the rate of missed alarms, when the threshold is adjusted for a False Positive Rate, i.e. a false alarm rate, of
-$0.1\%$. We also provide the Crossover Error Rate (CER) at which for some threshold FPR is equal to FNR. We calculate
-all error rates assuming the similarity scores are normally distributed.
+Misclassification is less likely the more they differ.
+\color{highlightgreen}
+Under each figure, we give the False Negative Rate (FNR), i.e. the rate of missed alarms, when the threshold is adjusted
+for a False Positive Rate, i.e. a false alarm rate, of $0.1\%$ as a reference point. We also provide the Crossover Error
+Rate (CER) at which for some threshold FPR is equal to FNR. We calculate all error rates assuming the similarity scores
+are normally distributed. We chose a reference point of $0.1\%$ FPR since it allows for a meaningful comparison based on
+the hundreds of measurements our data is based on. In a practical application, the end-to-end FPR of the alarm system
+would need to be significantly lower, probably in the range from $10^{-12} to 10^{-9}$ for a Mean Time Between Failures
+(MTBF) of several years. A practical system would likely include additional components filtering the output of our
+proposed baseline classifier analyzing not just the last, but multiple previous measurements. Experimentally evaluating
+a classifier to this degree of precision would require a large-scale experiment to account for the long tail of the
+error distribution.
+\color{black}
 
 Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left quadrant, 1) to four variants
 that have the same pitch and area, but different randomized layout of the traces (bottom right). Our classifier can
