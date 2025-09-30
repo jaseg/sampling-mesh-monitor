@@ -99,7 +99,7 @@
 % [x] Expanding the literature review.
 % [x] Recalculating CER based on the same fitted distribution for better comparison.
 % [x] Elaborating on why 0.1% FPR was chosen. 
-% [ ] Interpretation of poor results in particular cases (in response to reviewer C).
+% [x] Interpretation of poor results in particular cases (in response to reviewer C).
 %
 
 % Bei Diss-Citations in der bib dazu schreiben, dass das ne Diss ist.
@@ -474,6 +474,7 @@ multiplexers.
 
 \color{highlightgreen}
 \subsection{Typical System Design and Threat Model}
+\label{sec_system_design}
 
 A typical system design for an HSM with TDR-based tamper sensing meshes would consist of a PCB assembly containing
 payload components as well as the mesh monitoring circuit, and enclosed from all directions in rigid or flexible tamper
@@ -760,9 +761,8 @@ turn-on knee of the sampling diodes.
     \vspace*{-5mm}
     \caption{Spectrum measurements and reconstructed time domain edge shape of the stimulus pulse
         measured at the mesh interface for each of the four driver ICs, captured using a spectrum analyzer. Vertical
-        scale shows arbitrary units. Spectrum plots include a $\frac{1}{f}$ curve indicating the frequency components of
-        an ideal infinite-bandwidth square wave. Horizontal gray lines in the time domain plots indicate thresholds used
-        for rise time calculation.}
+        scale shows arbitrary units. Spectrum plots include a $\frac{1}{f}$ reference curve indicating an ideal
+        infinite-bandwidth square wave.}
     \label{fig_spec_risetime}
 \end{figure}
 
@@ -955,10 +955,9 @@ switching.
         \includegraphics[width=.8\textwidth]{fig_mesh_length.pdf}
         \vspace*{-10mm}
     \end{center}
-    \caption{TDR responses captured by the microcontroller's internal ADCs with each of four
-        candidate pulse amplifier ICs and four test meshes. The shown time range covers the primary reflection of the
-        stimulus pulse's falling edge. The vertical scale of the graphs is in Volts at the ADC. For clarity, only one
-        channel of the differential response is shown.}
+    \caption{TDR responses captured by the microcontroller's internal ADCs with each of four candidate pulse amplifier
+        ICs and four test meshes. The shown time range covers the primary reflection of the stimulus pulse's falling
+        edge. For clarity, only one channel of the differential response is shown.}
     \label{fig_mesh_length}
 \end{figure}
 
@@ -1044,7 +1043,7 @@ for a False Positive Rate, i.e. a false alarm rate, of $0.1\%$ as a reference po
 Rate (CER) at which for some threshold FPR is equal to FNR. We calculate all error rates assuming the similarity scores
 are normally distributed. We chose a reference point of $0.1\%$ FPR since it allows for a meaningful comparison based on
 the hundreds of measurements our data is based on. In a practical application, the end-to-end FPR of the alarm system
-would need to be significantly lower, probably in the range from $10^{-12} to 10^{-9}$ for a Mean Time Between Failures
+would need to be significantly lower, probably in the range from $10^{-12}$ to $10^{-9}$ for a Mean Time Between Failures
 (MTBF) of several years. A practical system would likely include additional components filtering the output of our
 proposed baseline classifier analyzing not just the last, but multiple previous measurements. Experimentally evaluating
 a classifier to this degree of precision would require a large-scale experiment to account for the long tail of the
@@ -1132,6 +1131,7 @@ classifier cannot distinguish it leading to an overall FNR of 18\% at 0.1\% FPR,
 and others never detected.
 
 \subsubsection{Advanced attacks}
+\label{sec_advanced_attack}
 
 \begin{figure}
     \begin{subfigure}[t]{0.23\textwidth}
@@ -1234,14 +1234,18 @@ distribution shifts.
     \label{fig_drill_mod_shape}
 \end{figure}
 
-Based on the above results, we peformed a larger-scale experiment using seven samples with patches applied compared
-against baseline measurements taken before and after measuring the experiment samples. Each sample was measured ten
-times, interleaved. Figure~\ref{fig_patch_large_scale} shows the results of this experiment, resulting in a FNR of
-71.5\% at 0.1\% FPR. Since such patches only affect few data points along the reflection response, we included a variant
-of our classifier that uses the maximum difference across all channels instead of the averaged Pearson Correlation
-Coefficient to improve sensitivity to the subtle, localized effects of such patches. Using this classifier variant, FNR
-improves to 51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate at
-0.1\%.
+Based on the above results, we peformed a larger-scale experiment using ten interleaved measurements each of seven
+samples with patches applied compared against baseline measurements taken before and after measuring the experiment
+samples.. Figure~\ref{fig_patch_large_scale} shows the results of this experiment, resulting in a FNR of 71.5\% at 0.1\%
+FPR. Since such patches only affect few data points along the reflection response, we included a variant of our
+classifier that uses the maximum difference across all channels instead of the averaged Pearson Correlation Coefficient
+to improve sensitivity to the subtle, localized effects of such patches. Using this classifier variant, FNR improves to
+51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate at 0.1\%.
+\color{highlightgreen}
+In a practical application, detection rates would be higher since the system would be able to observe the entire process
+of patching. As shown in Section~\ref{sec_advanced_attack}, soldering for instance is highly detectable, while here we
+only benchmark a momentary snapshot after the patch was completed.
+\color{black}
 
 \begin{figure}
     \centering
@@ -1268,9 +1272,11 @@ improves to 51.1\%, detecting half of all attack attempts in a single measuremen
 Figure~\ref{fig_env_effects} shows the results of a series of experiments evaluating the effect of environmental factors
 such as handling or electromagnetic interference on our measurements. Figure~\ref{fig_env_effects_time} shows our
 measurements exhibit little time drift (CER=60\%). Figure~\ref{fig_env_effects_touch} shows that touching the mesh is
-easily detected (FNR=0\%), but the system is insensitive to touching other parts of the circuit. Our tamper-sensing mesh
-uses a continous ground plane. In a practical application the mesh would be on the inside of the protected envelope,
-with the ground plane on the outside, shielding it from touch.
+easily detected (FNR=0\%), but the system is insensitive to touching other parts of the circuit.
+\color{highlightgreen}
+We classify touching the mesh as an attack since the mesh would be shielded from touch by the ground plane in a
+practical scenario (cf.\ Section~\ref{sec_system_design}).
+\color{black}
 
 As shown in Figure~\ref{fig_env_effects_heat}, heating the mesh distors its measurements (FNR=0.6\%, CER=0\%).
 Figure~\ref{fig_tempco_time} shows the difference caused by heating the mesh to \qty{70}{\degree C} in the time domain.
@@ -1302,7 +1308,7 @@ domain based on a temperature measurement.
     \hfill
     \begin{subfigure}[t]{0.25\textwidth}
         \includegraphics[width=\textwidth,trim=0 5mm 0 5mm]{fig_covar_hot_mesh.pdf}
-        \caption{Mesh heated (\qty{70}{\degree C}). FNR 0.6\% at 0.1\% FPR, CER=0.5\%.}
+        \caption{Mesh heated (\qty{70}{\degree C}).}
         \label{fig_env_effects_heat}
     \end{subfigure}
     \caption{Classification results of the same mesh under various environmental factors.}
