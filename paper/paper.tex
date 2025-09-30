@@ -386,12 +386,12 @@ fingerprinting technique aimed at detecting Hardware Trojans (HT) inserted into 
     fujimotoDemonstrationHTDetectionMethod2018,
     mosavirikImpedanceVerifOnChipImpedance2022}.
 Usually, all chips on a board are directly connected to the board's PDN. Thus, characterizing the board's PDN does not
-only yield information on possible modifications to the board's PDN itself such as modified traces or removed passive
-components such as capacitors, it also reflects information about the internal structure of any chips or other
-components connected to the PDN. Impedance analysis techniques generally probe the circuit during operation using
-high-frequency signals. They have been proven using an external Vector Network Analyzer in
-one-Port~\cite{mosavirikSiliconEchoesNonInvasive2023} configuration measuring reflected signal components as well as
-using two or more ports measuring transmitted signal components~\cite{zhuPDNPulseSensingPCB2023}. Both Time Domain
+only yield information on possible modifications to the board's PDN itself---such as modified traces or removed passive
+components---it also reflects information about the internal structure of chips connected to the PDN. Impedance analysis
+techniques generally probe the circuit during operation using high-frequency signals. They have been proven using an
+external Vector Network Analyzer in one-Port~\cite{mosavirikSiliconEchoesNonInvasive2023} configuration measuring
+reflected signal components as well as using two or more ports measuring transmitted signal
+components~\cite{zhuPDNPulseSensingPCB2023}. Both Time Domain
 Reflectometry~\cite{fujimotoDemonstrationHTDetectionMethod2018} and conventional frequency-domain VNA
 measurements~\cite{mosavirikImpedanceVerifOnChipImpedance2022} have been shown to be effective. From a signal theory
 point of view, both techniques can be considered equivalent.
@@ -413,16 +413,15 @@ preparation of a target chip for backside attacks using onboard measurements~\ci
 that adapt the technique as an offensive tool for side-channel analysis (SCA)
 attacks~\cite{monfaredLeakyOhmSecretBits2023}.
 
-The technique we propose in this work is related in that it also embeds a RF measurement circuit in a target board, and
-that TDR and frequency-domain VNA measurements resolve the same information about a target circuit from a signal theory
-perspective. Our system differs from the PDN impedance analysis literature in that it reaches a significantly higher
-bandwidth than other embedded measurement setups, and that our proposed tamper-sensing meshes are specifically built as
-sensors. Our technique is better suited to active tamper-sensing applications where the sensing circuit is continuously
-powered, since in contrast to PDN impedance analysis techniques that need the entire PDN to be powered, our proposed
-technique can be applied to protect an unpowered payload circuit. In a practical application, both PDN impedance
-analysis and TDR-based tamper-sensing meshes could complement each other to form a comprehensive defense where PDN
-impedance analysis checks the core system's integrity, with TDR-based meshes covering everything outside the purview of
-PDN impedance analysis.
+Similar to PDN impedance analysis, our proposed technique also embeds a RF measurement circuit in a target board. TDR
+and frequency-domain VNA measurements resolve the same information about a target circuit from a signal theory
+perspective. Our system reaches a significantly higher bandwidth than embedded measurement setups from differs from PDN
+impedance analysis literature, and that our proposed tamper-sensing meshes are specifically built as sensors. Our
+technique is better suited to active tamper-sensing applications where the sensing circuit is continuously powered. In
+contrast to PDN impedance analysis techniques that need the entire PDN to be powered, our proposed technique can be
+applied to protect an unpowered payload circuit. In a practical application, both PDN impedance analysis and TDR-based
+tamper-sensing meshes could complement each other to form a comprehensive defense where PDN impedance analysis checks
+the core system's integrity, with TDR-based meshes covering everything outside the purview of PDN impedance analysis.
 
 \color{black}
 
@@ -477,10 +476,10 @@ multiplexers.
 \label{sec_system_design}
 
 A typical system design for an HSM with TDR-based tamper sensing meshes would consist of a PCB assembly containing
-payload components as well as the mesh monitoring circuit, and enclosed from all directions in rigid or flexible tamper
-sensing mesh PCBs. In this paper we propose meshes that have a ground plane, which would be on the outer side of the
-mesh PCBs and shield electromagnetic interference from outside. Mesh monitoring would be battery powered and would
-periodically check for tamper attempts.
+payload components as well as the mesh monitoring circuit. Tamper-sensing meshes made from rigid or flexible PCBs would
+enclose this PCB assembly from all directions. In this paper we propose meshes that have a ground plane, which would be
+on the outer side of the mesh PCBs and shield the system against electromagnetic interference. Mesh monitoring would be
+battery powered and would periodically check for tamper attempts.
 
 % FIXME cite IHSM paper
 
@@ -488,8 +487,8 @@ We consider an attacker motivated to extract the payload's secrets. Self-destruc
 as tamper response against this type of attacker. Such an attacker might want to probe parts of the payload circuit
 using either conventional electrical contacts or using electromagnetic near-field probes that must be placed right on
 top of the feature to be probed. An attacker might further attempt to manipulate the payload circuit, such as by
-removing capacitors to enable a later power sidechannel attack. In preparation for an optical fault-injection attack, an
-attacker might attempt decapsulating some of the payload circuit's ICs either using laser ablation or using chemical
+removing capacitors to enable a later power side-channel attack. In preparation for an optical fault-injection attack,
+an attacker might attempt decapsulating some of the payload circuit's ICs either using laser ablation or using chemical
 etching. An attacker might also attempt fault injection attacks using either electrical contacts or electromagnetic
 fault injection probes near a target feature.
 
@@ -1038,16 +1037,16 @@ Classification performance is indicated by the top right (2) and bottom left (3)
 misclassification probability. Misclassification is likely when the top left (1) and top right (2) quadrants look alike.
 Misclassification is less likely the more they differ.
 \color{highlightgreen}
-Under each figure, we give the False Negative Rate (FNR), i.e. the rate of missed alarms, when the threshold is adjusted
-for a False Positive Rate, i.e. a false alarm rate, of $0.1\%$ as a reference point. We also provide the Crossover Error
-Rate (CER) at which for some threshold FPR is equal to FNR. We calculate all error rates assuming the similarity scores
-are normally distributed. We chose a reference point of $0.1\%$ FPR since it allows for a meaningful comparison based on
-the hundreds of measurements our data is based on. In a practical application, the end-to-end FPR of the alarm system
-would need to be significantly lower, probably in the range from $10^{-12}$ to $10^{-9}$ for a Mean Time Between Failures
-(MTBF) of several years. A practical system would likely include additional components filtering the output of our
-proposed baseline classifier analyzing not just the last, but multiple previous measurements. Experimentally evaluating
-a classifier to this degree of precision would require a large-scale experiment to account for the long tail of the
-error distribution.
+Under each figure, we give the False Negative Rate (FNR) when the threshold is adjusted for a False Positive Rate (FPR)
+of $0.1\%$ as a reference point\footnote{We denote the rate of missed alarms as FNR and the false alarm rate as FPR.}.
+We also provide the Crossover Error Rate (CER) at which for some threshold FPR is equal to FNR. We calculate all error
+rates assuming the similarity scores are normally distributed. We chose a reference point of $0.1\%$ FPR since it allows
+for a meaningful comparison based on the hundreds of measurements our data is based on. In a practical application, the
+end-to-end FPR of the alarm system would need to be significantly lower, probably in the range from $10^{-12}$ to
+$10^{-9}$ for a Mean Time Between Failures (MTBF) of several years. A practical system would likely include additional
+components filtering the output of our proposed baseline classifier analyzing not just the last, but multiple previous
+measurements. Experimentally evaluating a classifier to this degree of precision would require a large-scale experiment
+to account for the long tail of the error distribution.
 \color{black}
 
 Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left quadrant, 1) to four variants
