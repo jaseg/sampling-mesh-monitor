@@ -1,4 +1,4 @@
-\documentclass[submission]{iacrtrans}
+\documentclass[final]{iacrtrans}
 
 \usepackage[T1]{fontenc}
 \usepackage[
@@ -73,7 +73,7 @@
 %    all parts that are new or that have large changes \color{highlightgreen}highlighted in blue.\color{black}
 %\end{center}
 
-% FIXME maybe don't use HSM, maybe use active tamper sensing? envelope protection?
+% TODO maybe don't use HSM, maybe use active tamper sensing? envelope protection?
 
 \begin{abstract}
     Security Meshes are patterns of sensing traces covering an area that are used in Hardware Security Modules (HSMs)
@@ -153,11 +153,10 @@ specialty components.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.6\textwidth]{pic_board_setup_2_small_censored.jpg}
+    \includegraphics[width=0.6\textwidth]{pic_board_setup_2_small.jpg}
     \caption{Measurement setup. Shown are the test specimen board on the left, and the frontend board with one of the
     four pulse amplifiers in the center. The frontend board is powered through a USB-C connection, and data is sent to a
-    computer through a Single-Wire Debug (SWD) interface. The grid in the background has \qty{10}{\milli\meter} pitch.
-    Note: Author names and institutional affiliation were removed from this picture for peer review.}
+    computer through a Single-Wire Debug (SWD) interface. The grid in the background has \qty{10}{\milli\meter} pitch.}
     \label{fig_pic_board}
 \end{figure}
 
@@ -264,7 +263,6 @@ tampering is detected~\cite{
     pcisecuritystandardscouncilPaymentCardIndustry2021}.
 Like other PUF-based systems, their system naturally lacks this capability.
 
-% FIXME go more into multiplexing larger meshes in our system below
 Key differences of our system include:
 \begin{itemize}
     \item Our system can cover larger meshes without loss of precision using a single TDR frontend through multiplexing.
@@ -378,7 +376,6 @@ nanosecond-scale stimulus rise time--not by frontend time resolution. Compared w
 our proposed system is not only faster, but presents a more balanced trade-off between time resolution and analog
 bandwidth.
 
-\color{highlightgreen}
 \subsection{Device Fingerprinting through Impedance Sensing}
 
 Recently, impedance analysis on the Power Distribution Network (PDN) of PCB assemblies has been proposed as a
@@ -422,8 +419,6 @@ contrast to PDN impedance analysis techniques that need the entire PDN to be pow
 applied to protect an unpowered payload circuit. In a practical application, both PDN impedance analysis and TDR-based
 tamper-sensing meshes could complement each other to form a comprehensive defense where PDN impedance analysis checks
 the core system's integrity, with TDR-based meshes covering everything outside the purview of PDN impedance analysis.
-
-\color{black}
 
 \section{Monitoring a Security Mesh using Time Domain Reflectometry}
 
@@ -471,7 +466,6 @@ segments can be monitored by a single frontend, enabling the monitoring of arbit
 concept, in our prototype we implemented software-controllable flipping of the mesh using \partno{TMUXHS4212} bus
 multiplexers.
 
-\color{highlightgreen}
 \subsection{Typical System Design and Threat Model}
 \label{sec_system_design}
 
@@ -480,8 +474,6 @@ payload components as well as the mesh monitoring circuit. Tamper-sensing meshes
 enclose this PCB assembly from all directions. In this paper we propose meshes that have a ground plane, which would be
 on the outer side of the mesh PCBs and shield the system against electromagnetic interference. Mesh monitoring would be
 battery powered and would periodically check for tamper attempts.
-
-% FIXME cite IHSM paper
 
 We consider an attacker motivated to extract the payload's secrets. Self-destruction by deleting secrets would suffice
 as tamper response against this type of attacker. Such an attacker might want to probe parts of the payload circuit
@@ -497,12 +489,9 @@ irons, and fine tweezers. We also consider attackers that have access to more ad
 measurement equipment like high-bandwidth oscilloscopes and waveform generators. We consider attackers with standard
 equipment for mechanical manipulation including precision milling machines and cutters. We do not consider bespoke
 attack tools, or specialized tools for large-scale industrial manufacturing such as industrial drilling machines.
-% FIXME TODO Minor revision system design and threat model
-\color{black}
 
 \section{Circuit Design and Driving Approach}
 
-% FIXME peer review only, for major revision @ TCHES
 \begin{figure}
     \centering
     \hspace*{-7mm}
@@ -676,7 +665,6 @@ sampling pulse.
 
 % major revision: Since we did all measurements for the majR with only 768 samples, we re-scaled the numbers in this
 % paragraph accordingly.
-% FIXME mention in majR letter.
 In our prototype, one sweep of a \qty{141}{\nano\second} time span consisting of $768$ data points took
 \qty{825}{\milli\second} at $384\times$ oversampling. The time span corresponds to \qty{21}{\meter} of mesh length,
 which at a \qty{200}{\micro\meter} pitch corresponds to a mesh area of \qty{85}{\centi\meter\squared} and at a
@@ -707,7 +695,6 @@ not need to characterize or de-embed the transfer function of our TDR frontend.
 In the second phase, we evaluated the actual performance of our design on a set of 500 mesh test specimens of different
 layouts and structure sizes. We include detailed performance figures for a simple baseline classifier for attack
 detection.
-% FIXME more intro here
 
 \subsection{Rise Time Measurement}
 
@@ -1036,7 +1023,7 @@ bottom right (4) is expected, and indicates that mutliple experiment (attack) me
 Classification performance is indicated by the top right (2) and bottom left (3) quadrants, which indicate
 misclassification probability. Misclassification is likely when the top left (1) and top right (2) quadrants look alike.
 Misclassification is less likely the more they differ.
-\color{highlightgreen}
+
 Under each figure, we give the False Negative Rate (FNR) when the threshold is adjusted for a False Positive Rate (FPR)
 of $0.1\%$ as a reference point\footnote{We denote the rate of missed alarms as FNR and the false alarm rate as FPR.}.
 We also provide the Crossover Error Rate (CER) at which for some threshold FPR is equal to FNR. We calculate all error
@@ -1047,7 +1034,6 @@ $10^{-9}$ for a Mean Time Between Failures (MTBF) of several years. A practical 
 components filtering the output of our proposed baseline classifier analyzing not just the last, but multiple previous
 measurements. Experimentally evaluating a classifier to this degree of precision would require a large-scale experiment
 to account for the long tail of the error distribution.
-\color{black}
 
 Figure~\ref{fig_layout_identity_layout} compares several copies of the same mesh (top left quadrant, 1) to four variants
 that have the same pitch and area, but different randomized layout of the traces (bottom right). Our classifier can
@@ -1240,11 +1226,9 @@ FPR. Since such patches only affect few data points along the reflection respons
 classifier that uses the maximum difference across all channels instead of the averaged Pearson Correlation Coefficient
 to improve sensitivity to the subtle, localized effects of such patches. Using this classifier variant, FNR improves to
 51.1\%, detecting half of all attack attempts in a single measurement when fixing the false alarm rate at 0.1\%.
-\color{highlightgreen}
 In a practical application, detection rates would be higher since the system would be able to observe the entire process
 of patching. As shown in Section~\ref{sec_advanced_attack}, soldering for instance is highly detectable, while here we
 only benchmark a momentary snapshot after the patch was completed.
-\color{black}
 
 \begin{figure}
     \centering
@@ -1272,10 +1256,8 @@ Figure~\ref{fig_env_effects} shows the results of a series of experiments evalua
 such as handling or electromagnetic interference on our measurements. Figure~\ref{fig_env_effects_time} shows our
 measurements exhibit little time drift (CER=60\%). Figure~\ref{fig_env_effects_touch} shows that touching the mesh is
 easily detected (FNR=0\%), but the system is insensitive to touching other parts of the circuit.
-\color{highlightgreen}
 We classify touching the mesh as an attack since the mesh would be shielded from touch by the ground plane in a
 practical scenario (cf.\ Section~\ref{sec_system_design}).
-\color{black}
 
 As shown in Figure~\ref{fig_env_effects_heat}, heating the mesh distors its measurements (FNR=0.6\%, CER=0\%).
 Figure~\ref{fig_tempco_time} shows the difference caused by heating the mesh to \qty{70}{\degree C} in the time domain.
@@ -1365,10 +1347,6 @@ thinking about attacker capabilities. Applying their taxonomy, our monitoring sy
 a patching attack from a \emph{skilled} attacker to an \emph{expert} attacker, and the equipment requirement from
 \emph{standard} equipment to \emph{bespoke} equipment.
 
-% fig_covar_short_within_0.3.pdf % FIXME repeat these runs, we have conflicting data. Do runs in both .3 and .4, .4
-% seems to work better.
-
-% FIXME peer review only, for major revision @ TCHES
 \section{Future Work}
 
 %\paragraph{Design variants.} We found that the timing jitter of our sampling frontend is low enough to reach the
@@ -1424,9 +1402,7 @@ applications for security meshes made using low-cost, standard PCB manufacturing
 This is version \texttt{\input{version.tex}\unskip} of this paper, generated on \today. The git repository with the
 LaTeX source for this paper, all hardware design files, and firmware and analysis source code can be found at:
 
-\center{Note: URL elided for peer review. Source code and design files have been uploaded as supplementary material. A
-link to the raw data has been provided to the Editors-In-Chief as this was a larger file.}
-% \center{\url{https://git.jaseg.de/ihsm-sampling-mesh-monitor-hw.git}}
+\center{\url{https://git.jaseg.de/ihsm-sampling-mesh-monitor-hw.git}}
 \FloatBarrier
 
 \printbibliography[heading=bibintoc]
