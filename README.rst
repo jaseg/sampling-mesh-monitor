@@ -100,8 +100,8 @@ PCB design folder structure
     measurements, you can just omit the driver IC included in the design and bridge it. This will drive the mesh
     directly from the ``74LVC2G157`` gates, which is enough for some basic measurements.
 
-``schematics.pdf``
-    PDF export of the schematic of the board.
+``schematics/*.pdf``
+    PDF export of the schematics of the board.
 
 Firmware folder structure
 -------------------------
