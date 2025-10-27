@@ -3,10 +3,21 @@ High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time Domain Refl
 =========================================================================================
 
 This repository contains all sources for our paper "High Fidelity Security Mesh Monitoring using Low-Cost, Embedded Time
-Domain Reflectometry" to be published in CHES 2026/1 (`preprint on eprint <https://eprint.iacr.org/2025/1962>`__). The
-canonical hosting location for this repo is `https://git.jaseg.de/sampling-mesh-monitor.git`__. For comments or
+Domain Reflectometry" to be published in CHES 2026/1 (`preprint on eprint <https://eprint.iacr.org/2025/1962>`__). You
+can find a brief overview of the project `on Jan's blog <https://jaseg.de/blog/paper-sampling-mesh-monitor/>`__.
+
+The canonical hosting location for this repo is https://git.jaseg.de/sampling-mesh-monitor.git . For comments or
 questions, please reach out to Jan via `email <mailto:research@jaseg.de>`__ or `on mastodon
 <https://chaos.social/@jaseg>`__.
+
+.. figure:: paper/pic_board_setup_2_small.jpg
+    :align: center
+    :width: 400px
+    :alt: A PCB with several chips sitting on a table with another PCB with only traces on it plugged in through a
+          board-edge connector. The first PCB looks not very complex.
+
+    The final setup. On the right is the measurement board, and on the left is the mesh test specimen plugged in. In a
+    real application, you would integrate both into your target circuit.
 
 Paper abstract
 --------------
@@ -126,4 +137,4 @@ other files:
     firmware source is self-contained.
 
 .. _KiCad: https://www.kicad.org/
-.. _gebrv: https://gerbv.github.io/
+.. _gerbv: https://gerbv.github.io/
