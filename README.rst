@@ -55,7 +55,12 @@ Repo structure
 
 ``analysis``
     All raw data, as well as the Jupyter notebooks used for analysis and plotting. By running these notebooks, you can
-    re-run the analysis, and re-export all plots in the paper.
+    re-run the analysis, and re-export all plots in the paper. The raw data is contained in JSON files, one per
+    measurement series. Each JSON file contains some metadata describing the experiment and the settings used during the
+    experiment, a set of calibration runs with the target specimen disconnected using the board's routing switches, and
+    a full set of 12 measurement arrays consisting of a mean and standard deviation for each data point. To save space,
+    batches of these JSON files are aggregated into zip archives. The analysis Jupyter notebooks will automatically load
+    and decode the data from these zip archives when run.
 
 ``paper``
     The source of the paper, as well as exports of all plots.
