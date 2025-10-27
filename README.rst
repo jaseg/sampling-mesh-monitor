@@ -29,10 +29,10 @@ Paper abstract
     cost efficiency. In this paper, we present an embeddable security mesh monitoring circuit constructed from low-cost,
     standard components that utilizes Time Domain Reflectometry (TDR) to create a unique fingerprint of a mesh. Our
     approach is both low-cost and precise, and enables the use of inexpensive standard Printed Circuit Boards (PCBs) as
-    security mesh material. We demonstrate a working prototype of our TDR circuit costing less than \price{10}{\euro} in
-    components that achieves both time resolution and rise time better than \qty{200}{\pico\second}---a $25\times$
-    improvement over previous work. We demonstrate a simple classifier that detects several types of advanced attacks
-    such as probing using an oscilloscope probe or micro-soldering attacks with no false negatives.
+    security mesh material. We demonstrate a working prototype of our TDR circuit costing less than 10 € in components
+    that achieves both time resolution and rise time better than 200 ps—a 25 × improvement over previous work. We
+    demonstrate a simple classifier that detects several types of advanced attacks such as probing using an oscilloscope
+    probe or micro-soldering attacks with no false negatives.
 
 Repo structure
 --------------
