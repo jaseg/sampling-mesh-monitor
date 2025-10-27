@@ -53,7 +53,6 @@ Repo structure
     to the board through GDB and exposes a local web server for controlling the board, monitoring the measurements in
     real time, and capturing data.
 
-
 ``analysis``
     All raw data, as well as the Jupyter notebooks used for analysis and plotting. By running these notebooks, you can
     re-run the analysis, and re-export all plots in the paper.
@@ -61,8 +60,22 @@ Repo structure
 ``paper``
     The source of the paper, as well as exports of all plots.
 
-Opening the PCB designs
------------------------
+Running the analysis
+--------------------
+
+To re-run the analysis, first install `Jupyter Lab <https://jupyter.org/>`__ and the `numpy <https://numpy.org/>`__ and
+`scipy <https://scipy.org/>`__ python packages. If you're running in a virtualenv or on a weird platform like Windows or
+MacOS, make sure that jupyter and pip agree where your python lives and the packages get installed in the right place.
+
+Afterwards, just run ``jupyter lab`` in the ``analysis/jupyter_notebooks`` directory. You can then open any of the
+notebooks through the left side panel and re-run the analysis within. Make sure you run all of the setup code at the top
+of the notebook once before trying to run the analaysis code in the cells below.
+
+The notebooks will display the plots and results inside Jupyter Lab and will also automatically export the plots to the
+``paper`` directory of your clone of the git repository.
+
+PCB Designs
+-----------
 
 This repo includes both the raw CAD files of the PCBs, as well as exported manufacturing data for easier viewing if you
 don't have KiCad installed. The schematics are included as PDF exports.
@@ -103,8 +116,44 @@ PCB design folder structure
 ``schematics/*.pdf``
     PDF export of the schematics of the board.
 
-Firmware folder structure
--------------------------
+Firmware
+--------
+
+The firmware and associated scripts are contained in the ``firmware`` directory.
+
+Building the firmware
+.....................
+
+If you have an ARM GCC toolchain installed, you can build the firmware by running ``make`` in this directory. During
+build, the makefile exports some diagnostic information about the build artifacts. For that to work, you have to have
+the `cxxfilt python package <https://pypi.org/project/cxxfilt/>`__ installed. If the package can't be found, the
+firmware will still be built, but you will get a crash in the makefile during the analysis step that runs after the
+build was successful.
+
+Running experiments
+...................
+
+To run an experiment, connect the board to power via USB, and to your computer through an SWD debug adapter. We used
+cheap STLinkV2 clones, if you have a different adapter you'll have to modify the ``.gdbinit`` script accordingly. After
+connecting the board, open three terminal windows running the following three commands one per window, in this order.
+
+1. ``openocd -f openocd.cfg``
+2. ``arm-none-eabi-gdb build/main.elf``
+3. ``python adc_serve.py``
+
+This will connect to the board and start the realtime control and measurement web interface. You can open the web
+interface at the location printed by ``adc_serve.py`` on startup.
+
+If you're cheap like us and use a STLinkV2 clone SWD adapter, it may be that openocd takes a few (maybe up to five or
+so) attempts to start up and connect to the microcontroller. After starting, the GDB terminal should start printing a
+few lines of output every 30 seconds or so when it saves a measurement series. If GDB starts to hang, it might be that
+you bumped a cable or accidentially shorted something on the board. To re-start, you first kill gdb (Ctrl+C, then
+Ctrl+D, then Ctrl+D again), then you stop openocd (Ctrl+C, kill it if it doesn't stop in a few seconds), then you
+restart them in the order above. You don't have to restart the web interface, just adjust any of the knobs to overwrite
+the default control settings again.
+
+Firmware Folder Structure
+.........................
 
 ``src/main.c``
     The source code of the mainboard firmware. This firmware captures data into internal buffers, which are read out
