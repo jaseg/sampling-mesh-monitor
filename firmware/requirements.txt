@@ -1,0 +1,8 @@
+numpy
+flask
+flask_socketio
+inotify
+cxxfilt
+pyelftools
+matplotlib
+libarchive

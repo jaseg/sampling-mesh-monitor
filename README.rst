@@ -74,7 +74,9 @@ MacOS, make sure that jupyter and pip agree where your python lives and the pack
 
 Afterwards, just run ``jupyter lab`` in the ``analysis/jupyter_notebooks`` directory. You can then open any of the
 notebooks through the left side panel and re-run the analysis within. Make sure you run all of the setup code at the top
-of the notebook once before trying to run the analaysis code in the cells below.
+of the notebook once before trying to run the analaysis code in the cells below. The analysis code only uses standard
+scientific python packages that you probably already have installed. If you get an ``ImportError``, make sure the
+packages listed in the file ``analysis/jupyter_notebooks/requirements.txt`` are installed.
 
 The notebooks will display the plots and results inside Jupyter Lab and will also automatically export the plots to the
 ``paper`` directory of your clone of the git repository.
@@ -137,6 +139,16 @@ build was successful.
 
 Running experiments
 ...................
+
+To run an experiment, you need a measurement board and a test coupon. You also need the following software installed on
+your machine:
+
+* ``openocd``
+* ``arm-none-eabi-gdb`` (another ABI arm gdb should work too)
+* The python packages listed in ``firmware/requirements.txt``
+
+To build the firmware, you additionally need a ARM toolchain installed. By default, the makefile assumes gcc/gnu
+binutils, but you can override that if you prefer to use LLVM.
 
 To run an experiment, connect the board to power via USB, and to your computer through an SWD debug adapter. We used
 cheap STLinkV2 clones, if you have a different adapter you'll have to modify the ``.gdbinit`` script accordingly. After
