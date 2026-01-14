@@ -40,7 +40,8 @@ Repo structure
 ``main_pcb``
     KiCad design files, exports and manufacturing files for the main circuit board. This board contains the measurement
     circuit, and has a connector for test coupons to be inserted. Data is read out throught the SWD interface using an
-    SWD adapter. The board is a 6-layer
+    SWD adapter. The board is a 6-layer PCB. The circuit is described in detail in the paper. It is based around a
+    ``STM32G474RE`` ARM microcontroller.
 
 ``test_coupons``
     KiCad design files, exports and manufacturing files for the test coupon PCBs. The coupons are four-layer boards.
@@ -48,7 +49,7 @@ Repo structure
     edge connectors at the coupon's corners.
 
 ``firmware``
-    Source code for the firmware as well as tooling for running the experiments. The firmware is written in C, and
+    Source code for the board firmware as well as tooling for running the experiments. The firmware is written in C, and
     you'll need a standard ARM GCC/binutils toolchain to build it. The experiment tool is a python script that connects
     to the board through GDB and exposes a local web server for controlling the board, monitoring the measurements in
     real time, and capturing data.
