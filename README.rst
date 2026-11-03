@@ -64,7 +64,10 @@ Repo structure
     and decode the data from these zip archives when run.
 
 ``paper``
-    The source of the paper, as well as exports of all plots.
+    The source of the accepted TCHES 2026-01 paper, as well as exports of all plots.
+
+``talk``
+    The presentation slides of the talk at CHES 2026 in Antalya, Türkiye.
 
 Running the analysis
 --------------------
